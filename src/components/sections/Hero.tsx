@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import App from "@/components/band/App";
+import dynamic from "next/dynamic";
 import TextType from "@/components/band/TextType";
+
+// Three.js uses WebGL/browser APIs — must be loaded client-side only
+const App = dynamic(() => import("@/components/band/App"), { ssr: false });
 
 const skills = ["Typescript", "React.js", "Tailwind"];
 

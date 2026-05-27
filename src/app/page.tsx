@@ -1,23 +1,31 @@
 import { createClient } from "@/utils/supabase/server";
-import PageClient from "./PageClient"; // Or wherever your client view component is
+import PageClient from "./PageClient";
 
-// 1. Ensure the main component function is async
 export default async function Home() {
-  
-  // 2. FIX: Add 'await' right here to unwrap the client instance
-  const supabase = await createClient();
+  let projects: any[] = [];
+  let technologies: any[] = [];
 
-  // 3. Now you can query data cleanly
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('*, technologies(*)')
-    .order('id', { ascending: true });
+  try {
+    const supabase = await createClient();
 
-  const { data: technologies } = await supabase
-    .from('technologies')
-    .select('*');
+    const [projectsRes, technologiesRes] = await Promise.all([
+      supabase
+        .from('projects')
+        .select('*, technologies(*)')
+        .order('id', { ascending: true }),
+      supabase
+        .from('technologies')
+        .select('*'),
+    ]);
+
+    projects = projectsRes.data || [];
+    technologies = technologiesRes.data || [];
+  } catch (error) {
+    console.error('Failed to fetch portfolio data:', error);
+    // Render page with empty data rather than crashing
+  }
 
   return (
-    <PageClient projects={projects || []} technologies={technologies || []} />
+    <PageClient projects={projects} technologies={technologies} />
   );
 }
