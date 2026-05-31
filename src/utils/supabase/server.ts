@@ -6,8 +6,11 @@ export const createClient = async () => {
   try {
     cookieStore = await cookies();
   } catch {
-    // cookies() can throw outside of a request context
-    cookieStore = { get: () => undefined, set: () => {}, delete: () => {} };
+    cookieStore = {
+      get: () => undefined,
+      set: () => {},
+      delete: () => {},
+    };
   }
 
   return createServerClient(
@@ -16,23 +19,15 @@ export const createClient = async () => {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get?.(name)?.value
+          return cookieStore.get?.(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set?.({ name, value, ...options })
-          } catch {
-            // Ignored if called from a Server Component
-          }
+          try { cookieStore.set?.({ name, value, ...options }); } catch {}
         },
         remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set?.({ name, value: '', ...options })
-          } catch {
-            // Ignored if called from a Server Component
-          }
+          try { cookieStore.set?.({ name, value: '', ...options }); } catch {}
         },
       },
     }
-  )
-}
+  );
+};

@@ -7,21 +7,24 @@ export function createSupabaseBrowser() {
   );
 }
 
-// Lazy singleton — only instantiated when first accessed (client-side)
-let _supabase: ReturnType<typeof createSupabaseBrowser> | null = null;
+// Lazy singleton — created only in browser, never during SSR
+let _client: ReturnType<typeof createBrowserClient> | null = null;
 
-export const getSupabase = () => {
-  if (!_supabase) {
-    _supabase = createSupabaseBrowser();
+function getClient() {
+  if (typeof window === "undefined") {
+    // Return a no-op proxy during SSR so imports don't crash
+    return new Proxy({} as ReturnType<typeof createBrowserClient>, {
+      get: () => () => Promise.resolve({ data: null, error: null }),
+    });
   }
-  return _supabase;
-};
+  if (!_client) {
+    _client = createSupabaseBrowser();
+  }
+  return _client;
+}
 
-// Re-export as `supabase` for backward compat — but as a Proxy so it is
-// only initialised when a property is actually accessed (i.e. at runtime,
-// never during SSR module evaluation).
-export const supabase = new Proxy({} as ReturnType<typeof createSupabaseBrowser>, {
+export const supabase = new Proxy({} as ReturnType<typeof createBrowserClient>, {
   get(_target, prop) {
-    return (getSupabase() as any)[prop];
+    return (getClient() as any)[prop];
   },
 });

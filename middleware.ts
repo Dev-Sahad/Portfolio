@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Only run session update for admin routes
-  if (request.nextUrl.pathname.startsWith('/admin') || 
-      request.nextUrl.pathname.startsWith('/auth')) {
+  // Only protect admin and auth routes
+  if (
+    request.nextUrl.pathname.startsWith('/admin') ||
+    request.nextUrl.pathname.startsWith('/auth')
+  ) {
     try {
       const { updateSession } = await import('@/utils/supabase/middleware')
       return await updateSession(request)
@@ -15,8 +17,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/auth/:path*',
-  ],
+  matcher: ['/admin/:path*', '/auth/:path*'],
 }
