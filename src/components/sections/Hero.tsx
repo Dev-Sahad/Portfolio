@@ -1,12 +1,54 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import TextType from "@/components/band/TextType";
 
 // Three.js uses WebGL/browser APIs — must be loaded client-side only
 const App = dynamic(() => import("@/components/band/App"), { ssr: false });
+
+class AppErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("3D canvas error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white",
+            pointerEvents: "none",
+          }}
+        >
+          <p style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: 12 }}>
+            3D preview unavailable
+          </p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const skills = ["Typescript", "React.js", "Tailwind"];
 
@@ -63,7 +105,11 @@ export default function Hero({ showApp }: HeroProps) {
           pointerEvents: showApp ? "auto" : "none",
         }}
       >
-        {showApp && <App />}
+        {showApp && (
+          <AppErrorBoundary>
+            <App />
+          </AppErrorBoundary>
+        )}
       </div>
 
       {/* TEXT */}
