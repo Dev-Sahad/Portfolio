@@ -240,41 +240,27 @@ export default function About() {
               }}
             >
               {/* DOWNLOAD CV */}
-              <a
-                href="None"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none" }}
+              <button
+                disabled
+                title="CV coming soon"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "10px 18px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  background: "rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "not-allowed",
+                  opacity: 0.65,
+                }}
               >
-                <button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "10px 18px",
-                    borderRadius: 8,
-                    border: "1px solid white",
-                    background: "white",
-                    color: "black",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "transform 0.25s ease, opacity 0.25s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform =
-                      "translateY(-2px) scale(1.03)";
-                    e.currentTarget.style.opacity = "0.92";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0) scale(1)";
-                    e.currentTarget.style.opacity = "1";
-                  }}
-                >
-                  <FileText size={14} />
-                  Download CV
-                </button>
-              </a>
+                <FileText size={14} />
+                Download CV
+              </button>
 
               {/* VIEW PROJECTS */}
               <button

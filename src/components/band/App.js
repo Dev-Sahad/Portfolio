@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { useEffect, useRef, useState, useMemo } from 'react'
+
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Text, TrackballControls } from '@react-three/drei'
 import { useRouter } from 'next/navigation'
@@ -132,32 +133,6 @@ function Cloud({ count = 4, radius = 20 }) {
   ))
 }
 
-const Spline = () => {
-  const [curve] = useState(() => {
-    let curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(1, 1, 1),
-      new THREE.Vector3(1, 1, 1),
-      new THREE.Vector3(1, 1, 1),
-      new THREE.Vector3(1, 1, 1),
-      new THREE.Vector3(1, 1, 1),
-      new THREE.Vector3(1, 1, 1),
-    ])
-    return curve
-  })
-
-  const [texture] = useState(() => {
-    return new THREE.TextureLoader().load(
-      'https://fiqry.dev/images/band-texture.png',
-    )
-  })
-
-  return (
-    <mesh>
-      <tubeGeometry args={[curve, 64, 0.001, 2, false]} />
-      <meshStandardMaterial />
-    </mesh>
-  )
-}
 
 export default function App() {
   return (

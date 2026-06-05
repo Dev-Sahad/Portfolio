@@ -20,18 +20,19 @@ interface PageClientProps {
 
 export default function PageClient({ projects, technologies }: PageClientProps) {
   const [showWelcome, setShowWelcome] = useState(false)
-  const [showApp, setShowApp] = useState(true)
+  const [showApp, setShowApp] = useState(false)
 
   useEffect(() => {
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
-    if (currentHash === '#portfolio') {
+    // Don't show intro when navigating to a specific section
+    if (currentHash && currentHash !== '') {
+      setShowApp(true)
       return
     }
 
     setShowWelcome(true)
-    setShowApp(false)
 
     const navEntries = performance.getEntriesByType('navigation')
     const navigationType =

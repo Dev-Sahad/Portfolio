@@ -228,7 +228,7 @@ export default function Hero({ showApp }: HeroProps) {
           style={{
             marginBottom: 28,
             width: "100%",
-            maxWidth: 460, // batas lebar biar jadi 3 baris
+            maxWidth: 460,
           }}
         >
           <p
@@ -237,11 +237,10 @@ export default function Hero({ showApp }: HeroProps) {
               color: "var(--text-secondary)",
               lineHeight: 1.9,
               letterSpacing: "0.01em",
-              textWrap: "pretty",
             }}
           >
             Creating modern websites with a clean, responsive, and
-elegant appearance. Transforming ideas and designs into engaging and user-friendly digital experiences.
+            elegant appearance. Transforming ideas and designs into engaging and user-friendly digital experiences.
           </p>
         </motion.div>
 
@@ -320,7 +319,8 @@ elegant appearance. Transforming ideas and designs into engaging and user-friend
           </span>
         </motion.div>
       </div>
-      {/* SCROLL INDICATOR */}
+
+      {/* SCROLL INDICATOR — single instance, fixed */}
       <motion.div
         initial={false}
         animate={startAnim ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -329,65 +329,41 @@ elegant appearance. Transforming ideas and designs into engaging and user-friend
           delay: 1.2,
           ease: [0.22, 1, 0.36, 1],
         }}
-        style={{
-          position: "absolute",
-          bottom: 38,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 20,
-          pointerEvents: "none",
-        }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
       >
-        {/* SCROLL INDICATOR */}
-<motion.div
-  initial={false}
-  animate={
-    startAnim
-      ? { opacity: 1, y: 0 }
-      : { opacity: 0, y: 40 }
-  }
-  transition={{
-    duration: 0.9,
-    delay: 1.2,
-    ease: [0.22, 1, 0.36, 1],
-  }}
-  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-full flex justify-center"
->
-  <motion.div
-    animate={{
-      y: [0, 6, 0],
-      opacity: [1, 0.65, 1],
-    }}
-    transition={{
-      duration: 1.4,
-      repeat: Infinity,
-      ease: 'easeInOut',
-    }}
-    className="flex items-center justify-center gap-2"
-  >
-    <span
-      style={{
-        fontFamily: "'DM Mono', monospace",
-        fontSize: 11,
-        letterSpacing: '0.2em',
-        textTransform: 'uppercase',
-        color: 'var(--text-muted)',
-      }}
-    >
-      Scroll
-    </span>
-
-    <span
-      style={{
-        fontSize: 16,
-        color: 'var(--text-secondary)',
-        lineHeight: 1,
-      }}
-    >
-      ↓
-    </span>
-  </motion.div>
-</motion.div>
+        <motion.div
+          animate={{
+            y: [0, 6, 0],
+            opacity: [1, 0.65, 1],
+          }}
+          transition={{
+            duration: 1.4,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="flex items-center justify-center gap-2"
+        >
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 11,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "var(--text-muted)",
+            }}
+          >
+            Scroll
+          </span>
+          <span
+            style={{
+              fontSize: 16,
+              color: "var(--text-secondary)",
+              lineHeight: 1,
+            }}
+          >
+            ↓
+          </span>
+        </motion.div>
       </motion.div>
     </section>
   );

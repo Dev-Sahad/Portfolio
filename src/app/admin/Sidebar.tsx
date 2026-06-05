@@ -9,10 +9,12 @@ import {
   Layers,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 const menus = [
   {
@@ -42,6 +44,14 @@ const menus = [
   },
 ];
 
+// Fix: use startsWith so /admin/dashboard and /admin also match Dashboard
+function isActive(menuPath: string, currentPath: string): boolean {
+  if (menuPath === "/admin") {
+    return currentPath === "/admin" || currentPath === "/admin/dashboard";
+  }
+  return currentPath.startsWith(menuPath);
+}
+
 const SidebarContent = ({
   hideTitle = false,
   onLinkClick,
@@ -50,6 +60,12 @@ const SidebarContent = ({
   onLinkClick?: () => void;
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+  };
 
   return (
     <>
@@ -64,7 +80,7 @@ const SidebarContent = ({
         <nav className="space-y-2">
           {menus.map((menu, i) => {
             const Icon = menu.icon;
-            const active = pathname === menu.path;
+            const active = isActive(menu.path, pathname);
 
             return (
               <Link
@@ -132,8 +148,17 @@ const SidebarContent = ({
       </div>
 
       {/* BOTTOM */}
-      <div className="text-xs text-white/35 tracking-wide">
-        © 2026 Admin
+      <div className="space-y-3">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition text-sm"
+        >
+          <LogOut size={16} />
+          <span>Sign Out</span>
+        </button>
+        <div className="text-xs text-white/35 tracking-wide px-1">
+          © 2026 Admin
+        </div>
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion, Variants } from 'framer-motion'
 import {
   Send,
@@ -7,6 +8,8 @@ import {
   Mail,
   MessageSquare,
   ArrowUpRight,
+  CheckCircle,
+  AlertCircle,
 } from 'lucide-react'
 
 import {
@@ -42,31 +45,59 @@ const fieldVariants: Variants = {
 const socialLinks = [
   {
     title: 'Instagram',
-    user: '@instagram',
+    user: '@sahad_____sha',
     icon: FaInstagram,
     link: 'https://www.instagram.com/sahad_____sha/',
   },
   {
     title: 'Youtube',
-    user: '@youtube',
+    user: '@zettaajah',
     icon: FaYoutube,
     link: 'https://youtube.com/@zettaajah?si=QRjJGD4zCQG8aIHX',
   },
   {
     title: 'Github',
-    user: '@github',
+    user: '@Dev-Sahad',
     icon: FaGithub,
     link: 'https://github.com/Dev-Sahad',
   },
   {
     title: 'TikTok',
-    user: '@tiktok',
+    user: '@itsme.ikky_',
     icon: FaTiktok,
     link: 'https://www.tiktok.com/@itsme.ikky_?_r=1&_t=ZS-95yAYr5PHUb',
   },
 ]
 
 export default function ContactForm() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
+  const handleSend = () => {
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 2500)
+      return
+    }
+
+    setStatus('sending')
+
+    // Open mailto as the send mechanism
+    const subject = encodeURIComponent(`Portfolio Contact from ${name}`)
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)
+    window.open(`mailto:muhammadsahad@example.com?subject=${subject}&body=${body}`, '_blank')
+
+    setTimeout(() => {
+      setStatus('sent')
+      setName('')
+      setEmail('')
+      setMessage('')
+      setTimeout(() => setStatus('idle'), 3000)
+    }, 400)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -40 }}
@@ -84,7 +115,7 @@ export default function ContactForm() {
         transition={{ delay: 0.05 }}
       >
         <h2 className="text-2xl md:text-3xl font-bold mb-3">
-          Hubungi Saya
+          Contact Me
         </h2>
 
         <p className="text-sm text-white/50 mb-7">
@@ -92,6 +123,29 @@ export default function ContactForm() {
           discuss ideas, or simply say hello.
         </p>
       </motion.div>
+
+      {/* STATUS MESSAGES */}
+      {status === 'sent' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 mb-4 px-4 py-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-300 text-sm"
+        >
+          <CheckCircle size={16} />
+          Message ready — your email client should have opened.
+        </motion.div>
+      )}
+
+      {status === 'error' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 mb-4 px-4 py-3 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-300 text-sm"
+        >
+          <AlertCircle size={16} />
+          Please fill in all fields before sending.
+        </motion.div>
+      )}
 
       {/* FORM */}
       <div className="space-y-4">
@@ -104,9 +158,11 @@ export default function ContactForm() {
           transition={{ delay: 0.1 }}
         >
           <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
 
             <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
             />
@@ -122,9 +178,12 @@ export default function ContactForm() {
           transition={{ delay: 0.16 }}
         >
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
 
             <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Your Email"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
             />
@@ -140,10 +199,12 @@ export default function ContactForm() {
           transition={{ delay: 0.22 }}
         >
           <div className="relative">
-            <MessageSquare className="absolute left-4 top-5 text-white/40" />
+            <MessageSquare className="absolute left-4 top-5 text-white/40" size={16} />
 
             <textarea
               rows={5}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               placeholder="Your Message"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none resize-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
             />
@@ -157,15 +218,14 @@ export default function ContactForm() {
           whileInView="show"
           viewport={{ once: false }}
           transition={{ delay: 0.28 }}
-          whileHover={{
-            scale: 1.06,
-            transition: { duration: 0.12 },
-          }}
+          whileHover={{ scale: 1.03, transition: { duration: 0.12 } }}
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-2xl py-4 bg-white/10 border border-white/10 flex items-center justify-center gap-2"
+          onClick={handleSend}
+          disabled={status === 'sending' || status === 'sent'}
+          className="w-full rounded-2xl py-4 bg-white/10 border border-white/10 flex items-center justify-center gap-2 transition disabled:opacity-60"
         >
           <Send size={16} />
-          Send Message
+          {status === 'sending' ? 'Opening...' : status === 'sent' ? 'Sent!' : 'Send Message'}
         </motion.button>
       </div>
 
@@ -182,9 +242,9 @@ export default function ContactForm() {
           Connect With Me
         </motion.p>
 
-        {/* LINKEDIN */} 
+        {/* LINKEDIN */}
         <motion.a
-          href="https://www.linkedin.com/in/muhammad-sahad-78b827352"  
+          href="https://www.linkedin.com/in/muhammad-sahad-78b827352"
           target="_blank"
           rel="noopener noreferrer"
           variants={fieldVariants}
@@ -192,17 +252,13 @@ export default function ContactForm() {
           whileInView="show"
           viewport={{ once: false }}
           transition={{ delay: 0.36 }}
-          whileHover={{
-            scale: 1.05,
-            transition: { duration: 0.12 },
-          }}
+          whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
           className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-4 mb-3 flex items-center justify-between"
         >
           <div className="absolute inset-0 bg-white/[0.04] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700 ease-out" />
 
           <div className="relative z-10 flex items-center gap-3">
             <FaLinkedinIn />
-
             <div>
               <p className="text-sm font-medium">LinkedIn</p>
               <p className="text-xs text-white/35">@muhammad-sahad</p>
@@ -231,25 +287,17 @@ export default function ContactForm() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: false }}
-                transition={{
-                  delay: 0.42 + i * 0.05,
-                }}
-                whileHover={{
-                  scale: 1.06,
-                  transition: { duration: 0.12 },
-                }}
+                transition={{ delay: 0.42 + i * 0.05 }}
+                whileHover={{ scale: 1.06, transition: { duration: 0.12 } }}
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-3 flex items-center justify-between"
               >
                 <div className="absolute inset-0 bg-white/[0.04] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700 ease-out" />
 
                 <div className="relative z-10 flex items-center gap-3">
                   <Icon />
-
                   <div>
                     <p className="text-sm">{item.title}</p>
-                    <p className="text-[11px] text-white/35">
-                      {item.user}
-                    </p>
+                    <p className="text-[11px] text-white/35">{item.user}</p>
                   </div>
                 </div>
 
