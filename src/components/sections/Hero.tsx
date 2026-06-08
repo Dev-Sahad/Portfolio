@@ -96,13 +96,17 @@ export default function Hero({ showApp }: HeroProps) {
         overflow: "hidden",
       }}
     >
-      {/* APP LAYER */}
+      {/* APP LAYER — right half only, never blocks scroll or clicks */}
       <div
         style={{
           position: "absolute",
-          inset: 0,
-          zIndex: 40,
-          pointerEvents: showApp ? "auto" : "none",
+          top: 0,
+          right: 0,
+          width: "55%",
+          height: "100%",
+          zIndex: 2,
+          pointerEvents: "none",
+          opacity: 0.7,
         }}
       >
         {showApp && (

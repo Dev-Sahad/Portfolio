@@ -1,41 +1,17 @@
 import * as THREE from 'three'
-import { useEffect, useRef, useState, useMemo } from 'react'
-
+import { useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Text, TrackballControls } from '@react-three/drei'
+import { Text } from '@react-three/drei'
 import { useRouter } from 'next/navigation'
 
-function Word({ children, ...props }) {
+function Word({ children, position, isLink, path }) {
   const color = new THREE.Color()
-  const fontProps = {
-    fontSize: 2.5,
-    letterSpacing: -0.05,
-    lineHeight: 1,
-    'material-toneMapped': false,
-  }
   const ref = useRef()
   const [hovered, setHovered] = useState(false)
   const router = useRouter()
 
-  const over = (e) => (e.stopPropagation(), setHovered(true))
-  const out = () => setHovered(false)
-
-  const handleClick = () => {
-    if (props.isLink) {
-      router.push(props.path)
-    }
-  }
-
-  useEffect(() => {
-    if (hovered) {
-      document.body.style.cursor = 'pointer'
-    }
-    return () => (document.body.style.cursor = 'auto')
-  }, [hovered])
-
   useFrame(({ camera }) => {
     if (!ref.current) return
-
     ref.current.quaternion.copy(camera.quaternion)
     if (ref.current.material) {
       ref.current.material.color.lerp(
@@ -48,61 +24,33 @@ function Word({ children, ...props }) {
   return (
     <Text
       ref={ref}
-      onPointerOver={over}
-      onPointerOut={out}
-      onClick={handleClick}
-      {...props}
-      {...fontProps}
+      position={position}
+      fontSize={2.2}
+      letterSpacing={-0.05}
+      lineHeight={1}
+      material-toneMapped={false}
+      onPointerOver={(e) => { e.stopPropagation(); setHovered(true); if (isLink) document.body.style.cursor = 'pointer' }}
+      onPointerOut={() => { setHovered(false); document.body.style.cursor = 'auto' }}
+      onClick={() => { if (isLink && path) { if (path.startsWith('http')) window.open(path, '_blank'); else router.push(path) } }}
     >
       {children}
     </Text>
   )
 }
 
-const japanese = ['設計', '開発']
-const english = ['Design', 'Development']
-const links = [
-  {
-    name: 'About',
-    path: '/#about',
-  },
-  {
-    name: 'Portfolio',
-    path: '/#portfolio',
-  },
-  {
-    name: 'Contact',
-    path: '/#contact',
-  },
-]
-const socials = [
-  {
-    name: 'Github',
-    url: 'https://github.com/Dev-Sahad',
-  },
-  {
-    name: 'Linkedin',
-    url: 'https://www.linkedin.com/in/muhammad-sahad-78b827352',
-  },
-  {
-    name: 'Instagram',
-    url: 'https://www.instagram.com/sahad_____sha',
-  },
-]
-
-const combined = [...links, ...socials]
 const cloudWords = [
-  ...japanese.map((text, i) => ({ text, isLink: false, index: i })),
-  ...english.map((text, i) => ({ text, isLink: false, index: i + 2 })),
-  ...combined.map((item, i) => ({
-    text: item.name,
-    isLink: true,
-    path: item.path || item.url,
-    index: i + 4,
-  })),
+  { text: '設計', isLink: false },
+  { text: '開発', isLink: false },
+  { text: 'Design', isLink: false },
+  { text: 'Dev', isLink: false },
+  { text: 'About', isLink: true, path: '/#about' },
+  { text: 'Portfolio', isLink: true, path: '/#portfolio' },
+  { text: 'Contact', isLink: true, path: '/#contact' },
+  { text: 'Github', isLink: true, path: 'https://github.com/Dev-Sahad' },
+  { text: 'LinkedIn', isLink: true, path: 'https://www.linkedin.com/in/muhammad-sahad-78b827352' },
 ]
 
-function Cloud({ count = 4, radius = 20 }) {
+function Cloud({ count = 4, radius = 18 }) {
   const words = useMemo(() => {
     const temp = []
     const spherical = new THREE.Spherical()
@@ -110,36 +58,49 @@ function Cloud({ count = 4, radius = 20 }) {
     const thetaSpan = (Math.PI * 2) / count
     for (let i = 1; i < count + 1; i++) {
       for (let j = 0; j < count; j++) {
-        temp.push([
-          new THREE.Vector3().setFromSpherical(
-            spherical.set(radius, phiSpan * i, thetaSpan * j),
+        temp.push({
+          pos: new THREE.Vector3().setFromSpherical(
+            spherical.set(radius, phiSpan * i, thetaSpan * j)
           ),
-          cloudWords[j % cloudWords.length],
-        ])
+          word: cloudWords[(i * count + j) % cloudWords.length],
+        })
       }
     }
     return temp
   }, [count, radius])
 
-  return words.map(([pos, word], index) => (
-    <Word
-      key={index}
-      position={pos}
-      isLink={word.isLink}
-      path={word.path}
-    >
+  return words.map(({ pos, word }, i) => (
+    <Word key={i} position={pos} isLink={word.isLink} path={word.path}>
       {word.text}
     </Word>
   ))
 }
 
+// Auto-rotate the scene group — no user drag controls needed
+function AutoRotate({ children }) {
+  const groupRef = useRef()
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.18
+      groupRef.current.rotation.x += delta * 0.05
+    }
+  })
+  return <group ref={groupRef}>{children}</group>
+}
 
 export default function App() {
   return (
-    <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 35], fov: 90 }}>
-      <fog attach="fog" args={['#0a0a0a', 8, 40]} />
-      <Cloud count={8} radius={28} />
-      <TrackballControls noZoom noPan />
+    <Canvas
+      dpr={[1, 2]}
+      camera={{ position: [0, 0, 35], fov: 80 }}
+      // Disable all event handling on the canvas so scroll works
+      events={false}
+      style={{ pointerEvents: 'none' }}
+    >
+      <fog attach="fog" args={['#0a0a0a', 10, 45]} />
+      <AutoRotate>
+        <Cloud count={6} radius={20} />
+      </AutoRotate>
     </Canvas>
   )
 }
