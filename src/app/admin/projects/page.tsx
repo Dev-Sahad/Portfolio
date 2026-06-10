@@ -30,7 +30,7 @@ export default function ProjectsPage() {
 
       if (!error && data) {
         const sortedProjects = data.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
 
@@ -67,7 +67,7 @@ export default function ProjectsPage() {
       const updated = [...prev, newProject];
 
       return updated.sort(
-        (a, b) =>
+        (a: any, b: any) =>
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
     });

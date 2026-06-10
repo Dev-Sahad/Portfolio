@@ -7,6 +7,7 @@ import {
   Award,
   MessageSquare,
   Layers,
+  Settings,
   Menu,
   X,
   LogOut,
@@ -47,6 +48,11 @@ const menus = [
     name: "3D Scene",
     icon: Sparkles,
     path: "/admin/scene3d",
+  },
+  {
+    name: "Settings",
+    icon: Settings,
+    path: "/admin/settings",
   },
 ];
 

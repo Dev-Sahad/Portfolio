@@ -2,95 +2,198 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronDown, ChevronUp } from 'lucide-react'
-import usePortfolio from '@/hooks/usePortfolio' // You can keep this or remove it if props are sufficient
+import { Award, ChevronDown, ChevronUp, Layers, X } from 'lucide-react'
+import usePortfolio from '@/hooks/usePortfolio'
 import PortfolioCard from './PortfolioCard'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
-// 1. ADD THIS INTERFACE
 interface PortfolioShowcaseProps {
-  projects: any[];
-  technologies: any[];
+  projects: any[]
+  technologies: any[]
 }
 
-// 2. ACCEPT PROPS IN THE FUNCTION
-export default function PortfolioShowcase({ 
-  projects: initialProjects, 
-  technologies: initialTech 
+export default function PortfolioShowcase({
+  projects: initialProjects,
+  technologies: initialTech,
 }: PortfolioShowcaseProps) {
-  
-  // Use the hook for certificates/loading, or swap entirely to props
-  const {
-    projects = initialProjects, // Fallback to props if hook is empty
-    certificates,
-    techStacks = initialTech,    // Fallback to props
-    loading,
-  } = usePortfolio()
-
-  const [activeTab, setActiveTab] = useState('projects')
-  const [previewOpen, setPreviewOpen] = useState(false)
+  const { projects, certificates, techStacks, loading } = usePortfolio()
+  const [activeTab, setActiveTab] = useState<'projects' | 'certificates' | 'techstack'>('projects')
   const [previewImage, setPreviewImage] = useState('')
   const [showAllProjects, setShowAllProjects] = useState(false)
 
-  // Logic for slicing projects
-  const displayedProjects = showAllProjects
-    ? projects
-    : projects?.slice(0, 3) || []
+  const resolvedProjects = projects.length ? projects : initialProjects
+  const resolvedTech = techStacks.length ? techStacks : initialTech
+  const displayedProjects = showAllProjects ? resolvedProjects : resolvedProjects.slice(0, 3)
+
+  const tabs = [
+    { id: 'projects', label: 'Projects' },
+    { id: 'certificates', label: 'Certificates' },
+    { id: 'techstack', label: 'Tech Stack' },
+  ] as const
 
   return (
     <>
-      {/* ... keep your existing PREVIEW code ... */}
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 px-4 backdrop-blur-md"
+            onClick={() => setPreviewImage('')}
+          >
+            <button
+              type="button"
+              aria-label="Close preview"
+              className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10"
+            >
+              <X size={18} />
+            </button>
+            <motion.img
+              src={previewImage}
+              alt="Certificate preview"
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              className="max-h-[86vh] max-w-[92vw] rounded-xl object-contain"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <section id="portfolio" className="w-full max-w-[1450px] mx-auto px-8 md:px-12 lg:px-20 pt-24 pb-24 text-white">
-        {/* ... keep your existing HEADER and TAB code ... */}
+      <section id="portfolio" className="w-full max-w-[1450px] mx-auto px-6 md:px-12 lg:px-20 pt-24 pb-24 text-white">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.8, ease: smoothEase }}
+          className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between"
+        >
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/35">Selected Work</p>
+            <h2 className="mt-3 text-3xl font-bold md:text-5xl">Portfolio</h2>
+          </div>
+
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-xl px-4 py-2 text-sm transition ${
+                  activeTab === tab.id ? 'bg-white text-black' : 'text-white/55 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={activeTab} /* ... */ >
-            
-            {/* PROJECTS SECTION */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -24 }}
+            transition={{ duration: 0.45, ease: smoothEase }}
+          >
             {activeTab === 'projects' && (
               <div className="space-y-8">
-                <motion.div layout className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 px-1">
-                  <AnimatePresence mode="popLayout">
-                    {!loading && displayedProjects.map((item, i) => (
-                      <motion.div key={item.id} layout /* ... */ >
-                        <PortfolioCard
-                          index={i}
-                          title={item.title}
-                          description={item.description}
-                          image={item.image_url}
-                          live_url={item.live_url}
-                          id={item.id}
-                        />
-                      </motion.div>
+                {loading && !resolvedProjects.length ? (
+                  <EmptyState title="Loading projects..." />
+                ) : resolvedProjects.length === 0 ? (
+                  <EmptyState title="Projects are coming soon" />
+                ) : (
+                  <div className="grid gap-6 px-1 md:grid-cols-2 xl:grid-cols-3">
+                    {displayedProjects.map((item, i) => (
+                      <PortfolioCard
+                        key={item.id}
+                        index={i}
+                        title={item.title}
+                        description={item.description}
+                        image={item.image_url}
+                        live_url={item.live_url}
+                        id={item.id}
+                      />
                     ))}
-                  </AnimatePresence>
-                </motion.div>
-                {/* ... keep SEE MORE button ... */}
+                  </div>
+                )}
+
+                {resolvedProjects.length > 3 && (
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowAllProjects((value) => !value)}
+                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm text-white/70 transition hover:bg-white hover:text-black"
+                    >
+                      {showAllProjects ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      {showAllProjects ? 'Show Less' : 'See More'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* CERTIFICATES SECTION - ... keep existing ... */}
+            {activeTab === 'certificates' && (
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {certificates.length === 0 ? (
+                  <EmptyState title={loading ? 'Loading certificates...' : 'Certificates are coming soon'} />
+                ) : (
+                  certificates.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => item.image_url && setPreviewImage(item.image_url)}
+                      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:-translate-y-1 hover:border-white/25"
+                    >
+                      <div className="mb-4 flex aspect-[16/10] items-center justify-center overflow-hidden rounded-xl bg-black/30">
+                        {item.image_url ? (
+                          <img src={item.image_url} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                        ) : (
+                          <Award className="text-white/25" />
+                        )}
+                      </div>
+                      <h3 className="line-clamp-2 text-sm font-semibold">{item.title}</h3>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
 
-            {/* TECH STACK SECTION */}
             {activeTab === 'techstack' && (
-              <div className="min-h-[360px] flex justify-center">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-w-5xl w-full">
-                  {!loading && techStacks?.map((item, index) => (
-                    <motion.div key={item.id} /* ... */ >
-                        {/* ... keep logo logic ... */}
-                        <p className="text-[11px] text-white/80 text-center leading-tight px-2 line-clamp-1">
-                          {item.name}
-                        </p>
-                    </motion.div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {resolvedTech.length === 0 ? (
+                  <EmptyState title={loading ? 'Loading tech stack...' : 'Tech stack is coming soon'} />
+                ) : (
+                  resolvedTech.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex min-h-[130px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:-translate-y-1 hover:border-white/25"
+                    >
+                      {item.logo_url || item.image_url ? (
+                        <img src={item.logo_url || item.image_url} alt={item.name} className="h-10 w-10 object-contain" />
+                      ) : (
+                        <Layers size={28} className="text-white/35" />
+                      )}
+                      <p className="text-center text-xs text-white/75">{item.name}</p>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </motion.div>
         </AnimatePresence>
       </section>
     </>
+  )
+}
+
+function EmptyState({ title }: { title: string }) {
+  return (
+    <div className="col-span-full flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] text-sm text-white/35">
+      {title}
+    </div>
   )
 }

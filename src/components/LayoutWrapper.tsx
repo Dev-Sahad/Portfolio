@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import HiddenAdminAccess from "./HiddenAdminAccess";
 
 export default function LayoutWrapper({
   children,
@@ -16,16 +17,19 @@ export default function LayoutWrapper({
       {children}
 
       {!isAdmin && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "40px 20px",
-            color: "var(--text-secondary)",
-            fontSize: "12px",
-          }}
-        >
-          © 2026 Muhammad Sahad. All rights reserved.
-        </div>
+        <>
+          <HiddenAdminAccess />
+          <div
+            style={{
+              textAlign: "center",
+              padding: "40px 20px",
+              color: "var(--text-secondary)",
+              fontSize: "12px",
+            }}
+          >
+            © 2026 Muhammad Sahad. All rights reserved.
+          </div>
+        </>
       )}
     </>
   );

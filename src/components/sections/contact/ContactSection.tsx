@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import ContactForm from './ContactForm'
 import CommentsSection from './CommentsSection'
+import { SiteSettings } from '@/lib/siteSettings'
 
 const smoothEase: [number, number, number, number] = [
   0.22,
@@ -11,7 +12,11 @@ const smoothEase: [number, number, number, number] = [
   1,
 ]
 
-export default function ContactSection() {
+type ContactSectionProps = {
+  settings: SiteSettings
+}
+
+export default function ContactSection({ settings }: ContactSectionProps) {
   return (
     <section
       id="contact"
@@ -46,7 +51,7 @@ export default function ContactSection() {
     viewport={{ once: false }}
     className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4"
   >
-    Contact Me
+    {settings.contact_heading}
   </motion.h1>
 
   <motion.p
@@ -63,7 +68,7 @@ export default function ContactSection() {
     viewport={{ once: false }}
     className="text-white/60 text-sm sm:text-base max-w-xl sm:max-w-2xl mx-auto leading-relaxed"
   >
-    Have something in mind? Send a message and let's connect.
+    {settings.contact_subheading}
   </motion.p>
 </motion.div>
 
@@ -79,7 +84,7 @@ export default function ContactSection() {
       >
         {/* FORM */}
         <div className="w-full">
-          <ContactForm />
+          <ContactForm settings={settings} />
         </div>
 
         {/* COMMENTS */}

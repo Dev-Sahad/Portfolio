@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { Code, Award, Globe, FileText, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { SiteSettings } from "@/lib/siteSettings";
 
 /* ================== ANIMATION ================== */
 
@@ -57,7 +58,11 @@ const pop: Variants = {
 
 /* ================== COMPONENT ================== */
 
-export default function About() {
+type AboutProps = {
+  settings: SiteSettings;
+};
+
+export default function About({ settings }: AboutProps) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   const [projectCount, setProjectCount] = useState(0);
@@ -159,7 +164,7 @@ export default function About() {
                   letterSpacing: "0.2em",
                 }}
               >
-                ABOUT ME
+                {settings.about_eyebrow}
               </span>
             </motion.div>
 
@@ -172,8 +177,9 @@ export default function About() {
                   color: "var(--text-primary)",
                 }}
               >
-                <div>Muhammad</div>
-                <div>Sahad</div>
+                {settings.about_title.split("\n").map((line) => (
+                  <div key={line}>{line}</div>
+                ))}
               </div>
             </motion.div>
 
@@ -197,7 +203,7 @@ export default function About() {
                 maxWidth: isMobile ? "100%" : "490px",
               }}
             >
-              Fresh graduate of SMK Software Engineering class of 2026 with a passion for front-end development and modern UI. Focused on creating clean, responsive, and user-friendly websites. 
+              {settings.about_description}
             </motion.p>
 
             {/* QUOTE */}
@@ -225,8 +231,7 @@ export default function About() {
                 width: "fit-content",
               }}
             >
-              “Turning ideas into clean, modern, and meaningful digital
-              experiences.”
+              "{settings.about_quote}"
             </motion.div>
 
             {/* BUTTONS */}
@@ -239,28 +244,55 @@ export default function About() {
                 flexWrap: "wrap",
               }}
             >
-              {/* DOWNLOAD CV */}
-              <button
-                disabled
-                title="CV coming soon"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "10px 18px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  background: "rgba(255,255,255,0.15)",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "not-allowed",
-                  opacity: 0.65,
-                }}
-              >
-                <FileText size={14} />
-                Download CV
-              </button>
+              {settings.cv_url ? (
+                <a
+                  href={settings.cv_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none" }}
+                >
+                  <button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "10px 18px",
+                      borderRadius: 8,
+                      border: "1px solid white",
+                      background: "white",
+                      color: "black",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <FileText size={14} />
+                    Download CV
+                  </button>
+                </a>
+              ) : (
+                <button
+                  disabled
+                  title="CV coming soon"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "10px 18px",
+                    borderRadius: 8,
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    background: "rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.5)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "not-allowed",
+                    opacity: 0.65,
+                  }}
+                >
+                  <FileText size={14} />
+                  Download CV
+                </button>
+              )}
 
               {/* VIEW PROJECTS */}
               <button

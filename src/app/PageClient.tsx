@@ -9,21 +9,24 @@ import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
-import WelcomeScreen from '@/components/WelcomeScreen'
+import IntroScreen from '@/components/IntroScreen'
 import { useVisitor } from '@/hooks/useVisitor'
+import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
 
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 interface PageClientProps {
   projects: any[];
   technologies: any[];
+  settings?: Partial<SiteSettings> | null;
 }
 
-export default function PageClient({ projects, technologies }: PageClientProps) {
+export default function PageClient({ projects, technologies, settings: settingsInput }: PageClientProps) {
+  const settings = mergeSiteSettings(settingsInput)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [showExit, setShowExit] = useState(false)
   const [showApp, setShowApp] = useState(false)
 
-  // Track visitor + live viewers
   useVisitor()
 
   useEffect(() => {
@@ -55,21 +58,38 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
         setIntroPlayed()
       }, 2800)
       return () => clearTimeout(timer)
-    } else {
-      setShowWelcome(false)
-      setShowApp(true)
     }
+
+    setShowWelcome(false)
+    setShowApp(true)
+  }, [])
+
+  useEffect(() => {
+    const handleExternalClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      const link = target?.closest('a')
+
+      if (!link || !link.href || link.target !== '_blank') return
+
+      setShowExit(true)
+      window.setTimeout(() => setShowExit(false), 1400)
+    }
+
+    window.addEventListener('click', handleExternalClick)
+
+    return () => window.removeEventListener('click', handleExternalClick)
   }, [])
 
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatedBackground />
+
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
-        <Hero showApp={showApp} />
-        <About />
+        <Hero showApp={showApp} settings={settings} />
+        <About settings={settings} />
         <PortfolioShowcase projects={projects} technologies={technologies} />
-        <ContactSection />
+        <ContactSection settings={settings} />
       </div>
 
       <AnimatePresence>
@@ -81,7 +101,19 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
             transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            <WelcomeScreen />
+            <IntroScreen mode="loading" ownerName={settings.owner_name} githubUrl={settings.github_url} />
+          </motion.div>
+        )}
+
+        {showExit && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ duration: 0.75, ease: [0.76, 0, 0.24, 1] }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}
+          >
+            <IntroScreen mode="exit" ownerName={settings.owner_name} githubUrl={settings.github_url} />
           </motion.div>
         )}
       </AnimatePresence>

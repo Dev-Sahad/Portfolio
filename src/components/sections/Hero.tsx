@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import TextType from "@/components/band/TextType";
 import { supabase } from "@/lib/supabase";
+import { SiteSettings } from "@/lib/siteSettings";
 
 const App = dynamic(() => import("@/components/band/App"), { ssr: false });
 
@@ -19,18 +20,22 @@ class AppErrorBoundary extends React.Component<
   static getDerivedStateFromError() { return { hasError: true }; }
   componentDidCatch(error: Error) { console.error("3D canvas error:", error); }
   render() {
-    if (this.state.hasError) return null; // silent fail — don't show error text
+    if (this.state.hasError) return null;
     return this.props.children;
   }
 }
 
-type HeroProps = { showApp: boolean };
+const skills = ["Typescript", "React.js", "Tailwind"];
 
-export default function Hero({ showApp }: HeroProps) {
+type HeroProps = {
+  showApp: boolean;
+  settings: SiteSettings;
+};
+
+export default function Hero({ showApp, settings }: HeroProps) {
   const [startAnim, setStartAnim] = useState(false);
   const [sceneWords, setSceneWords] = useState<any[]>([]);
 
-  // Fetch 3D words from Supabase
   useEffect(() => {
     const fetchWords = async () => {
       const { data } = await supabase
@@ -56,7 +61,6 @@ export default function Hero({ showApp }: HeroProps) {
       className="px-6 md:pl-[120px] md:pr-[60px]"
       style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "flex-start", position: "relative", overflow: "hidden" }}
     >
-      {/* 3D CANVAS — right half, never blocks scroll */}
       <div style={{ position: "absolute", top: 0, right: 0, width: "60%", height: "100%", zIndex: 2, pointerEvents: "none", opacity: 0.85 }}>
         {showApp && (
           <AppErrorBoundary>
@@ -65,7 +69,6 @@ export default function Hero({ showApp }: HeroProps) {
         )}
       </div>
 
-      {/* HERO TEXT */}
       <div className="md:max-w-[600px]" style={{ width: "100%", position: "relative", zIndex: 5 }}>
         <motion.div
           initial={false}
@@ -74,7 +77,7 @@ export default function Hero({ showApp }: HeroProps) {
           style={{ marginBottom: 20 }}
         >
           <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: "var(--text-muted)", letterSpacing: "0.2em", textTransform: "uppercase" }}>
-            ✦ Available for work
+            * {settings.availability_text}
           </span>
         </motion.div>
 
@@ -85,7 +88,7 @@ export default function Hero({ showApp }: HeroProps) {
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             style={{ fontSize: "clamp(32px, 6vw, 62px)", fontWeight: 800, lineHeight: 1.05, color: "var(--text-primary)", letterSpacing: "-0.03em", marginBottom: 0 }}
           >
-            Frontend
+            {settings.hero_title_primary}
           </motion.h1>
 
           <motion.h1
@@ -94,7 +97,7 @@ export default function Hero({ showApp }: HeroProps) {
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             style={{ fontSize: "clamp(32px, 6vw, 62px)", fontWeight: 800, lineHeight: 1.05, color: "var(--text-secondary)", letterSpacing: "-0.03em", marginBottom: 24 }}
           >
-            Developer
+            {settings.hero_title_secondary}
           </motion.h1>
         </div>
 
@@ -105,7 +108,7 @@ export default function Hero({ showApp }: HeroProps) {
           style={{ marginBottom: 12 }}
         >
           <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 15, color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-            <TextType texts={["Junior Programmer"]} />
+            <TextType texts={[settings.hero_role]} />
           </span>
         </motion.div>
 
@@ -115,9 +118,8 @@ export default function Hero({ showApp }: HeroProps) {
           transition={{ duration: 1, delay: 0.5 }}
           style={{ marginBottom: 28, width: "100%", maxWidth: 460 }}
         >
-          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.9, letterSpacing: "0.01em" }}>
-            Creating modern websites with a clean, responsive, and elegant appearance.
-            Transforming ideas and designs into engaging and user-friendly digital experiences.
+          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.9, letterSpacing: "0.01em", textWrap: "pretty" }}>
+            {settings.hero_description}
           </p>
         </motion.div>
 
@@ -127,7 +129,7 @@ export default function Hero({ showApp }: HeroProps) {
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.7 } } }}
           style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}
         >
-          {["Typescript", "React.js", "Tailwind"].map((skill) => (
+          {skills.map((skill) => (
             <motion.span
               key={skill}
               variants={{ hidden: { opacity: 0, y: 25, scale: 0.85 }, visible: { opacity: 1, y: 0, scale: 1 } }}
@@ -145,12 +147,11 @@ export default function Hero({ showApp }: HeroProps) {
           transition={{ duration: 0.8, delay: 1 }}
           style={{ display: "flex", flexDirection: "column", gap: 6 }}
         >
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--text-muted)" }}>↓ explore my work below</span>
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--text-muted)" }}>↗ open to full-time & freelance opportunities</span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--text-muted)" }}>v explore my work below</span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--text-muted)" }}>^ open to full-time & freelance opportunities</span>
         </motion.div>
       </div>
 
-      {/* SCROLL INDICATOR */}
       <motion.div
         initial={false}
         animate={startAnim ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -163,7 +164,7 @@ export default function Hero({ showApp }: HeroProps) {
           className="flex items-center justify-center gap-2"
         >
           <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)" }}>Scroll</span>
-          <span style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1 }}>↓</span>
+          <span style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1 }}>v</span>
         </motion.div>
       </motion.div>
     </section>

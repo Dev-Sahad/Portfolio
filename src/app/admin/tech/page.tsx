@@ -27,7 +27,7 @@ export default function TechStackPage() {
         .select("*");
   
       const sorted = (data || []).sort(
-        (a, b) =>
+        (a: any, b: any) =>
           new Date(a.created_at).getTime() -
           new Date(b.created_at).getTime()
       );
