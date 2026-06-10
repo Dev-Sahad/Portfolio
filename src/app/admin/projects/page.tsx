@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
-import { Plus } from "lucide-react";
+import { Plus, Github } from "lucide-react";
 import AddProjectModal from "./AddProjectModal";
 import { supabase } from "@/lib/supabase";
 
@@ -14,6 +14,8 @@ export default function ProjectsPage() {
   const [open, setOpen] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUserAndFetchProjects = async () => {
@@ -73,6 +75,41 @@ export default function ProjectsPage() {
     });
   };
 
+  const handleImportGitHub = async () => {
+    setImporting(true);
+    setImportMessage("Importing GitHub projects...");
+    
+    try {
+      const response = await fetch("/api/import-github-projects");
+      const data = await response.json();
+
+      if (data.success) {
+        setImportMessage(
+          `✅ Success! Imported ${data.stats.imported}, Skipped ${data.stats.skipped}`
+        );
+        // Refresh projects list
+        const { data: updatedProjects } = await supabase
+          .from("projects")
+          .select("*")
+          .order("created_at", { ascending: true });
+        
+        if (updatedProjects) {
+          setProjects(updatedProjects);
+        }
+        
+        setTimeout(() => setImportMessage(null), 5000);
+      } else {
+        setImportMessage(`❌ Error: ${data.error}`);
+        setTimeout(() => setImportMessage(null), 5000);
+      }
+    } catch (error: any) {
+      setImportMessage(`❌ Error: ${error.message}`);
+      setTimeout(() => setImportMessage(null), 5000);
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* SIDEBAR */}
@@ -93,14 +130,32 @@ export default function ProjectsPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => setOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-xl hover:scale-[1.02] transition"
-            >
-              <Plus size={16} />
-              Add Project
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleImportGitHub}
+                disabled={importing}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl hover:scale-[1.02] transition"
+              >
+                <Github size={16} />
+                {importing ? "Importing..." : "Import GitHub"}
+              </button>
+
+              <button
+                onClick={() => setOpen(true)}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-xl hover:scale-[1.02] transition"
+              >
+                <Plus size={16} />
+                Add Project
+              </button>
+            </div>
           </div>
+
+          {/* IMPORT MESSAGE */}
+          {importMessage && (
+            <div className="mb-5 p-3 rounded-xl border border-white/10 bg-white/[0.05] text-sm text-white/70">
+              {importMessage}
+            </div>
+          )}
 
           {/* GRID */}
           {loading ? (
