@@ -1,10 +1,10 @@
 <div align="center">
 
-# ✦ Portfolio V1
+# ✦ My Portfolio ✦
 
 **A modern, animated developer portfolio with a full-stack admin system**
 
-[![Live](https://img.shields.io/badge/Live-portfolio--v1--eta--nine.vercel.app-black?style=flat-square&logo=vercel)](https://portfolio-v1-eta-nine.vercel.app)
+[![Dev-Sahad](https://img.shields.io/badge/is--a--dev-5865F2?style=flat-square&logo=dev.to&logoColor=white)](https://sahad.is-a.dev)
 [![Next.js](https://img.shields.io/badge/Next.js-13-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com)
 [![Three.js](https://img.shields.io/badge/Three.js-3D-black?style=flat-square&logo=three.js)](https://threejs.org)
@@ -18,6 +18,8 @@
 A personal portfolio built from scratch with Next.js 13 App Router, featuring a 3D interactive hero section, smooth page animations, a live comments system, and a fully secured admin dashboard for managing all content.
 
 The site is designed around a dark, minimal aesthetic — fast to load, smooth to navigate, and easy to maintain through the admin panel without touching any code.
+
+Deployed on Vercel with a custom domain registered via is-a.dev.
 
 ---
 
@@ -95,7 +97,7 @@ portfolio-v1/
 |---|---|
 | **Vercel** | Hosting, edge deployment, preview URLs |
 | **GitHub** | Source control, triggers Vercel deploys on push |
-
+| **.is-a.dev** | Custom domain registration & DNS |
 ---
 
 ## How It Works
@@ -103,7 +105,7 @@ portfolio-v1/
 ### Page Load Flow
 
 ```
-User visits /
+User visits sahad.is-a.dev/
   → PageClient.tsx checks sessionStorage for "heroPlayed"
   → First visit: WelcomeScreen plays intro animation (~3.5s)
   → Then: Hero mounts, Three.js canvas loads on the right half
@@ -200,21 +202,93 @@ create table technologies (
 
 ## Deployment
 
+**Vercel Hosting**
 The project auto-deploys to Vercel on every push to `main`. No manual steps — Vercel detects the Next.js project, runs `npm run build`, and publishes.
 
-Environment variables required on Vercel:
+*Previous URL:*
+`https://portfolio-v1-eta-nine.vercel.app/`
+*Current URL:*
+`https://sahad.is-a.dev/`
+
+#### Environment Variables
+
+Add these to your Vercel project settings:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
 
+### Custom Domain Setup (is-a.dev)
+
+*The custom domain sahad.is-a.dev was registered via the **is-a.dev** service:*
+1. **Claimed from** [![GitHub](https://img.shields.io/badge/GitHub-.is--a.dev-black?style=flat-square&logo=github)](https://github.com/is-a-dev)
+2. **Registered via:** [![Github](https://img.shields.io/badge/Repository-8B5CF6?style=for-the-badge&logo=github&logoColor=white)](https://github.com/is-a-dev/register)
+3. **Connected to Vercel:** Added custom domain in Vercel project settings.
+4. **DNS Configuration:** *is-a.dev* automatically handles DNS routing to Vercel's edge network
+
+#### Steps Taken:
+* Forked/submitted domain claim to [![Register](https://img.shields.io/badge/Register-3ECF8E?style=flat-square&logo=Register)](github.com/is-a-dev/register)
+* Added domain in **Vercel Dashboard** → Project Settings → Domains
+* Vercel provided DNS records; is-a.dev registry integrated them automatically
+* Domain now routes all traffic to Vercel deployment
+
+#### Deployment Flow
+
+```
+git push main
+  → GitHub webhook triggers Vercel build
+  → Vercel runs: npm run build
+  → Next.js outputs static + dynamic routes
+  → Deployment goes live at sahad.is-a.dev
+  → CDN caches assets globally
+```
+
 ---
 
-## Author
+## Performance & Optimization
 
-**Muhammad Sahad** — Frontend Developer
+- **Code Splitting**: Next.js automatic route-based splitting
+- **Image Optimization**: `next/image` component with AVIF/WebP support
+- **CSS Purging**: Tailwind removes unused styles in production
+- **3D Asset Loading**: Three.js geometries are lazy-loaded on viewport entry
+- **Session Caching**: Supabase session validated once per route navigation
+- **Edge Functions**: Vercel edge middleware for sub-50ms auth checks
 
-[![GitHub](https://img.shields.io/badge/GitHub-Dev--Sahad-black?style=flat-square&logo=github)](https://github.com/Dev-Sahad)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-muhammad--sahad-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/muhammad-sahad-78b827352)
-[![Instagram](https://img.shields.io/badge/Instagram-sahad_____sha-E1306C?style=flat-square&logo=instagram)](https://www.instagram.com/sahad_____sha)
+---
+
+## Security
+
+- **Row Level Security (RLS)**: All Supabase tables enforce RLS policies
+- **Admin Auth**: Email/password authentication with secure session cookies
+- **Middleware Protection**: `/admin/*` routes validated at edge level
+- **CORS**: Supabase client configured for same-origin requests only
+- **Environment Variables**: Sensitive keys stored securely in Vercel
+
+---
+
+## 📬 Connect With Me
+
+**Muhammad Sahad** — Frontend Developer.
+
+<div align="center">
+  <a href="https://github.com/Dev-Sahad" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-Dev--Sahad-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  </a>
+  
+  <a href="https://www.linkedin.com/in/muhammad-sahad-78b827352" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+  
+  <a href="https://discord.com/users/853166408212807701" target="_blank">
+    <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"/>
+  </a>
+  
+  <a href="https://instagram.com/sahad_____sha" target="_blank">
+    <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram"/>
+  </a>
+  
+  <a href="https://t.me/Sxhd_Sha" target="_blank">
+    <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"/>
+  </a>
+</div>
