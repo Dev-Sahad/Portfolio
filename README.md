@@ -223,12 +223,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 *The custom domain sahad.is-a.dev was registered via the **is-a.dev** service:*
 1. **Claimed from** [![GitHub](https://img.shields.io/badge/GitHub-.is--a.dev-black?style=flat-square&logo=github)](https://github.com/is-a-dev)
-2. **Registered via:** [![Github](https://img.shields.io/badge/Repository-8B5CF6?style=for-the-badge&logo=github&logoColor=white)](https://github.com/is-a-dev/register)
+2. **Registered via:** [![Repository](https://img.shields.io/badge/.is--a--dev-register-0d1117?style=flat-square&labelColor=0d1117&color=8B5CF6&logo=github&logoColor=8B5CF6)](https://github.com/is-a-dev/register)
 3. **Connected to Vercel:** Added custom domain in Vercel project settings.
 4. **DNS Configuration:** *is-a.dev* automatically handles DNS routing to Vercel's edge network
 
 #### Steps Taken:
-* Forked/submitted domain claim to [![Register](https://img.shields.io/badge/Register-3ECF8E?style=flat-square&logo=Register)](github.com/is-a-dev/register)
+* Forked/submitted domain claim to [![Register](https://img.shields.io/badge/.is--a--dev-fork-black?style=flat-square&labelColor=black&color=8B5CF6&logo=github&logoColor=0d1117)](https://github.com/is-a-dev/register/fork)
 * Added domain in **Vercel Dashboard** → Project Settings → Domains
 * Vercel provided DNS records; is-a.dev registry integrated them automatically
 * Domain now routes all traffic to Vercel deployment
