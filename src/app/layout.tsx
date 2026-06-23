@@ -1,5 +1,6 @@
 import "./globals.css";
 import RefreshRedirect from '@/components/RefreshRedirect'
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   title: "Muhammad Sahad",
@@ -16,6 +17,7 @@ export default function RootLayout({
       <body>
         <RefreshRedirect />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
