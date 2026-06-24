@@ -4,111 +4,122 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
-import { Plus, Github, RefreshCcw, ExternalLink, Folder, X, CheckCircle, AlertCircle, Loader2, Star } from "lucide-react";
+import {
+  Plus, Github, RefreshCcw, ExternalLink, Folder,
+  X, CheckCircle, AlertCircle, Loader2, Copy, Check,
+  Terminal, ArrowRight
+} from "lucide-react";
 import AddProjectModal from "./AddProjectModal";
 import { supabase } from "@/lib/supabase";
 
-// The GitHub token — same one used for pushing, allows authenticated API calls
-const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN || "";
-const GITHUB_USER  = "Dev-Sahad";
+const GITHUB_USER = "Dev-Sahad";
 
-type ImportStatus = "idle" | "fetching" | "importing" | "done" | "error";
+type LogLine = { text: string; type: "info" | "ok" | "err" | "warn" };
+type ImportStatus = "idle" | "running" | "done" | "error" | "needs_setup";
 
 export default function ProjectsPage() {
   const router = useRouter();
-  const [open, setOpen]         = useState(false);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [addOpen, setAddOpen]       = useState(false);
+  const [projects, setProjects]     = useState<any[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [status, setStatus]         = useState<ImportStatus>("idle");
+  const [logs, setLogs]             = useState<LogLine[]>([]);
+  const [setupSQL, setSetupSQL]     = useState<string | null>(null);
+  const [showPanel, setShowPanel]   = useState(false);
+  const [copied, setCopied]         = useState(false);
 
-  // Import state
-  const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
-  const [importLog, setImportLog]       = useState<string[]>([]);
-  const [showImportPanel, setShowImportPanel] = useState(false);
-
-  // ── fetch projects ────────────────────────────────────────────────
-  const fetchProjects = useCallback(async () => {
+  // ── load projects ─────────────────────────────────────────────────
+  const loadProjects = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.push("/admin/login"); return; }
-
     const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .order("created_at", { ascending: false });
-
+      .from("projects").select("*").order("created_at", { ascending: false });
     if (!error && data) setProjects(data);
     setLoading(false);
   }, [router]);
 
   useEffect(() => {
-    fetchProjects();
-
-    const channel = supabase
-      .channel("projects-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, fetchProjects)
+    loadProjects();
+    const ch = supabase
+      .channel("projects-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, loadProjects)
       .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [loadProjects]);
 
-    return () => { supabase.removeChannel(channel); };
-  }, [fetchProjects]);
+  const addLog = (text: string, type: LogLine["type"] = "info") =>
+    setLogs(p => [...p, { text, type }]);
 
-  // ── import from GitHub ────────────────────────────────────────────
-  const handleImport = async () => {
-    setShowImportPanel(true);
-    setImportLog([]);
-    setImportStatus("fetching");
+  // ── import ────────────────────────────────────────────────────────
+  const runImport = async () => {
+    setShowPanel(true);
+    setLogs([]);
+    setSetupSQL(null);
+    setStatus("running");
 
-    const log = (msg: string) => setImportLog(prev => [...prev, msg]);
-
-    log(`🔍 Fetching repos for @${GITHUB_USER}...`);
+    addLog(`Fetching repos for @${GITHUB_USER}…`);
 
     try {
-      // Pass the token as a query param so the server route uses it
-      const url = `/api/import-github-projects?username=${GITHUB_USER}&gh_token=${GITHUB_TOKEN}`;
-      const res = await fetch(url);
+      const res  = await fetch(`/api/import-github-projects?username=${GITHUB_USER}`);
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        setImportStatus("error");
-        log(`❌ Failed: ${data.error || "Unknown error"}`);
-        if (data.errors?.length) {
-          data.errors.forEach((e: string) => log(`   • ${e}`));
-        }
+      // ── Table missing ──────────────────────────────────────────────
+      if (data.needsSetup) {
+        setStatus("needs_setup");
+        addLog("Table 'projects' does not exist in Supabase yet.", "err");
+        addLog(`GitHub found ${data.repos_found} repos ready to import.`, "info");
+        addLog("Run the SQL below in Supabase, then click Import again.", "warn");
+        setSetupSQL(data.setup_sql);
         return;
       }
 
-      const { stats } = data;
-      log(`✅ GitHub: found ${stats.total} public repos`);
-
-      setImportStatus("importing");
-
-      if (stats.imported === 0 && stats.skipped > 0) {
-        log(`ℹ️  All ${stats.skipped} repos already exist — nothing new to import`);
-      } else {
-        if (stats.imported > 0) log(`⬆️  Imported ${stats.imported} new project${stats.imported !== 1 ? "s" : ""}`);
-        if (stats.skipped  > 0) log(`⏭️  Skipped ${stats.skipped} already existing`);
-        if (stats.errors   > 0) log(`⚠️  ${stats.errors} insert error${stats.errors !== 1 ? "s" : ""}`);
+      // ── Error ──────────────────────────────────────────────────────
+      if (!data.success) {
+        setStatus("error");
+        addLog(data.error || "Unknown error", "err");
+        if (data.errors) data.errors.forEach((e: string) => addLog(e, "err"));
+        return;
       }
 
-      log("🔄 Refreshing project list...");
-      await fetchProjects();
-      log("🎉 Done!");
-      setImportStatus("done");
+      // ── Success ────────────────────────────────────────────────────
+      const { stats } = data;
+      addLog(`GitHub: ${stats.total} public repos found`, "ok");
+
+      if (stats.imported > 0)
+        addLog(`Imported ${stats.imported} new project${stats.imported !== 1 ? "s" : ""}`, "ok");
+      if (stats.skipped > 0)
+        addLog(`Skipped ${stats.skipped} (already exist)`, "info");
+      if (stats.errors > 0)
+        addLog(`${stats.errors} insert error${stats.errors !== 1 ? "s" : ""}`, "warn");
+      if (stats.imported === 0 && stats.skipped === stats.total)
+        addLog("All repos already in database — nothing new to import.", "info");
+
+      addLog("Refreshing list…", "info");
+      await loadProjects();
+      addLog("Done!", "ok");
+      setStatus("done");
     } catch (err: any) {
-      setImportStatus("error");
-      log(`❌ Network error: ${err.message}`);
+      setStatus("error");
+      addLog(`Network error: ${err.message}`, "err");
     }
   };
 
-  const handleAdd = (p: any) => setProjects(prev =>
-    [p, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  );
+  const copySQL = async () => {
+    if (!setupSQL) return;
+    await navigator.clipboard.writeText(setupSQL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-  const statusIcon = {
-    idle: null,
-    fetching: <Loader2 size={14} className="animate-spin text-white/50" />,
-    importing: <Loader2 size={14} className="animate-spin text-blue-400" />,
-    done: <CheckCircle size={14} className="text-emerald-400" />,
-    error: <AlertCircle size={14} className="text-red-400" />,
-  }[importStatus];
+  const logStyle = {
+    info: "text-white/40",
+    ok:   "text-emerald-400",
+    err:  "text-red-400",
+    warn: "text-amber-400",
+  };
+  const logPrefix = { info: "·", ok: "✓", err: "✕", warn: "!" };
+
+  const busy = status === "running";
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -117,7 +128,7 @@ export default function ProjectsPage() {
       <main className="lg:ml-[250px] pt-[95px] lg:pt-6 min-h-screen px-4 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-[1400px] mx-auto">
 
-          {/* ── HEADER ─────────────────────────────────────────────── */}
+          {/* HEADER */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-7">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -126,149 +137,186 @@ export default function ProjectsPage() {
               </div>
               <h1 className="text-2xl sm:text-3xl font-semibold">Projects</h1>
               <p className="text-sm text-white/40 mt-1">
-                {projects.length} project{projects.length !== 1 ? "s" : ""} total
+                {loading ? "Loading…" : `${projects.length} project${projects.length !== 1 ? "s" : ""}`}
               </p>
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={fetchProjects}
-                className="h-11 px-4 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition text-sm flex items-center gap-2 group"
-              >
+              <button onClick={loadProjects}
+                className="h-11 px-4 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition text-sm flex items-center gap-2 group">
                 <RefreshCcw size={14} className="group-hover:rotate-180 transition duration-500" />
                 Refresh
               </button>
 
-              <button
-                onClick={handleImport}
-                disabled={importStatus === "fetching" || importStatus === "importing"}
-                className="h-11 px-4 rounded-2xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 hover:border-purple-500/50 transition text-sm flex items-center gap-2 text-purple-300 disabled:opacity-50"
-              >
-                {importStatus === "fetching" || importStatus === "importing"
-                  ? <Loader2 size={15} className="animate-spin" />
-                  : <Github size={15} />
-                }
-                {importStatus === "fetching"  ? "Fetching..."
-                 : importStatus === "importing" ? "Importing..."
-                 : "Import from GitHub"}
+              <button onClick={runImport} disabled={busy}
+                className="h-11 px-4 rounded-2xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 hover:border-purple-500/50 transition text-sm flex items-center gap-2 text-purple-300 disabled:opacity-50">
+                {busy ? <Loader2 size={15} className="animate-spin" /> : <Github size={15} />}
+                {busy ? "Importing…" : "Import from GitHub"}
               </button>
 
-              <button
-                onClick={() => setOpen(true)}
-                className="h-11 px-4 rounded-2xl bg-white text-black font-medium text-sm hover:opacity-90 transition flex items-center gap-2"
-              >
-                <Plus size={15} />
-                Add Project
+              <button onClick={() => setAddOpen(true)}
+                className="h-11 px-4 rounded-2xl bg-white text-black font-medium text-sm hover:opacity-90 transition flex items-center gap-2">
+                <Plus size={15} /> Add Project
               </button>
             </div>
           </div>
 
-          {/* ── IMPORT LOG PANEL ────────────────────────────────────── */}
-          {showImportPanel && (
-            <div className="mb-6 rounded-2xl border border-white/10 bg-[#0d0d0d] p-4">
-              <div className="flex items-center justify-between mb-3">
+          {/* IMPORT LOG PANEL */}
+          {showPanel && (
+            <div className="mb-6 rounded-2xl border border-white/10 bg-[#0d0d0d] overflow-hidden">
+
+              {/* Panel title bar */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  {statusIcon}
-                  <span className="text-sm font-medium">
-                    {importStatus === "done"  ? "Import complete"
-                     : importStatus === "error" ? "Import failed"
-                     : "Importing..."}
+                  <Terminal size={14} className="text-white/40" />
+                  {busy        && <Loader2 size={14} className="animate-spin text-purple-400" />}
+                  {status === "done"        && <CheckCircle size={14} className="text-emerald-400" />}
+                  {status === "error"       && <AlertCircle size={14} className="text-red-400" />}
+                  {status === "needs_setup" && <AlertCircle size={14} className="text-amber-400" />}
+                  <span className="text-sm font-medium text-white/80">
+                    {busy               ? "Running import…"
+                    : status === "done"        ? "Import complete"
+                    : status === "needs_setup" ? "Database setup needed"
+                    : status === "error"       ? "Import failed"
+                    : "Import log"}
                   </span>
                 </div>
-                {(importStatus === "done" || importStatus === "error") && (
-                  <button onClick={() => { setShowImportPanel(false); setImportStatus("idle"); }}
-                    className="text-white/30 hover:text-white transition">
+                {!busy && (
+                  <button onClick={() => { setShowPanel(false); setStatus("idle"); }}
+                    className="text-white/25 hover:text-white transition">
                     <X size={16} />
                   </button>
                 )}
               </div>
-              <div className="space-y-1 font-mono text-xs text-white/50">
-                {importLog.map((line, i) => (
-                  <div key={i}>{line}</div>
+
+              {/* Log lines */}
+              <div className="px-5 pt-4 pb-2 space-y-1.5 font-mono text-[12px]">
+                {logs.map((l, i) => (
+                  <div key={i} className={`flex items-start gap-2 ${logStyle[l.type]}`}>
+                    <span className="shrink-0 w-3">{logPrefix[l.type]}</span>
+                    <span>{l.text}</span>
+                  </div>
                 ))}
               </div>
+
+              {/* Setup SQL block */}
+              {setupSQL && (
+                <div className="px-5 pb-5 mt-2">
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 overflow-hidden">
+                    {/* SQL header */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-amber-500/10">
+                      <div>
+                        <p className="text-xs font-semibold text-amber-400">
+                          Step 1 — Create the table in Supabase
+                        </p>
+                        <p className="text-[11px] text-white/30 mt-0.5">
+                          Go to <strong className="text-white/50">supabase.com → your project → SQL Editor → New query</strong> → paste → Run
+                        </p>
+                      </div>
+                      <button onClick={copySQL}
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 hover:bg-white/5 transition text-xs ml-3">
+                        {copied
+                          ? <><Check size={12} className="text-emerald-400" /> Copied!</>
+                          : <><Copy size={12} /> Copy SQL</>}
+                      </button>
+                    </div>
+
+                    {/* SQL code */}
+                    <pre className="px-4 py-3 text-[11px] text-white/55 overflow-x-auto leading-relaxed whitespace-pre">
+{setupSQL}
+                    </pre>
+
+                    {/* Step 2 */}
+                    <div className="px-4 py-3 border-t border-amber-500/10 flex items-center justify-between gap-3">
+                      <p className="text-[11px] text-white/35">
+                        <strong className="text-white/50">Step 2 —</strong> After running the SQL, click Import again
+                      </p>
+                      <button onClick={runImport}
+                        className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs hover:bg-purple-500/30 transition">
+                        <Github size={12} />
+                        Import again
+                        <ArrowRight size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ── PROJECT GRID ────────────────────────────────────────── */}
+          {/* PROJECT GRID */}
           {loading ? (
-            <div className="flex items-center gap-3 text-white/30 text-sm py-16 justify-center">
-              <Loader2 size={16} className="animate-spin" />
-              Loading projects...
+            <div className="flex items-center gap-3 text-white/30 text-sm py-20 justify-center">
+              <Loader2 size={16} className="animate-spin" /> Loading projects…
             </div>
           ) : projects.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 border-dashed h-60 flex flex-col items-center justify-center gap-3 text-white/25">
-              <Folder size={32} />
-              <p className="text-sm">No projects yet</p>
-              <button onClick={handleImport}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-purple-500/30 text-purple-300 text-xs hover:bg-purple-500/10 transition">
-                <Github size={14} />
-                Import from GitHub
+            <div className="rounded-2xl border border-dashed border-white/10 h-64 flex flex-col items-center justify-center gap-4 text-white/25">
+              <Github size={36} />
+              <div className="text-center">
+                <p className="text-sm mb-1">No projects yet</p>
+                <p className="text-xs">Import from GitHub or add manually</p>
+              </div>
+              <button onClick={runImport}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-purple-500/30 text-purple-300 text-sm hover:bg-purple-500/10 transition">
+                <Github size={14} /> Import from GitHub
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-              {projects.map((project) => (
-                <div key={project.id}
+              {projects.map((p) => (
+                <div key={p.id}
                   className="group border border-white/10 bg-white/[0.02] rounded-2xl overflow-hidden hover:border-white/20 hover:-translate-y-1 transition-all duration-300 flex flex-col">
 
-                  {/* IMAGE */}
-                  <div className="w-full h-[140px] bg-white/[0.03] overflow-hidden relative">
-                    {project.image_url ? (
-                      <img src={project.image_url} alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Github size={28} className="text-white/10" />
-                      </div>
-                    )}
-                    {/* GitHub badge */}
-                    {project.github_url && (
-                      <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-                        className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/60 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-black/80"
-                        onClick={e => e.stopPropagation()}>
+                  {/* Thumbnail */}
+                  <div className="h-[130px] bg-[#111] flex items-center justify-center relative overflow-hidden">
+                    {p.image_url
+                      ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                      : <Github size={28} className="text-white/10" />
+                    }
+                    {p.github_url && (
+                      <a href={p.github_url} target="_blank" rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                         <Github size={13} />
                       </a>
                     )}
                   </div>
 
-                  {/* BODY */}
-                  <div className="p-4 flex flex-col flex-1">
-                    <h2 className="font-semibold text-[13px] mb-1 line-clamp-1">{project.title}</h2>
-                    <p className="text-[11px] text-white/40 line-clamp-2 mb-3 leading-relaxed flex-1">
-                      {project.description}
-                    </p>
+                  {/* Body */}
+                  <div className="p-4 flex flex-col flex-1 gap-2">
+                    <h2 className="font-semibold text-[13px] line-clamp-1">{p.title}</h2>
+                    <p className="text-[11px] text-white/40 line-clamp-2 leading-relaxed flex-1">{p.description}</p>
 
-                    {/* TECH TAGS */}
-                    {project.technologies && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {String(project.technologies).split(',').slice(0, 3).map((t: string, i: number) => (
-                          <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/40">
+                    {/* Tech tags */}
+                    {p.technologies && (
+                      <div className="flex flex-wrap gap-1">
+                        {String(p.technologies).split(',').slice(0, 3).map((t: string, i: number) => (
+                          <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/35">
                             {t.trim()}
                           </span>
                         ))}
-                        {String(project.technologies).split(',').length > 3 && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/30">
-                            +{String(project.technologies).split(',').length - 3}
+                        {String(p.technologies).split(',').length > 3 && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/25">
+                            +{String(p.technologies).split(',').length - 3}
                           </span>
                         )}
                       </div>
                     )}
 
-                    {/* FOOTER */}
-                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-2 border-t border-white/5 gap-2">
                       <span className="text-[10px] text-white/25">
-                        {project.created_at ? new Date(project.created_at).toLocaleDateString() : ""}
+                        {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
                       </span>
-                      <div className="flex items-center gap-1">
-                        {project.live_url && (
-                          <a href={project.live_url} target="_blank" rel="noopener noreferrer"
-                            className="w-7 h-7 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/10 transition"
-                            onClick={e => e.stopPropagation()}>
+                      <div className="flex gap-1">
+                        {p.live_url && (
+                          <a href={p.live_url} target="_blank" rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="w-7 h-7 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/10 transition">
                             <ExternalLink size={12} />
                           </a>
                         )}
-                        <button onClick={() => router.push(`/admin/projects/${project.id}`)}
+                        <button onClick={() => router.push(`/admin/projects/${p.id}`)}
                           className="h-7 px-3 rounded-lg border border-white/10 hover:bg-white hover:text-black transition text-[11px]">
                           Edit
                         </button>
@@ -282,7 +330,8 @@ export default function ProjectsPage() {
         </div>
       </main>
 
-      <AddProjectModal isOpen={open} onClose={() => setOpen(false)} onAdd={handleAdd} />
+      <AddProjectModal isOpen={addOpen} onClose={() => setAddOpen(false)}
+        onAdd={(p: any) => setProjects(prev => [p, ...prev])} />
     </div>
   );
 }
