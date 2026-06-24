@@ -8,5 +8,6 @@
     "github.copilot.chat.claude47OpusPrompt.enabled": true,
     "github.copilot.chat.claudeAgent.allowAutoPermissions": true,
     "github.copilot.chat.claudeAgent.allowDangerouslySkipPermissions": true,
-    "github.copilot.chat.codesearch.enabled": true
+    "github.copilot.chat.codesearch.enabled": true,
+    "discord-chat.token": "ODUzMTY2NDA4MjEyODA3NzAx.GA4TpM.hBvXyeahFQTmPM0j1szKJNxyJg5W1T8PdrxWXo"
 }
