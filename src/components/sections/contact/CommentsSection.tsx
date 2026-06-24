@@ -37,6 +37,7 @@ export default function CommentsSection() {
     if (!name.trim() || !comment.trim()) return
 
     await addComment({ name, comment, image })
+    if (name.trim()) localStorage.setItem('_visitor_name', name.trim())
 
     setName('')
     setComment('')
