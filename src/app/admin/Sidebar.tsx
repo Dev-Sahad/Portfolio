@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
+import { Bell,
   LayoutDashboard,
   Folder,
   Award,
@@ -53,6 +53,11 @@ const menus = [
     name: "Settings",
     icon: Settings,
     path: "/admin/settings",
+  },
+  {
+    name: "Webhook",
+    icon: Bell,
+    path: "/admin/webhook",
   },
 ];
 
