@@ -54,8 +54,8 @@ const DEFAULTS: Settings = {
   show_visitor_name: true,
   show_live_count: true,
   spam_block_hours: 6,
-  custom_footer: 'portfolio-v1  ·  Visitor Analytics',
-  custom_title: '👁️  New Portfolio Visitor',
+  custom_footer: 'sahad.is-a.dev  ·  Visitor Analytics',
+  custom_title: '👨🏻‍💻  New Visitor',
 }
 
 // Live sessions from /api/visitors
@@ -162,13 +162,13 @@ CREATE POLICY "public_rw" ON public.webhook_settings
         body: JSON.stringify({
           embeds: [{
             title: '🧪 Webhook Test',
-            description: 'Your Discord webhook is connected to your portfolio! ✅',
+            description: '<@853166408212807701> Your Discord webhook is connected to your portfolio! ✅',
             color: 0x00ff88,
             fields: [
               { name: '⏰ Time', value: new Date().toLocaleString(), inline: true },
               { name: '📍 From', value: 'Admin Panel Test', inline: true },
             ],
-            footer: { text: 'portfolio-v1 · Webhook Test' },
+            footer: { text: 'portfolio · Webhook Test' },
             timestamp: new Date().toISOString(),
           }],
         }),
