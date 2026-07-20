@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase";
 import {
   Eye, MessageSquare, Layers, RefreshCcw, TrendingUp,
   Folder, Award, Pin, ArrowUpRight, Activity, Sparkles,
-  Radio, Users,
+  Radio, Users, ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -116,13 +116,24 @@ export default function DashboardPage() {
               <p className="text-sm text-white/40 mt-1">Welcome back, Admin</p>
             </div>
 
-            <button
-              onClick={() => { fetchDashboard(); fetchLive(); }}
-              className="h-11 px-5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all flex items-center gap-2 text-sm group w-full sm:w-auto justify-center"
-            >
-              <RefreshCcw size={14} className="group-hover:rotate-180 transition duration-500" />
-              Refresh
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link
+                href="/"
+                className="h-11 px-5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all flex items-center gap-2 text-sm group justify-center"
+              >
+                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                Back to Portfolio
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => { fetchDashboard(); fetchLive(); }}
+                className="h-11 px-5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all flex items-center gap-2 text-sm group justify-center"
+              >
+                <RefreshCcw size={14} className="group-hover:rotate-180 transition duration-500" />
+                Refresh
+              </button>
+            </div>
           </div>
 
           {/* LIVE VIEWERS BANNER */}
