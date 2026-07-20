@@ -220,11 +220,14 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 ADMIN_EMAIL
+ADMIN_USER_ID
 GITHUB_TOKEN
 DISCORD_WEBHOOK_URL
 ```
 
-Keep the service-role key, GitHub token, and Discord webhook server-only. Copy
+`ADMIN_EMAIL` accepts a comma-separated allowlist, and `ADMIN_USER_ID` can pin
+access to one Supabase Auth user ID. Keep the service-role key, admin identity,
+GitHub token, and Discord webhook server-only. Copy
 `.env.example` to `.env.local` for local development and set the same values in
 Vercel for production.
 

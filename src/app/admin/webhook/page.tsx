@@ -56,8 +56,19 @@ const DEFAULTS: Settings = {
   custom_title: '👨🏻‍💻  New Visitor',
 }
 
-// Live sessions from /api/visitors
-interface Session { id: string; page: string; since: number; country: string; city: string }
+// Live sessions from the admin-protected /api/visitors endpoint
+interface Session {
+  id: string
+  page: string
+  since: number
+  country: string
+  city: string
+  name: string | null
+  phone: string | null
+  latitude: number | null
+  longitude: number | null
+  accuracy: number | null
+}
 
 export default function WebhookPage() {
   const router = useRouter()
@@ -268,8 +279,22 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-mono text-white/50">{sv.id}</div>
                         <div>
-                          <p className="text-sm font-medium">{sv.city && sv.city !== '—' ? `${sv.city}, ${sv.country}` : sv.country || 'Unknown'}</p>
-                          <p className="text-xs text-white/30">{sv.page}</p>
+                          <p className="text-sm font-medium">{sv.name || 'Anonymous visitor'}</p>
+                          <p className="text-xs text-white/40">
+                            {sv.city && sv.city !== '—' ? `${sv.city}, ${sv.country}` : sv.country || 'Unknown location'}
+                          </p>
+                          <p className="text-xs text-white/30">{sv.phone ? `${sv.phone} · ` : ''}{sv.page}</p>
+                          {sv.latitude !== null && sv.longitude !== null && (
+                            <a
+                              href={`https://www.google.com/maps?q=${sv.latitude},${sv.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-1 inline-flex items-center gap-1 text-xs text-violet-300 hover:text-violet-200"
+                            >
+                              <MapPin size={11} /> Precise map
+                              {sv.accuracy !== null ? ` (±${Math.round(sv.accuracy)}m)` : ''}
+                            </a>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-white/25">
@@ -339,9 +364,9 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                 <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <Globe size={15} className="text-white/40" /> Visitor Details in Embed
                 </h2>
-                <Toggle label="Visitor Name"       desc="Shown if they've commented before" field="show_visitor_name"  icon={Users}       />
-                <Toggle label="Location"           desc="City, Region, Country from IP"     field="show_location"     icon={MapPin}      />
-                <Toggle label="Map Link"           desc="Clickable Google Maps link"        field="show_map_link"     icon={MapPin}      />
+                <Toggle label="Visitor Name"       desc="Shown after the visitor shares it" field="show_visitor_name"  icon={Users}       />
+                <Toggle label="Location"           desc="IP estimate plus consented precise coordinates" field="show_location" icon={MapPin} />
+                <Toggle label="Map Link"           desc="Precise only with permission; otherwise approximate" field="show_map_link" icon={MapPin} />
                 <Toggle label="ISP / Organization" desc="Their internet provider"           field="show_isp"          icon={Globe}       />
                 <Toggle label="Device Type"        desc="Desktop / Mobile / Tablet"         field="show_device"       icon={Monitor}     />
                 <Toggle label="Browser & OS"       desc="Chrome on Windows, etc"            field="show_browser"      icon={Chrome}      />
