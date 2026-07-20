@@ -33,7 +33,7 @@ export const defaultSiteSettings: SiteSettings = {
     'Fresh graduate of SMK Software Engineering class of 2026 with a passion for front-end development and modern UI. Focused on creating clean, responsive, and user-friendly websites.',
   about_quote: 'Turning ideas into clean, modern, and meaningful digital experiences.',
   cv_url: 'https://drive.google.com/file/d/1KqECb-TA5sgncNXY2pajnUX7bwAM6ASM/view?usp=drivesdk,
-  github_url: 'https://github.com/Dev-Sahad',
+  github_url: 'https://github.com/Dev-Sahad/',
   linkedin_url: 'https://www.linkedin.com/in/muhammad--sahad',
   instagram_url: 'https://www.instagram.com/sahad_____sha/',
   youtube_url: 'https://www.youtube.com/@SAHAD-IS-LIVE',
