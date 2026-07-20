@@ -11,6 +11,8 @@ import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import IntroScreen from '@/components/IntroScreen'
 import VisitorDetailsPrompt from '@/components/VisitorDetailsPrompt'
+import CommandPalette from '@/components/CommandPalette'
+import ThemeToggle from '@/components/ThemeToggle'
 import { useVisitor } from '@/hooks/useVisitor'
 import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
@@ -90,6 +92,10 @@ export default function PageClient({ projects, technologies, settings: settingsI
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatedBackground />
+
+      {/* Linked Global UI Modules */}
+      <CommandPalette />
+      <ThemeToggle />
 
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
