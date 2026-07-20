@@ -1,46 +1,24 @@
 'use client'
 
+import { useTheme } from 'next-themes' // or your own custom hooks state manager
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-      document.documentElement.setAttribute('data-theme', savedTheme)
-    }
-  }, [])
+  useEffect(() => setMounted(true), [])
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-    document.documentElement.setAttribute('data-theme', newTheme)
-    
-    // Dynamically adjust root CSS canvas elements
-    if (newTheme === 'light') {
-      document.documentElement.style.setProperty('--bg-card', 'rgba(0,0,0,0.03)')
-      document.documentElement.style.setProperty('--text-primary', '#171717')
-      document.documentElement.style.setProperty('--text-secondary', '#404040')
-      document.documentElement.style.setProperty('--border', 'rgba(0,0,0,0.1)')
-    } else {
-      document.documentElement.style.setProperty('--bg-card', 'rgba(255,255,255,0.04)')
-      document.documentElement.style.setProperty('--text-primary', '#ffffff')
-      document.documentElement.style.setProperty('--text-secondary', 'rgba(255,255,255,0.55)')
-      document.documentElement.style.setProperty('--border', 'rgba(255,255,255,0.1)')
-    }
-  }
+  if (!mounted) return <div className="w-9 h-9 rounded-full bg-neutral-200/50 animate-pulse" />
 
   return (
     <button
-      onClick={toggleTheme}
-      className="fixed bottom-6 right-6 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-white transition hover:scale-105"
-      aria-label="Toggle theme configuration"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="p-2 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 text-neutral-800 dark:text-neutral-200 hover:bg-white/20 transition-all duration-200"
+      aria-label="Toggle Theme"
     >
-      {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </button>
   )
 }
