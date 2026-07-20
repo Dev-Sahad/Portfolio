@@ -12,8 +12,6 @@ import {
 } from 'lucide-react'
 import Swal from 'sweetalert2'
 
-const DEFAULT_WEBHOOK = 'https://discord.com/api/webhooks/1491857287097094258/qNW1r7kPV2Ke3pleScHVWHaC7Mx_50H6zKsdZ_eKYdoSdi3AlZFO_WwBXe-WT9XIGpB_'
-
 interface Settings {
   webhook_url: string
   notifications_enabled: boolean
@@ -37,7 +35,7 @@ interface Settings {
 }
 
 const DEFAULTS: Settings = {
-  webhook_url: DEFAULT_WEBHOOK,
+  webhook_url: '',
   notifications_enabled: true,
   notify_on_visit: true,
   notify_on_comment: true,
@@ -140,8 +138,10 @@ CREATE TABLE IF NOT EXISTS public.webhook_settings (
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE public.webhook_settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public_rw" ON public.webhook_settings
-  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "admin_rw" ON public.webhook_settings
+  FOR ALL TO authenticated
+  USING ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 </pre>`,
         icon: 'error',
         background: '#0f0f0f',

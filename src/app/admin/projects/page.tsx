@@ -60,7 +60,7 @@ export default function ProjectsPage() {
     addLog(`Fetching repos for @${GITHUB_USER}…`);
 
     try {
-      const res  = await fetch(`/api/import-github-projects?username=${GITHUB_USER}`);
+      const res  = await fetch(`/api/import-github-projects?username=${GITHUB_USER}`, { method: 'POST' });
       const data = await res.json();
 
       // ── Table missing ──────────────────────────────────────────────

@@ -65,12 +65,21 @@ async function ensureProjectsTable(
       created_at timestamptz DEFAULT now()
     );
     ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "public_rw" ON public.projects;
     DO $$ BEGIN
       IF NOT EXISTS (
-        SELECT 1 FROM pg_policies WHERE tablename = 'projects' AND policyname = 'public_rw'
+        SELECT 1 FROM pg_policies WHERE tablename = 'projects' AND policyname = 'public_read'
       ) THEN
-        CREATE POLICY "public_rw" ON public.projects
-          FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+        CREATE POLICY "public_read" ON public.projects
+          FOR SELECT TO anon, authenticated USING (true);
+      END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'projects' AND policyname = 'admin_write'
+      ) THEN
+        CREATE POLICY "admin_write" ON public.projects
+          FOR ALL TO authenticated
+          USING ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+          WITH CHECK ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
       END IF;
     END $$;
   `
@@ -96,10 +105,10 @@ async function ensureProjectsTable(
   }
 }
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
   const username    = searchParams.get('username') || 'Dev-Sahad'
-  const githubToken = searchParams.get('gh_token') || process.env.NEXT_PUBLIC_GITHUB_TOKEN || undefined
+  const githubToken = process.env.GITHUB_TOKEN || undefined
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -142,8 +151,13 @@ CREATE TABLE IF NOT EXISTS public.projects (
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public_rw" ON public.projects
-  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);`,
+DROP POLICY IF EXISTS "public_rw" ON public.projects;
+CREATE POLICY "public_read" ON public.projects
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "admin_write" ON public.projects
+  FOR ALL TO authenticated
+  USING ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');`,
     }, { status: 500 })
   }
 

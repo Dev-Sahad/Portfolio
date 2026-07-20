@@ -69,7 +69,7 @@ const CERTIFICATES = [
   },
 ]
 
-export async function GET() {
+export async function POST() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -100,8 +100,13 @@ CREATE TABLE IF NOT EXISTS public.certificates (
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public_rw" ON public.certificates
-  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);`,
+DROP POLICY IF EXISTS "public_rw" ON public.certificates;
+CREATE POLICY "public_read" ON public.certificates
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "admin_write" ON public.certificates
+  FOR ALL TO authenticated
+  USING ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');`,
     }, { status: 500 })
   }
 
@@ -123,8 +128,13 @@ CREATE POLICY "public_rw" ON public.certificates
       error: error.message,
       hint: 'If this is a permission error, your RLS policy may be blocking inserts. Run the setup_sql to fix it.',
       setup_sql: `ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public_rw" ON public.certificates
-  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);`,
+DROP POLICY IF EXISTS "public_rw" ON public.certificates;
+CREATE POLICY "public_read" ON public.certificates
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "admin_write" ON public.certificates
+  FOR ALL TO authenticated
+  USING ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');`,
     }, { status: 500 })
   }
 

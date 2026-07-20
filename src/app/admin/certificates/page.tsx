@@ -61,7 +61,7 @@ export default function CertificatesPage() {
     setSeeding(true);
     setSeedMsg(null);
     try {
-      const res  = await fetch('/api/seed-certificates');
+      const res  = await fetch('/api/seed-certificates', { method: 'POST' });
       const data = await res.json();
 
       if (data.needsSetup) {
@@ -225,7 +225,7 @@ export default function CertificatesPage() {
               <Award size={36} />
               <div className="text-center">
                 <p className="text-sm mb-1">No certificates yet</p>
-                <p className="text-xs">Click "Seed Defaults" to add 8 web design & dev certificates</p>
+                <p className="text-xs">Click &quot;Seed Defaults&quot; to add 8 web design &amp; dev certificates</p>
               </div>
               <button onClick={handleSeed}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-amber-500/30 text-amber-300 text-sm hover:bg-amber-500/10 transition">
