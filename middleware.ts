@@ -2,9 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const ADMIN_LOGIN_PATH = '/admin/login'
+const DEFAULT_ADMIN_EMAIL = 'dev.sxhd@gmail.com'
 
 function getAllowedAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '')
+  return (process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL)
     .split(',')
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean)
