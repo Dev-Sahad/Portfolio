@@ -13,7 +13,6 @@ import IntroScreen from '@/components/IntroScreen'
 import VisitorDetailsPrompt from '@/components/VisitorDetailsPrompt'
 import { useVisitor } from '@/hooks/useVisitor'
 import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
-
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 interface PageClientProps {
@@ -34,13 +33,13 @@ export default function PageClient({ projects, technologies, settings: settingsI
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
+    // 1. Instant bypass for hash routes to protect smooth transitions
     if (currentHash && currentHash !== '') {
       setShowApp(true)
       return
     }
 
-    setShowWelcome(true)
-
+    // 2. Clear out session storage frames on actual page reloads
     const navEntries = performance.getEntriesByType('navigation')
     const navigationType = navEntries.length > 0 ? (navEntries[0] as PerformanceNavigationTiming).type : null
     const isReload = navigationType === 'reload'
@@ -52,7 +51,9 @@ export default function PageClient({ projects, technologies, settings: settingsI
       window.scrollTo({ top: 0, behavior: 'auto' })
     }
 
+    // 3. Conditional state application to eliminate flicker
     if (!hasPlayedIntro()) {
+      setShowWelcome(true)
       const timer = setTimeout(() => {
         setShowWelcome(false)
         setShowApp(true)
@@ -61,11 +62,13 @@ export default function PageClient({ projects, technologies, settings: settingsI
       return () => clearTimeout(timer)
     }
 
-    setShowWelcome(false)
+    // Fast-path layout for returning users
     setShowApp(true)
   }, [])
 
   useEffect(() => {
+    let exitTimer: number
+
     const handleExternalClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null
       const link = target?.closest('a')
@@ -73,12 +76,15 @@ export default function PageClient({ projects, technologies, settings: settingsI
       if (!link || !link.href || link.target !== '_blank') return
 
       setShowExit(true)
-      window.setTimeout(() => setShowExit(false), 1400)
+      exitTimer = window.setTimeout(() => setShowExit(false), 1400)
     }
 
     window.addEventListener('click', handleExternalClick)
 
-    return () => window.removeEventListener('click', handleExternalClick)
+    return () => {
+      window.removeEventListener('click', handleExternalClick)
+      if (exitTimer) window.clearTimeout(exitTimer)
+    }
   }, [])
 
   return (
