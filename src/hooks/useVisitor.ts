@@ -22,7 +22,6 @@ export function useVisitor() {
 
     const sid = sessionId.current
 
-    // Fire visit notification once per session
     const alreadyNotified = sessionStorage.getItem('_visited')
     if (!alreadyNotified) {
       sessionStorage.setItem('_visited', '1')
@@ -31,26 +30,30 @@ export function useVisitor() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'visit',
-          sessionId: sid,
-          page: window.location.pathname,
-          referrer: document.referrer || 'Direct',
-          device: navigator.userAgent,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          type:         'visit',
+          sessionId:    sid,
+          page:         window.location.pathname + window.location.hash,
+          referrer:     document.referrer || 'Direct',
+          timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language:     navigator.language || navigator.languages?.[0] || '',
+          screenWidth:  window.screen.width,
+          screenHeight: window.screen.height,
+          // visitorName filled in only if they've left a comment before
+          visitorName: localStorage.getItem('_visitor_name') || null,
         }),
       }).catch(() => {})
     }
 
-    // Heartbeat every 25s
+    // Heartbeat every 28s
     const heartbeat = async () => {
       try {
         const res = await fetch('/api/visitors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'heartbeat',
+            type:      'heartbeat',
             sessionId: sid,
-            page: window.location.pathname,
+            page:      window.location.pathname,
           }),
         })
         const data = await res.json()
@@ -59,20 +62,13 @@ export function useVisitor() {
     }
 
     heartbeat()
-    const interval = setInterval(heartbeat, 25_000)
+    const iv = setInterval(heartbeat, 28_000)
 
-    const handleUnload = () => {
-      navigator.sendBeacon(
-        '/api/visitors',
-        JSON.stringify({ type: 'leave', sessionId: sid }),
-      )
-    }
-    window.addEventListener('beforeunload', handleUnload)
+    const leave = () =>
+      navigator.sendBeacon('/api/visitors', JSON.stringify({ type: 'leave', sessionId: sid }))
 
-    return () => {
-      clearInterval(interval)
-      window.removeEventListener('beforeunload', handleUnload)
-    }
+    window.addEventListener('beforeunload', leave)
+    return () => { clearInterval(iv); window.removeEventListener('beforeunload', leave) }
   }, [])
 
   return { liveViewers }
