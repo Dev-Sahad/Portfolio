@@ -49,6 +49,7 @@ export default function PortfolioCard({
         {image ? (
           <img
             src={image}
+            alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
           />
         ) : (

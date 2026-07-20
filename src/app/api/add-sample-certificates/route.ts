@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -54,8 +54,22 @@ const sampleCertificates = [
   },
 ]
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json(
+        { error: 'Missing Supabase server credentials' },
+        { status: 500 },
+      )
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    })
+
     // Check if certificates already exist
     const { data: existing } = await supabase
       .from('certificates')
@@ -86,21 +100,21 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: `Added ${data.length} sample certificates`,
+        message: `Added ${data?.length ?? 0} sample certificates`,
         data,
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error)
     return NextResponse.json(
-      { error: error.message },
+      { error: error instanceof Error ? error.message : 'Unexpected error' },
       { status: 500 }
     )
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   return NextResponse.json(
     { message: 'Use POST to add sample certificates' },
     { status: 405 }

@@ -13,14 +13,15 @@ function getSessionId() {
 
 export function useVisitor() {
   const [liveViewers, setLiveViewers] = useState(1)
-  const sessionId = useRef(getSessionId())
+  const sessionId = useRef<string | null>(null)
   const fired = useRef(false)
 
   useEffect(() => {
     if (fired.current) return
     fired.current = true
 
-    const sid = sessionId.current
+    const sid = getSessionId()
+    sessionId.current = sid
 
     const alreadyNotified = sessionStorage.getItem('_visited')
     if (!alreadyNotified) {

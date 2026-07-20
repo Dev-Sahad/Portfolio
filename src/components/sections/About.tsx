@@ -231,7 +231,7 @@ export default function About({ settings }: AboutProps) {
                 width: "fit-content",
               }}
             >
-              "{settings.about_quote}"
+              &ldquo;{settings.about_quote}&rdquo;
             </motion.div>
 
             {/* BUTTONS */}

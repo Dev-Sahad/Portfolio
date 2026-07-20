@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const OWNER_EMAIL     = 'dev.sxhd@gmail.com'
-const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1491857287097094258/qNW1r7kPV2Ke3pleScHVWHaC7Mx_50H6zKsdZ_eKYdoSdi3AlZFO_WwBXe-WT9XIGpB_'
+const DISCORD_WEBHOOK = process.env.DISCORD_WEBHOOK_URL
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Discord embed ─────────────────────────────────────────────
-    await fetch(DISCORD_WEBHOOK, {
+    if (DISCORD_WEBHOOK) await fetch(DISCORD_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -44,7 +44,10 @@ export async function POST(req: NextRequest) {
       mailtoUrl: `mailto:${name}@?subject=${subject}&body=${body}`,
       ownerMail: `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(`New comment from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nComment: ${comment}`)}`,
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Unexpected error' },
+      { status: 500 },
+    )
   }
 }

@@ -112,8 +112,6 @@ async function getWebhookSettings() {
   } catch { return null }
 }
 
-const DEFAULT_WEBHOOK = 'https://discord.com/api/webhooks/1491857287097094258/qNW1r7kPV2Ke3pleScHVWHaC7Mx_50H6zKsdZ_eKYdoSdi3AlZFO_WwBXe-WT9XIGpB_'
-
 // ── Send to Discord ──────────────────────────────────────────────────
 async function sendDiscord(webhookUrl: string, payload: object) {
   try {
@@ -186,7 +184,7 @@ export async function POST(req: NextRequest) {
 
       const ref = parseReferrer(referrer)
       const settings = await getWebhookSettings()
-      const webhookUrl = settings?.webhook_url || DEFAULT_WEBHOOK
+      const webhookUrl = settings?.webhook_url || process.env.DISCORD_WEBHOOK_URL
 
       // Skip if notifications are disabled
       if (settings?.notifications_enabled === false) {
@@ -260,7 +258,9 @@ export async function POST(req: NextRequest) {
         inline: false,
       })
 
-      await sendDiscord(webhookUrl, { embeds: [embed] })
+      if (webhookUrl) {
+        await sendDiscord(webhookUrl, { embeds: [embed] })
+      }
       return NextResponse.json({ ok: true })
     }
 

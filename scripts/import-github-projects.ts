@@ -14,10 +14,11 @@ interface GitHubRepo {
   topics: string[];
   language: string | null;
   stargazers_count: number;
+  fork: boolean;
 }
 
 async function fetchGitHubProjects(): Promise<GitHubRepo[]> {
-  const headers: any = {
+  const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
   };
 

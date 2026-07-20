@@ -104,19 +104,14 @@ const DEFAULT_WORDS = [
   { text: 'Portfolio',  color: '#ffffff', fontSize: 1.6, opacity: 0.65 },
 ]
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-
-  // Accept credentials via query params (only used once for setup)
-  const supabaseUrl = searchParams.get('url') || process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey  = searchParams.get('key') || process.env.SUPABASE_SERVICE_ROLE_KEY
-  const anonKey     = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const supabaseKey = serviceKey || anonKey
+export async function POST() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseKey) {
     return Response.json({
       success: false,
-      error: 'Missing credentials. Pass ?url=YOUR_SUPABASE_URL&key=YOUR_SERVICE_ROLE_KEY',
+      error: 'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.',
     }, { status: 400 })
   }
 

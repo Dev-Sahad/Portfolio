@@ -22,7 +22,7 @@
 # misc
 .DS_Store
 *.pem
-package-lock.json
+*.tsbuildinfo
 
 # debug
 npm-debug.log*

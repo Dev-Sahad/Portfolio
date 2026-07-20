@@ -7,6 +7,9 @@ const createNoopQuery = () => {
   const query: any = {
     select: () => query,
     order: () => query,
+    eq: () => query,
+    maybeSingle: async () => ({ ...noopResult, data: null }),
+    single: async () => ({ ...noopResult, data: null }),
     then: (resolve: any) => {
       resolve(noopResult)
       return Promise.resolve(noopResult)
