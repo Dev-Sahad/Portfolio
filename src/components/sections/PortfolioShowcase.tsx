@@ -46,7 +46,7 @@ export default function PortfolioShowcase({
             <button
               type="button"
               aria-label="Close preview"
-              className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10"
+              className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:bg-white/20"
             >
               <X size={18} />
             </button>
@@ -56,13 +56,13 @@ export default function PortfolioShowcase({
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.92, opacity: 0 }}
-              className="max-h-[86vh] max-w-[92vw] rounded-xl object-contain"
+              className="max-h-[82vh] max-w-[90vw] md:max-h-[86vh] md:max-w-[80vw] rounded-xl object-contain shadow-2xl"
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <section id="portfolio" className="w-full max-w-[1450px] mx-auto px-6 md:px-12 lg:px-20 pt-24 pb-24 text-white">
+      <section id="portfolio" className="w-full max-w-[1450px] mx-auto px-4 sm:px-6 md:px-12 lg:px-20 pt-24 pb-24 text-white">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -72,17 +72,17 @@ export default function PortfolioShowcase({
         >
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/35">Selected Work</p>
-            <h2 className="mt-3 text-3xl font-bold md:text-5xl">Portfolio</h2>
+            <h2 className="mt-3 text-3xl font-bold md:text-5xl tracking-tight">Portfolio</h2>
           </div>
 
-          <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-1">
+          <div className="flex flex-wrap gap-1 rounded-2xl border border-white/10 bg-white/[0.04] p-1 self-start md:self-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`rounded-xl px-4 py-2 text-sm transition ${
-                  activeTab === tab.id ? 'bg-white text-black' : 'text-white/55 hover:bg-white/10 hover:text-white'
+                className={`rounded-xl px-4 py-2 text-xs sm:text-sm font-medium transition duration-200 ${
+                  activeTab === tab.id ? 'bg-white text-black shadow-lg' : 'text-white/55 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 {tab.label}
@@ -106,7 +106,7 @@ export default function PortfolioShowcase({
                 ) : resolvedProjects.length === 0 ? (
                   <EmptyState title="Projects are coming soon" />
                 ) : (
-                  <div className="grid gap-6 px-1 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                     {displayedProjects.map((item, i) => (
                       <PortfolioCard
                         key={item.id}
@@ -122,11 +122,11 @@ export default function PortfolioShowcase({
                 )}
 
                 {resolvedProjects.length > 3 && (
-                  <div className="flex justify-center">
+                  <div className="flex justify-center pt-4">
                     <button
                       type="button"
                       onClick={() => setShowAllProjects((value) => !value)}
-                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm text-white/70 transition hover:bg-white hover:text-black"
+                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm text-white/70 transition duration-200 hover:bg-white hover:text-black hover:scale-[1.02]"
                     >
                       {showAllProjects ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       {showAllProjects ? 'Show Less' : 'See More'}
@@ -146,16 +146,22 @@ export default function PortfolioShowcase({
                       key={item.id}
                       type="button"
                       onClick={() => item.image_url && setPreviewImage(item.image_url)}
-                      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:-translate-y-1 hover:border-white/25"
+                      className="group flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.07]"
                     >
-                      <div className="mb-4 flex aspect-[16/10] items-center justify-center overflow-hidden rounded-xl bg-black/30">
+                      {/* aspect-video locks thumbnail dimension symmetry cross-platform */}
+                      <div className="mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-black/30 border border-white/5">
                         {item.image_url ? (
-                          <img src={item.image_url} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                          <img 
+                            src={item.image_url} 
+                            alt={item.title} 
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105" 
+                            loading="lazy"
+                          />
                         ) : (
-                          <Award className="text-white/25" />
+                          <Award className="text-white/25" size={32} />
                         )}
                       </div>
-                      <h3 className="line-clamp-2 text-sm font-semibold">{item.title}</h3>
+                      <h3 className="line-clamp-2 text-sm font-semibold text-white/90 group-hover:text-white mt-auto">{item.title}</h3>
                     </button>
                   ))
                 )}
@@ -163,21 +169,26 @@ export default function PortfolioShowcase({
             )}
 
             {activeTab === 'techstack' && (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {resolvedTech.length === 0 ? (
                   <EmptyState title={loading ? 'Loading tech stack...' : 'Tech stack is coming soon'} />
                 ) : (
                   resolvedTech.map((item) => (
                     <div
                       key={item.id}
-                      className="flex min-h-[130px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:-translate-y-1 hover:border-white/25"
+                      className="flex min-h-[120px] sm:min-h-[130px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.06]"
                     >
                       {item.logo_url || item.image_url ? (
-                        <img src={item.logo_url || item.image_url} alt={item.name} className="h-10 w-10 object-contain" />
+                        <img 
+                          src={item.logo_url || item.image_url} 
+                          alt={item.name} 
+                          className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110" 
+                          loading="lazy"
+                        />
                       ) : (
                         <Layers size={28} className="text-white/35" />
                       )}
-                      <p className="text-center text-xs text-white/75">{item.name}</p>
+                      <p className="text-center text-xs text-white/75 font-medium">{item.name}</p>
                     </div>
                   ))
                 )}
@@ -192,7 +203,7 @@ export default function PortfolioShowcase({
 
 function EmptyState({ title }: { title: string }) {
   return (
-    <div className="col-span-full flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] text-sm text-white/35">
+    <div className="col-span-full flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] text-sm text-white/35 tracking-wide">
       {title}
     </div>
   )
