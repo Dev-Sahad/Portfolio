@@ -25,21 +25,22 @@ export async function updateSession(request: NextRequest) {
   const isPublicVisitorRequest =
     request.nextUrl.pathname === '/api/visitors' && request.method !== 'GET'
 
-  const redirectToLogin = () => {
+  // Pass the latest response reference to ensure updated cookies are cloned
+  const redirectToLogin = (currentResponse: NextResponse) => {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/admin/login'
     loginUrl.search = ''
     const redirect = NextResponse.redirect(loginUrl)
-    supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
+    currentResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
     return redirect
   }
 
-  const redirectToDashboard = () => {
+  const redirectToDashboard = (currentResponse: NextResponse) => {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/admin/dashboard'
     dashboardUrl.search = ''
     const redirect = NextResponse.redirect(dashboardUrl)
-    supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
+    currentResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
     return redirect
   }
 
@@ -50,7 +51,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!url || !key) {
     if (isProtectedAdminApiRoute) return denyApiRequest(401)
-    return isProtectedAdminRoute ? redirectToLogin() : supabaseResponse
+    return isProtectedAdminRoute ? redirectToLogin(supabaseResponse) : supabaseResponse
   }
 
   if (isPublicVisitorRequest) return supabaseResponse
@@ -74,7 +75,7 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Verify the identity with Supabase Auth instead of trusting cookie data.
+  // Verify identity with Supabase Auth (invokes setAll dynamically if tokens refresh)
   const { data: { user } } = await supabase.auth.getUser()
   const isAdmin = isAdminUser(user)
 
@@ -82,11 +83,11 @@ export async function updateSession(request: NextRequest) {
   if (isProtectedAdminApiRoute && !isAdmin) return denyApiRequest(403)
 
   if (isProtectedAdminRoute && !isAdmin) {
-    return redirectToLogin()
+    return redirectToLogin(supabaseResponse)
   }
 
   if (isAdminLoginRoute && isAdmin) {
-    return redirectToDashboard()
+    return redirectToDashboard(supabaseResponse)
   }
 
   return supabaseResponse
