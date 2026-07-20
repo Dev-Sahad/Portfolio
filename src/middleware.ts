@@ -13,5 +13,6 @@ export const config = {
     '/api/import-github-projects',
     '/api/seed-certificates',
     '/api/setup-db',
+    '/api/visitors',
   ],
 }

@@ -10,6 +10,7 @@ import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import IntroScreen from '@/components/IntroScreen'
+import VisitorDetailsPrompt from '@/components/VisitorDetailsPrompt'
 import { useVisitor } from '@/hooks/useVisitor'
 import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
 
@@ -117,6 +118,8 @@ export default function PageClient({ projects, technologies, settings: settingsI
           </motion.div>
         )}
       </AnimatePresence>
+
+      <VisitorDetailsPrompt enabled={showApp} />
     </main>
   )
 }

@@ -1,17 +1,13 @@
 'use client'
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
+import { FormEvent, useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { Lock, Mail, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [supabase] = useState(() => typeof window !== 'undefined' ? createClient() : null as any)
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -20,9 +16,24 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState('')
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    let active = true
+    setMounted(true)
 
-  const handleLogin = async () => {
+    const redirectExistingAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      const isKnownAdmin =
+        user?.app_metadata?.role === 'admin' ||
+        user?.email?.toLowerCase() === 'dev.sxhd@gmail.com'
+      if (active && isKnownAdmin) window.location.replace('/admin/dashboard')
+    }
+
+    void redirectExistingAdmin()
+    return () => { active = false }
+  }, [])
+
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setErrorMsg('')
     setSuccessMsg('')
     if (!email || !password) { setErrorMsg('Please enter both email and password.'); return }
@@ -33,12 +44,17 @@ export default function LoginPage() {
       setErrorMsg('Invalid credentials. Please try again.')
     } else {
       setSuccessMsg('Login successful! Redirecting...')
-      setTimeout(() => router.push('/admin/dashboard'), 800)
+      window.location.replace('/admin/dashboard')
     }
   }
 
   const handleOAuth = async (provider: 'google' | 'github') => {
-    await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/auth/callback` } })
+    setErrorMsg('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/admin/dashboard` },
+    })
+    if (error) setErrorMsg(`Unable to start ${provider} login. Please try again.`)
   }
 
   // Floating particles for background
@@ -126,6 +142,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
+          <form onSubmit={handleLogin}>
           {/* EMAIL */}
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="mb-4">
             <label className="text-xs text-white/50 mb-2 block font-medium tracking-wide">Email</label>
@@ -136,7 +153,7 @@ export default function LoginPage() {
                 placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                autoComplete="email"
                 className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-4 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
               />
             </div>
@@ -152,7 +169,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                autoComplete="current-password"
                 className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-12 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -164,14 +181,15 @@ export default function LoginPage() {
 
           {/* LOGIN BUTTON */}
           <motion.button
+            type="submit"
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-            onClick={handleLogin}
             disabled={loading}
             className="w-full h-[52px] rounded-2xl bg-white text-black font-semibold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
           >
             {loading ? <><Loader2 size={17} className="animate-spin" /> Signing In...</> : 'Sign In'}
           </motion.button>
+          </form>
 
           {/* DIVIDER */}
           <div className="flex items-center gap-3 my-5">

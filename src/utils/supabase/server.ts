@@ -31,6 +31,10 @@ const createNoopServerClient = () => {
         data: null,
         error: new Error('Missing Supabase environment variables'),
       }),
+      getUser: async () => ({
+        data: { user: null },
+        error: new Error('Missing Supabase environment variables'),
+      }),
     },
   } as unknown as ReturnType<typeof createServerClient>
 }
