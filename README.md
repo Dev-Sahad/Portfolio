@@ -218,7 +218,15 @@ Add these to your Vercel project settings:
 ```
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+ADMIN_EMAIL
+GITHUB_TOKEN
+DISCORD_WEBHOOK_URL
 ```
+
+Keep the service-role key, GitHub token, and Discord webhook server-only. Copy
+`.env.example` to `.env.local` for local development and set the same values in
+Vercel for production.
 
 ### Custom Domain Setup (is-a.dev)
 
