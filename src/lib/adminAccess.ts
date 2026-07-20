@@ -4,7 +4,7 @@ type AdminIdentity = {
   app_metadata?: Record<string, unknown> | null
 }
 
-const OWNER_EMAIL = 'dev.sxhd@gmail.com'
+const OWNER_EMAIL = 'dev.sxhd@gmail.com , msahadk12@gmail.com'
 
 export function isAdminUser(user?: AdminIdentity | null) {
   if (!user) return false
