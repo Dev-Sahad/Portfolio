@@ -4,7 +4,8 @@ type AdminIdentity = {
   app_metadata?: Record<string, unknown> | null
 }
 
-const OWNER_EMAIL = 'dev.sxhd@gmail.com , msahadk12@gmail.com'
+// 1. Separate the hardcoded emails into an array of individual strings
+const OWNER_EMAILS = ['dev.sxhd@gmail.com', 'msahadk12@gmail.com']
 
 export function isAdminUser(user?: AdminIdentity | null) {
   if (!user) return false
@@ -14,7 +15,8 @@ export function isAdminUser(user?: AdminIdentity | null) {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean)
 
-  const allowedEmails = new Set([OWNER_EMAIL, ...configuredEmails])
+  // 2. Use the spread operator (...OWNER_EMAILS) to pass them individually to the Set
+  const allowedEmails = new Set([...OWNER_EMAILS, ...configuredEmails])
   const configuredUserId = process.env.ADMIN_USER_ID?.trim()
 
   return (
