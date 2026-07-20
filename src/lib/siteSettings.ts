@@ -32,7 +32,7 @@ export const defaultSiteSettings: SiteSettings = {
   about_description:
     'Fresh graduate of SMK Software Engineering class of 2026 with a passion for front-end development and modern UI. Focused on creating clean, responsive, and user-friendly websites.',
   about_quote: 'Turning ideas into clean, modern, and meaningful digital experiences.',
-  cv_url: '',
+  cv_url: 'https://docs.google.com/document/d/1_sE5voLX8rwKd5RMgYDXb2sWllVlw4vlVPZIlEXoDH4/edit?usp=drive_link',
   github_url: 'https://github.com/Dev-Sahad',
   linkedin_url: 'https://www.linkedin.com/in/muhammad-sahad-78b827352',
   instagram_url: 'https://www.instagram.com/sahad_____sha/',
@@ -43,8 +43,13 @@ export const defaultSiteSettings: SiteSettings = {
 }
 
 export function mergeSiteSettings(settings?: Partial<SiteSettings> | null): SiteSettings {
-  return {
+  const mergedSettings = {
     ...defaultSiteSettings,
     ...(settings || {}),
+  }
+
+  return {
+    ...mergedSettings,
+    cv_url: mergedSettings.cv_url?.trim() || defaultSiteSettings.cv_url,
   }
 }
