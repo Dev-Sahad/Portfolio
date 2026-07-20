@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Lock } from 'lucide-react' // Lucide-react for standard production UI iconography
+import Link from 'next/link'
 
 import AnimatedBackground from '@/components/AnimatedBackground'
 import Navbar from '@/components/ui/Navbar'
@@ -35,13 +37,11 @@ export default function PageClient({ projects, technologies, settings: settingsI
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
-    // 1. Instant bypass for hash routes to protect smooth transitions
     if (currentHash && currentHash !== '') {
       setShowApp(true)
       return
     }
 
-    // 2. Clear out session storage frames on actual page reloads
     const navEntries = performance.getEntriesByType('navigation')
     const navigationType = navEntries.length > 0 ? (navEntries[0] as PerformanceNavigationTiming).type : null
     const isReload = navigationType === 'reload'
@@ -53,7 +53,6 @@ export default function PageClient({ projects, technologies, settings: settingsI
       window.scrollTo({ top: 0, behavior: 'auto' })
     }
 
-    // 3. Conditional state application to eliminate flicker
     if (!hasPlayedIntro()) {
       setShowWelcome(true)
       const timer = setTimeout(() => {
@@ -64,7 +63,6 @@ export default function PageClient({ projects, technologies, settings: settingsI
       return () => clearTimeout(timer)
     }
 
-    // Fast-path layout for returning users
     setShowApp(true)
   }, [])
 
@@ -93,9 +91,21 @@ export default function PageClient({ projects, technologies, settings: settingsI
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatedBackground />
 
-      {/* Linked Global UI Modules */}
+      {/* Linked Global UI Control Modules */}
+      <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 50 }}>
+        <ThemeToggle />
+        
+        {/* Admin Login Gateway Button */}
+        <Link 
+          href="/admin" 
+          className="p-2 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 text-neutral-800 dark:text-neutral-200 hover:bg-white/20 transition-all duration-200"
+          title="Admin Panel"
+        >
+          <Lock className="w-5 h-5" />
+        </Link>
+      </div>
+
       <CommandPalette />
-      <ThemeToggle />
 
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
