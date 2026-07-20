@@ -223,6 +223,7 @@ export default function AddProjectModal({
                 >
                   <img
                     src={img}
+                    alt={`Project preview ${i + 1}`}
                     className="w-full h-24 object-cover"
                   />
 

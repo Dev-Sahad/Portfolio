@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/admin/Sidebar';
 import { supabase } from '@/lib/supabase';
@@ -10,9 +10,17 @@ import Swal from 'sweetalert2';
 
 const COLOR_PRESETS = ['#ffffff', '#aaaaff', '#88aaff', '#ff6688', '#66ffaa', '#ffcc44', '#ff44aa'];
 
+interface SceneWord {
+  id: string;
+  text: string;
+  color?: string | null;
+  fontSize?: number | null;
+  opacity?: number | null;
+}
+
 export default function Scene3DPage() {
   const router = useRouter();
-  const [words, setWords] = useState<any[]>([]);
+  const [words, setWords] = useState<SceneWord[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -25,22 +33,22 @@ export default function Scene3DPage() {
     opacity: 0.75,
   });
 
-  const fetchWords = async () => {
+  const fetchWords = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.push('/admin/login'); return; }
     const { data } = await supabase.from('scene3d_words').select('*').order('created_at', { ascending: true });
     setWords(data || []);
     setLoading(false);
-  };
+  }, [router]);
 
-  useEffect(() => { fetchWords(); }, []);
+  useEffect(() => { void fetchWords(); }, [fetchWords]);
 
   const resetForm = () => {
     setForm({ text: '', color: '#ffffff', fontSize: 1.8, opacity: 0.75 });
     setEditId(null);
   };
 
-  const handleOpen = (item?: any) => {
+  const handleOpen = (item?: SceneWord) => {
     if (item) {
       setForm({ text: item.text, color: item.color || '#ffffff', fontSize: item.fontSize || 1.8, opacity: item.opacity || 0.75 });
       setEditId(item.id);
