@@ -138,13 +138,14 @@ export default function About({ settings }: AboutProps) {
         <div
           style={{
             display: "flex",
-            flexDirection: isMobile ? "column" : "row",
+            // Uses column-reverse on mobile so the picture is stacked neatly on top of the text
+            flexDirection: isMobile ? "column-reverse" : "row",
             alignItems: "center",
             justifyContent: "space-between",
             gap: "32px",
           }}
         >
-          {/* LEFT */}
+          {/* LEFT: Bio & Description */}
           <motion.div
             variants={container}
             initial="hidden"
@@ -327,41 +328,40 @@ export default function About({ settings }: AboutProps) {
             </motion.div>
           </motion.div>
 
-          {/* IMAGE */}
-          {!isMobile && (
-            <motion.div
-              variants={slideLeft}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: false }}
+          {/* RIGHT: PROFILE PICTURE (Rendered unconditionally) */}
+          <motion.div
+            variants={slideLeft}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: false }}
+            style={{
+              width: isMobile ? "100%" : "48%",
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-end",
+              marginBottom: isMobile ? "20px" : "0px",
+            }}
+          >
+            <div
               style={{
-                width: "48%",
-                display: "flex",
-                justifyContent: "flex-end",
+                padding: 12,
+                borderRadius: "50%",
+                border: "1px solid var(--border)",
+                transform: isMobile ? "none" : "translateX(-80px)",
               }}
             >
-              <div
+              <img
+                src="/assets/PP.png"
+                alt="Profile"
                 style={{
-                  padding: 12,
+                  width: isMobile ? 180 : 240,
+                  height: isMobile ? 180 : 240,
                   borderRadius: "50%",
-                  border: "1px solid var(--border)",
-                  transform: "translateX(-80px)",
+                  objectFit: "cover",
+                  display: "block",
                 }}
-              >
-                <img
-                  src="/assets/PP.png"
-                  alt="Profile"
-                  style={{
-                    width: 240,
-                    height: 240,
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    display: "block",
-                  }}
-                />
-              </div>
-            </motion.div>
-          )}
+              />
+            </div>
+          </motion.div>
         </div>
 
         {/* CARDS */}
