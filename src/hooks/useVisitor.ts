@@ -45,25 +45,18 @@ export function useVisitor() {
       }).catch(() => {})
     }
 
-    const identifyVisitor = (profile: VisitorProfile) => {
-      void fetch('/api/visitors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'identify', ...visitorContext(), ...profile }),
-      }).catch(() => {})
-    }
 
     const handleProfile = (event: Event) => {
       const profile = (event as CustomEvent<VisitorProfile | null>).detail
-      if (!visitSent) notifyVisit(null)
-      if (profile) identifyVisitor(profile)
+      // One session produces one notification: detailed when shared, anonymous when skipped.
+      notifyVisit(profile)
     }
 
     window.addEventListener(VISITOR_PROFILE_EVENT, handleProfile)
 
     const anonymousTimer = visitSent
       ? null
-      : window.setTimeout(() => notifyVisit(null), 15_000)
+      : window.setTimeout(() => notifyVisit(null), 90_000)
 
     // Heartbeat every 28s
     const heartbeat = async () => {
