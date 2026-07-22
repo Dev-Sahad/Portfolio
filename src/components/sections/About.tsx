@@ -341,12 +341,15 @@ export default function About({ settings }: AboutProps) {
               marginBottom: isMobile ? "20px" : "0px",
             }}
           >
-            <div
+            <motion.div
+              animate={{ y: [0, -10, 0], rotate: [0, 1.5, 0, -1.5, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
               style={{
                 padding: 12,
                 borderRadius: "50%",
                 border: "1px solid var(--border)",
                 transform: isMobile ? "none" : "translateX(-80px)",
+                boxShadow: '0 22px 70px rgba(125, 211, 252, 0.26)',
               }}
             >
               <img
@@ -360,7 +363,7 @@ export default function About({ settings }: AboutProps) {
                   display: "block",
                 }}
               />
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 
