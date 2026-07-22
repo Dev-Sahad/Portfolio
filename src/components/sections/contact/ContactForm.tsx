@@ -245,7 +245,9 @@ export default function ContactForm({ settings }: ContactFormProps) {
                 whileInView="show"
                 viewport={{ once: false }}
                 transition={{ delay: 0.42 + i * 0.05 }}
-                whileHover={{ scale: 1.03, transition: { duration: 0.12 } }}
+                whileHover={{ scale: 1.08, transition: { duration: 0.12 } }}
+                animate={{ y: [0, i % 2 === 0 ? -8 : 8, 0], rotate: [0, i % 2 === 0 ? 1.5 : -1.5, 0] }}
+                transition={{ duration: 3.8 + i * 0.55, repeat: Infinity, ease: 'easeInOut', delay: i * 0.23 }}
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-3 flex items-center justify-between"
               >
                 <div className="absolute inset-0 bg-white/[0.04] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700 ease-out" />
