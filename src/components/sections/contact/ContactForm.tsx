@@ -244,7 +244,6 @@ export default function ContactForm({ settings }: ContactFormProps) {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: false }}
-                transition={{ delay: 0.42 + i * 0.05 }}
                 whileHover={{ scale: 1.08, transition: { duration: 0.12 } }}
                 animate={{ y: [0, i % 2 === 0 ? -8 : 8, 0], rotate: [0, i % 2 === 0 ? 1.5 : -1.5, 0] }}
                 transition={{ duration: 3.8 + i * 0.55, repeat: Infinity, ease: 'easeInOut', delay: i * 0.23 }}
