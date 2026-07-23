@@ -129,7 +129,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <motion.div variants={fieldVariants} initial="hidden" whileInView="show" viewport={{ once: false }} transition={{ delay: 0.1 }}>
+        <motion.div>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
             <input
@@ -142,7 +142,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
           </div>
         </motion.div>
 
-        <motion.div variants={fieldVariants} initial="hidden" whileInView="show" viewport={{ once: false }} transition={{ delay: 0.16 }}>
+        <motion.div>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
             <input
@@ -156,7 +156,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
           </div>
         </motion.div>
 
-        <motion.div variants={fieldVariants} initial="hidden" whileInView="show" viewport={{ once: false }} transition={{ delay: 0.22 }}>
+        <motion.div>
           <div className="relative">
             <MessageSquare className="absolute left-4 top-5 text-white/40" size={16} />
             <textarea
