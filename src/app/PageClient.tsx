@@ -91,14 +91,14 @@ export default function PageClient({ projects, technologies, settings: settingsI
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatedBackground />
 
-      {/* Linked Global UI Control Modules */}
-      <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 50 }}>
+      {/* Global controls share the navigation rhythm without covering its links. */}
+      <div className="fixed right-4 top-5 z-50 flex items-center gap-2 sm:right-6 sm:top-6 lg:right-10">
         <ThemeToggle />
         
         {/* Admin Login Gateway Button */}
         <Link 
           href="/admin" 
-          className="p-2 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 text-neutral-800 dark:text-neutral-200 hover:bg-white/20 transition-all duration-200"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-neutral-800 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:bg-white/20 dark:bg-black/20 dark:text-neutral-200"
           title="Admin Panel"
         >
           <Lock className="w-5 h-5" />

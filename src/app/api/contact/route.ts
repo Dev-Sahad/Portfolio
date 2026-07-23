@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
+import { getWebhookDelivery, renderWebhookMessage } from '@/lib/webhookSettings'
 
 type ContactPayload = {
   name?: string
@@ -66,8 +67,6 @@ async function sendEmail(name: string, senderEmail: string, message: string) {
 }
 
 export async function POST(request: Request) {
-  const webhookUrl = process.env.CONTACT_DISCORD_WEBHOOK_URL
-
   const body = (await request.json()) as ContactPayload
   const name = clean(body.name)
   const email = clean(body.email)
@@ -88,7 +87,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unable to send your message right now.' }, { status: 502 })
   }
 
-  // Send Discord notification if webhook is configured
+  // Admin settings override the server environment value after the migration is applied.
+  const { url: webhookUrl, message: customMessage } = await getWebhookDelivery('contact')
   if (webhookUrl) {
     try {
       await fetch(webhookUrl, {
@@ -96,7 +96,8 @@ export async function POST(request: Request) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: 'Portfolio Contact',
-          content: `New portfolio message from ${name}`,
+          content: renderWebhookMessage(customMessage, { name, email, message }, `New portfolio message from ${name}`),
+          allowed_mentions: { parse: [] },
           embeds: [
             {
               title: 'New Portfolio Message',

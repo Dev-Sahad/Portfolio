@@ -350,6 +350,8 @@ export default function About({ settings }: AboutProps) {
                 border: "1px solid var(--border)",
                 transform: isMobile ? "none" : "translateX(-80px)",
                 boxShadow: '0 22px 70px rgba(125, 211, 252, 0.26)',
+                perspective: 1000,
+                transformStyle: 'preserve-3d',
               }}
             >
               <motion.img
@@ -364,6 +366,8 @@ export default function About({ settings }: AboutProps) {
                   borderRadius: "50%",
                   objectFit: "cover",
                   display: "block",
+                  transformStyle: 'preserve-3d',
+                  willChange: 'transform',
                 }}
               />
             </motion.div>

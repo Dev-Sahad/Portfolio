@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getWebhookDelivery, renderWebhookMessage } from '@/lib/webhookSettings'
 
 const OWNER_EMAIL     = 'dev.sxhd@gmail.com'
-const DISCORD_WEBHOOK = process.env.COMMENTS_DISCORD_WEBHOOK_URL
-
 export async function POST(req: NextRequest) {
   try {
     const { name, comment, imageUrl } = await req.json()
@@ -11,11 +10,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing name or comment' }, { status: 400 })
     }
 
+    const { url: webhookUrl, message: customMessage } = await getWebhookDelivery('comments')
+
     // ── Discord embed ─────────────────────────────────────────────
-    if (DISCORD_WEBHOOK) await fetch(DISCORD_WEBHOOK, {
+    if (webhookUrl) await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        content: renderWebhookMessage(customMessage, { name, comment }, `New portfolio comment from ${name}`),
+        allowed_mentions: { parse: [] },
         embeds: [{
           title: '💬 New Comment on Your Portfolio',
           color: 0x7c3aed,

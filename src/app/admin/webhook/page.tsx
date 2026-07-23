@@ -32,6 +32,10 @@ interface Settings {
   spam_block_hours: number
   custom_footer: string
   custom_title: string
+  contact_webhook_url: string
+  comments_webhook_url: string
+  contact_custom_message: string
+  comments_custom_message: string
 }
 
 const DEFAULTS: Settings = {
@@ -54,6 +58,10 @@ const DEFAULTS: Settings = {
   spam_block_hours: 6,
   custom_footer: 'sahad.is-a.dev  ·  Visitor Analytics',
   custom_title: '👨🏻‍💻  New Visitor',
+  contact_webhook_url: '',
+  comments_webhook_url: '',
+  contact_custom_message: 'New portfolio message from {{name}}',
+  comments_custom_message: 'New portfolio comment from {{name}}',
 }
 
 // Live sessions from the admin-protected /api/visitors endpoint
@@ -146,6 +154,10 @@ CREATE TABLE IF NOT EXISTS public.webhook_settings (
   spam_block_hours int DEFAULT 6,
   custom_footer text,
   custom_title text,
+  contact_webhook_url text,
+  comments_webhook_url text,
+  contact_custom_message text,
+  comments_custom_message text,
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE public.webhook_settings ENABLE ROW LEVEL SECURITY;
@@ -330,6 +342,54 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                   {testResult === 'ok'  && <span className="flex items-center gap-1 text-xs text-emerald-400"><Check size={12} /> Webhook works!</span>}
                   {testResult === 'err' && <span className="flex items-center gap-1 text-xs text-red-400"><X size={12} /> Failed — check URL</span>}
                 </div>
+              </div>
+
+              {/* CONTACT DELIVERY */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+                  <MessageSquare size={15} className="text-white/40" /> Contact Me Webhook
+                </h2>
+                <p className="text-xs text-white/30 mb-4">Used when a visitor submits the Contact Me form. Leave the URL empty to keep using the secure Vercel environment setting.</p>
+                <label className="text-xs text-white/40 mb-1.5 block">Discord Webhook URL</label>
+                <input
+                  value={s.contact_webhook_url}
+                  onChange={e => set('contact_webhook_url', e.target.value)}
+                  placeholder="https://discord.com/api/webhooks/..."
+                  className="w-full px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition font-mono text-xs"
+                />
+                <label className="text-xs text-white/40 mb-1.5 mt-4 block">Custom message</label>
+                <textarea
+                  value={s.contact_custom_message}
+                  onChange={e => set('contact_custom_message', e.target.value)}
+                  rows={2}
+                  placeholder="New portfolio message from {{name}}"
+                  className="w-full resize-none px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition"
+                />
+                <p className="mt-2 text-[11px] text-white/25">{'Available variables: {{name}}, {{email}}, {{message}}.'}</p>
+              </div>
+
+              {/* COMMENTS DELIVERY */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+                  <MessageSquare size={15} className="text-white/40" /> Comments Webhook
+                </h2>
+                <p className="text-xs text-white/30 mb-4">Used when a visitor posts a portfolio comment. Leave the URL empty to keep using the secure Vercel environment setting.</p>
+                <label className="text-xs text-white/40 mb-1.5 block">Discord Webhook URL</label>
+                <input
+                  value={s.comments_webhook_url}
+                  onChange={e => set('comments_webhook_url', e.target.value)}
+                  placeholder="https://discord.com/api/webhooks/..."
+                  className="w-full px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition font-mono text-xs"
+                />
+                <label className="text-xs text-white/40 mb-1.5 mt-4 block">Custom message</label>
+                <textarea
+                  value={s.comments_custom_message}
+                  onChange={e => set('comments_custom_message', e.target.value)}
+                  rows={2}
+                  placeholder="New portfolio comment from {{name}}"
+                  className="w-full resize-none px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition"
+                />
+                <p className="mt-2 text-[11px] text-white/25">{'Available variables: {{name}}, {{comment}}.'}</p>
               </div>
 
               {/* MASTER SWITCHES */}
