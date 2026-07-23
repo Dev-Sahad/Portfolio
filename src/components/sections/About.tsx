@@ -352,8 +352,11 @@ export default function About({ settings }: AboutProps) {
                 boxShadow: '0 22px 70px rgba(125, 211, 252, 0.26)',
               }}
             >
-              <img
+              <motion.img
                 src="/assets/PP.png"
+                animate={{ y: [0, -12, 0], rotateY: [-7, 7, -7], rotateX: [2, -2, 2] }}
+                whileHover={{ scale: 1.06, rotateY: 14, rotateX: -6 }}
+                transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
                 alt="Profile"
                 style={{
                   width: isMobile ? 180 : 240,
