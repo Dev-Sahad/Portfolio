@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const OWNER_EMAIL     = 'dev.sxhd@gmail.com'
-const DISCORD_WEBHOOK = process.env.DISCORD_WEBHOOK_URL
+const DISCORD_WEBHOOK = process.env.COMMENTS_DISCORD_WEBHOOK_URL
 
 export async function POST(req: NextRequest) {
   try {
