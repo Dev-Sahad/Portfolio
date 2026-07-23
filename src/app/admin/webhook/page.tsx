@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/app/admin/Sidebar'
-import { supabase } from '@/lib/supabase'
 import {
   Save, Bell, BellOff, Eye, MapPin, Search, Monitor,
   Users, Link2, MessageSquare, TestTube, Check, X,
@@ -94,11 +93,10 @@ export default function WebhookPage() {
   // ── Load settings ────────────────────────────────────────────────
   useEffect(() => {
     const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.push('/admin/login'); return }
-
-      const { data } = await supabase.from('webhook_settings').select('*').eq('id', 1).single()
-      if (data) setS({ ...DEFAULTS, ...data })
+      const response = await fetch('/api/admin/webhook-settings')
+      if (response.status === 401 || response.status === 403) { router.push('/admin/login'); return }
+      const { settings } = await response.json()
+      if (settings) setS({ ...DEFAULTS, ...settings })
       setLoading(false)
     }
     load()
@@ -123,7 +121,12 @@ export default function WebhookPage() {
   // ── Save ─────────────────────────────────────────────────────────
   const save = async () => {
     setSaving(true)
-    const { error } = await supabase.from('webhook_settings').upsert([{ id: 1, ...s }])
+    const response = await fetch('/api/admin/webhook-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings: s }),
+    })
+    const { error } = response.ok ? {} : await response.json()
     setSaving(false)
     if (!error) {
       Swal.fire({ title: 'Saved!', icon: 'success', timer: 1200, showConfirmButton: false, background: '#0f0f0f', color: '#fff' })
