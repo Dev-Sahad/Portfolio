@@ -92,13 +92,13 @@ export default function PageClient({ projects, technologies, settings: settingsI
       <AnimatedBackground />
 
       {/* Linked Global UI Control Modules */}
-      <div aria-label="Quick controls" style={{ position: 'fixed', top: '1.25rem', right: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', zIndex: 50, padding: '0.4rem', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.14)', background: 'rgba(10,10,10,0.52)', boxShadow: '0 12px 36px rgba(0,0,0,0.24)', backdropFilter: 'blur(16px)' }}>
+      <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 50 }}>
         <ThemeToggle />
         
         {/* Admin Login Gateway Button */}
         <Link 
           href="/admin" 
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-neutral-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20 dark:bg-white/5 dark:text-neutral-100"
+          className="p-2 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 text-neutral-800 dark:text-neutral-200 hover:bg-white/20 transition-all duration-200"
           title="Admin Panel"
         >
           <Lock className="w-5 h-5" />
