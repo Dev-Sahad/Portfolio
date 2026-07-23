@@ -14,47 +14,19 @@ const clean = (value: unknown) =>
 
 async function sendEmail(name: string, senderEmail: string, message: string) {
   try {
-    // Create a test account if no SMTP credentials are provided
-    let transporter
-    
-    if (process.env.SMTP_USER && process.env.SMTP_PASSWORD && process.env.SMTP_HOST) {
-      transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD,
-        },
-      })
-    } else {
-      // Fallback: use Gmail or create test account
-      if (process.env.GMAIL_USER && process.env.GMAIL_PASSWORD) {
-        transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_PASSWORD,
-          },
-        })
-      } else {
-        // Create test account (for development)
-        const testAccount = await nodemailer.createTestAccount()
-        transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-          },
-        })
-      }
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
+      throw new Error('Gmail delivery is not configured.')
     }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASSWORD },
+    })
 
     const mailOptions = {
       from: process.env.SMTP_USER || process.env.GMAIL_USER || 'noreply@portfolio.dev',
-      to: 'dev.sxhd@gmail.com',
+      to: process.env.CONTACT_TO_EMAIL || 'dev.sxhd@gmail.com',
+      replyTo: senderEmail,
       subject: `New Contact Form Message from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -111,7 +83,10 @@ export async function POST(request: Request) {
   }
 
   // Send email
-  await sendEmail(name, email, message)
+  const emailSent = await sendEmail(name, email, message)
+  if (!emailSent) {
+    return NextResponse.json({ error: 'Unable to send your message right now.' }, { status: 502 })
+  }
 
   // Send Discord notification if webhook is configured
   if (webhookUrl) {
