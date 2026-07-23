@@ -66,7 +66,7 @@ async function sendEmail(name: string, senderEmail: string, message: string) {
 }
 
 export async function POST(request: Request) {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL
+  const webhookUrl = process.env.CONTACT_DISCORD_WEBHOOK_URL
 
   const body = (await request.json()) as ContactPayload
   const name = clean(body.name)
