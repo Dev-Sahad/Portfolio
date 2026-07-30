@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="title desc">
+  <title id="title">Portfolio architecture</title>
+  <desc id="desc">Browser requests flow through Next.js to Supabase, Discord webhooks and Vercel.</desc>
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#18181b"/>
+      <stop offset="1" stop-color="#09090b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#a78bfa"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="440" rx="28" fill="#050505"/>
+  <text x="60" y="62" fill="#fff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="700">Application architecture</text>
+  <g stroke="#3f3f46" fill="url(#panel)">
+    <rect x="60" y="125" width="225" height="190" rx="22"/>
+    <rect x="390" y="105" width="270" height="230" rx="22"/>
+    <rect x="765" y="75" width="365" height="100" rx="22"/>
+    <rect x="765" y="195" width="365" height="100" rx="22"/>
+    <rect x="765" y="315" width="365" height="75" rx="22"/>
+  </g>
+  <g fill="#fff" font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="90" y="170" font-size="22" font-weight="700">Browser</text>
+    <text x="90" y="207" font-size="15" fill="#a1a1aa">Portfolio UI</text>
+    <text x="90" y="235" font-size="15" fill="#a1a1aa">Admin dashboard</text>
+    <text x="90" y="263" font-size="15" fill="#a1a1aa">Three.js scenes</text>
+    <text x="425" y="150" font-size="22" font-weight="700">Next.js 15</text>
+    <text x="425" y="187" font-size="15" fill="#a1a1aa">App Router + SSR</text>
+    <text x="425" y="215" font-size="15" fill="#a1a1aa">Protected API routes</text>
+    <text x="425" y="243" font-size="15" fill="#a1a1aa">Webhook delivery</text>
+    <text x="425" y="271" font-size="15" fill="#a1a1aa">Supabase sessions</text>
+    <text x="800" y="118" font-size="21" font-weight="700">Supabase</text>
+    <text x="800" y="147" font-size="14" fill="#a1a1aa">Postgres · Auth · Realtime · Storage · RLS</text>
+    <text x="800" y="238" font-size="21" font-weight="700">Discord Webhooks</text>
+    <text x="800" y="267" font-size="14" fill="#a1a1aa">Visitor · Contact · Comments</text>
+    <text x="800" y="360" font-size="21" font-weight="700">Vercel</text>
+    <text x="950" y="360" font-size="14" fill="#a1a1aa">Build · Functions · CDN</text>
+  </g>
+  <g stroke="#a78bfa" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M285 220 H380"/>
+    <path d="M660 170 C710 170 710 125 755 125"/>
+    <path d="M660 230 C710 230 710 245 755 245"/>
+    <path d="M525 335 V365 H755"/>
+  </g>
+</svg>

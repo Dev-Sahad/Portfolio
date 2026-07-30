@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Dev Sahad Portfolio</title>
+  <desc id="desc">A cinematic developer portfolio powered by Next.js, Three.js, Supabase and Vercel.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050505"/>
+      <stop offset=".52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="16"/></filter>
+  </defs>
+  <rect width="1200" height="360" rx="28" fill="url(#bg)"/>
+  <circle cx="1015" cy="65" r="245" fill="url(#glow)" filter="url(#blur)"/>
+  <circle cx="1090" cy="265" r="120" fill="none" stroke="#c4b5fd" stroke-opacity=".24" stroke-width="2"/>
+  <circle cx="1090" cy="265" r="78" fill="none" stroke="#c4b5fd" stroke-opacity=".18"/>
+  <circle cx="1090" cy="265" r="35" fill="#a78bfa" fill-opacity=".22"/>
+  <g fill="#fff" font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="72" y="95" font-size="18" letter-spacing="5" fill="#c4b5fd">DEV-SAHAD / PORTFOLIO</text>
+    <text x="72" y="178" font-size="58" font-weight="750">Designed to move.</text>
+    <text x="72" y="237" font-size="58" font-weight="750">Built to perform.</text>
+    <text x="74" y="292" font-size="20" fill="#d1d5db">Next.js 15 · React 19 · Three.js · Supabase · Vercel</text>
+  </g>
+  <g fill="#ddd6fe" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="14">
+    <text x="936" y="125">3D / MOTION</text>
+    <text x="955" y="154">ADMIN / CMS</text>
+    <text x="935" y="183">WEBHOOKS / DATA</text>
+  </g>
+</svg>
