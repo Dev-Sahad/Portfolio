@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { Code2, Github, Globe, LogOut, Sparkles, User } from 'lucide-react'
 
+const DEFAULT_GITHUB_URL = 'https://github.com/Dev-Sahad'
+
 type IntroScreenProps = {
   mode?: 'loading' | 'exit'
   ownerName?: string
@@ -12,7 +14,7 @@ type IntroScreenProps = {
 export default function IntroScreen({
   mode = 'loading',
   ownerName = 'Muhammad Sahad',
-  githubUrl = 'https://github.com/Dev-Sahad',
+  githubUrl = DEFAULT_GITHUB_URL,
 }: IntroScreenProps) {
   const isExit = mode === 'exit'
   const icons = isExit ? [Sparkles, Globe, LogOut] : [Code2, User, Globe]
@@ -95,7 +97,9 @@ export default function IntroScreen({
           className="flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-white/65"
         >
           <Github size={13} />
-          <span className="truncate">{githubUrl.replace(/^https?:\/\//, '')}</span>
+            <span className="truncate">
+              {(githubUrl || DEFAULT_GITHUB_URL).replace(/^https?:\/\//, '')}
+            </span>
         </motion.div>
       </motion.div>
     </div>

@@ -55,13 +55,18 @@ export const defaultSiteSettings: SiteSettings = {
 }
 
 export function mergeSiteSettings(settings?: Partial<SiteSettings> | null): SiteSettings {
+  const definedSettings = Object.fromEntries(
+    Object.entries(settings || {}).filter(([, value]) => value !== null && value !== undefined),
+  ) as Partial<SiteSettings>
+
   const mergedSettings = {
     ...defaultSiteSettings,
-    ...(settings || {}),
+    ...definedSettings,
   }
 
   return {
     ...mergedSettings,
     cv_url: mergedSettings.cv_url?.trim() || defaultSiteSettings.cv_url,
+    github_url: mergedSettings.github_url?.trim() || defaultSiteSettings.github_url,
   }
 }
