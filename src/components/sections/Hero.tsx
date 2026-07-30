@@ -6,8 +6,9 @@ import { motion } from "framer-motion";
 import TextType from "@/components/band/TextType";
 import { supabase } from "@/lib/supabase";
 import { SiteSettings } from "@/lib/siteSettings";
+import type { SceneWord } from "@/components/three/PortfolioScene";
 
-const App = dynamic(() => import("@/components/band/App"), { ssr: false });
+const PortfolioScene = dynamic(() => import("@/components/three/PortfolioScene"), { ssr: false });
 
 class AppErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -34,7 +35,7 @@ type HeroProps = {
 
 export default function Hero({ showApp, settings }: HeroProps) {
   const [startAnim, setStartAnim] = useState(false);
-  const [sceneWords, setSceneWords] = useState<any[]>([]);
+  const [sceneWords, setSceneWords] = useState<SceneWord[]>([]);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -61,13 +62,19 @@ export default function Hero({ showApp, settings }: HeroProps) {
       className="px-6 md:pl-[120px] md:pr-[60px]"
       style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "flex-start", position: "relative", overflow: "hidden" }}
     >
-      <div data-heavy-visual="true" style={{ position: "absolute", top: 0, right: 0, width: "60%", height: "100%", zIndex: 2, pointerEvents: "none", opacity: 0.85 }}>
+      <div
+        aria-hidden="true"
+        data-heavy-visual="true"
+        className="hero-3d-scene"
+      >
         {showApp && (
           <AppErrorBoundary>
-            <App words={sceneWords} />
+            <PortfolioScene variant="hero" words={sceneWords} />
           </AppErrorBoundary>
         )}
       </div>
+
+      <div aria-hidden="true" className="hero-3d-vignette" />
 
       <div className="md:max-w-[600px]" style={{ width: "100%", position: "relative", zIndex: 5 }}>
         <motion.div

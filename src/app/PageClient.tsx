@@ -64,7 +64,7 @@ export default function PageClient({ projects, technologies, settings: settingsI
         setShowWelcome(false)
         setShowApp(true)
         setIntroPlayed()
-      }, 2800)
+      }, 3600)
       return () => clearTimeout(timer)
     }
 

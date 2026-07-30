@@ -21,20 +21,48 @@ export default function IntroScreen({
   const words = isExit ? ['Thanks', 'for visiting'] : ['Welcome', 'to my']
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-black px-5 text-white">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#05060a] px-5 text-white">
+      <div
+        aria-hidden="true"
+        data-heavy-visual="true"
+        className="intro-3d-stage"
+      >
+        <div className="intro-3d-copy intro-3d-copy--top">DESIGN / CODE / MOTION</div>
+        <div className="intro-3d-copy intro-3d-copy--side">DIGITAL SPACE · 2026</div>
+
+        <div className="intro-3d-object">
+          <div className="intro-3d-orbit intro-3d-orbit--one"><i /></div>
+          <div className="intro-3d-orbit intro-3d-orbit--two"><i /></div>
+          <div className="intro-3d-orbit intro-3d-orbit--three"><i /></div>
+          <div className="intro-3d-core">
+            <span className="intro-3d-face intro-3d-face--front">DS</span>
+            <span className="intro-3d-face intro-3d-face--back">3D</span>
+            <span className="intro-3d-face intro-3d-face--right" />
+            <span className="intro-3d-face intro-3d-face--left" />
+            <span className="intro-3d-face intro-3d-face--top" />
+            <span className="intro-3d-face intro-3d-face--bottom" />
+          </div>
+        </div>
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(5,6,10,0.24)_48%,rgba(5,6,10,0.92)_100%)]"
+      />
+
       <motion.div
         aria-hidden
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute h-[460px] w-[460px] rounded-full border border-white/10 bg-[radial-gradient(circle,rgba(255,255,255,0.1),transparent_62%)] blur-sm"
+        className="absolute h-[min(72vw,640px)] w-[min(72vw,640px)] rounded-full border border-cyan-200/10 bg-[radial-gradient(circle,rgba(103,232,249,0.08),transparent_62%)] blur-sm"
       />
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative flex w-full max-w-[360px] flex-col items-center gap-5 text-center"
+        className="relative z-10 flex w-full max-w-[390px] flex-col items-center gap-5 rounded-[2rem] border border-white/10 bg-black/20 px-6 py-7 text-center shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-[3px]"
       >
         <motion.div
           initial="hidden"
