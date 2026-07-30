@@ -67,16 +67,18 @@ export default function useComments() {
         imageUrl = await uploadCommentImageService(image)
       }
 
-      const newComment = await createCommentService({
+      const result = await createCommentService({
         name,
         comment,
         imageUrl,
       })
 
       // instant UI update (without waiting for real time)
-      setComments((prev) => [newComment, ...prev])
+      setComments((prev) => [result.comment, ...prev])
+      return { posted: true, webhookDelivered: result.webhookDelivered }
     } catch (err) {
       console.log(err)
+      return { posted: false, webhookDelivered: false }
     } finally {
       setLoading(false)
     }

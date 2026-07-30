@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import {
   getWebhookDelivery,
@@ -160,26 +160,30 @@ export async function POST(request: Request) {
     ],
   }
 
-  // Discord is the primary notification channel. Gmail is optional and must not
-  // prevent a configured webhook from receiving the contact message.
-  const [webhookResult, emailResult] = await Promise.allSettled([
-    sendDiscordWebhook(webhookUrl, webhookPayload),
-    sendEmail(name, email, message),
-  ])
-
-  if (webhookResult.status === 'rejected') {
-    console.error('Contact webhook delivery failed:', webhookResult.reason)
+  // Discord is the primary delivery channel. The response depends only on this
+  // request, so unavailable or slow Gmail delivery can never reject the form.
+  try {
+    await sendDiscordWebhook(webhookUrl, webhookPayload)
+  } catch (error) {
+    console.error('Contact webhook delivery failed:', error)
     return NextResponse.json(
       { error: 'Unable to deliver your message right now.' },
       { status: 502 },
     )
   }
 
+  const emailConfigured = Boolean(process.env.GMAIL_USER && process.env.GMAIL_PASSWORD)
+  if (emailConfigured) {
+    after(async () => {
+      await sendEmail(name, email, message)
+    })
+  }
+
   return NextResponse.json({
     ok: true,
     deliveries: {
       discord: true,
-      email: emailResult.status === 'fulfilled' && emailResult.value,
+      email: emailConfigured ? 'scheduled' : 'not_configured',
     },
   })
 }
