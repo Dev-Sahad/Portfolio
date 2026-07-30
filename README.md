@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 <p align="center">
   <img src="./public/readme-banner.svg" width="100%" alt="Dev Sahad Portfolio — designed to move, built to perform" />
 </p>
@@ -253,7 +255,48 @@ The custom production domain is [sahad.is-a.dev](https://sahad.is-a.dev/).
 
 ## Author
 
-**Muhammad Sahad** — Frontend Developer & UI Enthusiast
+<div align="center">
+  <a href="https://sahad.is-a.dev/">
+    <img src="https://img.shields.io/badge/Muhammad_Sahad-Frontend_Developer-8B5CF6?style=for-the-badge&logo=vercel&logoColor=white" alt="Muhammad Sahad — Frontend Developer"/>
+  </a>
 
-- Portfolio: [sahad.is-a.dev](https://sahad.is-a.dev/)
-- GitHub: [@Dev-Sahad](https://github.com/Dev-Sahad)
+  <p>
+    Frontend Developer and UI enthusiast focused on crafting accessible,
+    responsive, and memorable digital experiences.
+  </p>
+
+  <a href="https://sahad.is-a.dev/">
+    <img src="https://img.shields.io/badge/Portfolio-sahad.is--a.dev-8B5CF6?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/>
+  </a>
+  <a href="https://github.com/Dev-Sahad">
+    <img src="https://img.shields.io/badge/GitHub-Dev--Sahad-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  </a>
+  <a href="https://www.linkedin.com/in/muhammad-sahad-78b827352">
+    <img src="https://img.shields.io/badge/LinkedIn-Muhammad_Sahad-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+  <a href="https://discord.com/users/853166408212807701">
+    <img src="https://img.shields.io/badge/Discord-Connect-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"/>
+  </a>
+  <a href="https://instagram.com/sahad_____sha">
+    <img src="https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram"/>
+  </a>
+  <a href="https://t.me/Sxhd_Sha">
+    <img src="https://img.shields.io/badge/Telegram-Message-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"/>
+  </a>
+</div>
+
+---
+
+<div align="center">
+  <h3>Thank You for Visiting!</h3>
+  <p>
+    Thank you for exploring this project. If it inspired you or helped you
+    build something better, consider leaving a ⭐ — your support means a lot.
+  </p>
+  <p>
+    Built with passion by <a href="https://github.com/Dev-Sahad"><strong>Muhammad Sahad</strong></a>.
+  </p>
+  <a href="#top">
+    <img src="https://img.shields.io/badge/Back_to_Top-8B5CF6?style=flat-square&logo=rocket&logoColor=white" alt="Back to top"/>
+  </a>
+</div>
