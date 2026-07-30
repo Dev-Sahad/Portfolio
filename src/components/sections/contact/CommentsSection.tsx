@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
-import { Upload, Heart, Pin, Send, CheckCircle, Mail } from 'lucide-react'
+import { Upload, Heart, Pin, Send, CheckCircle, AlertCircle, MessageSquare } from 'lucide-react'
 import useComments from '@/hooks/useComments'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -25,6 +25,7 @@ export default function CommentsSection() {
   const [image,   setImage]   = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [posted,  setPosted]  = useState(false)
+  const [webhookDelivered, setWebhookDelivered] = useState(true)
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -36,13 +37,16 @@ export default function CommentsSection() {
   const handleSubmit = async () => {
     if (!name.trim() || !comment.trim()) return
 
-    await addComment({ name, comment, image })
+    const result = await addComment({ name, comment, image })
+    if (!result?.posted) return
+
     if (name.trim()) localStorage.setItem('_visitor_name', name.trim())
 
     setName('')
     setComment('')
     setImage(null)
     setPreview(null)
+    setWebhookDelivered(result.webhookDelivered)
     setPosted(true)
     setTimeout(() => setPosted(false), 4000)
   }
@@ -59,10 +63,10 @@ export default function CommentsSection() {
       <div className="mb-5 md:mb-6">
         <h3 className="text-xl md:text-2xl font-semibold mb-1">Comments</h3>
         <p className="text-xs md:text-sm text-white/40 flex items-center gap-1.5">
-          Leave your thoughts — 
+          Leave your thoughts —
           <span className="flex items-center gap-1 text-white/30">
-            <Mail size={11} />
-            dev.sxhd@gmail.com
+            <MessageSquare size={11} />
+            direct webhook notification
           </span>
         </p>
       </div>
@@ -77,10 +81,16 @@ export default function CommentsSection() {
             transition={{ duration: 0.35, ease: smoothEase }}
             className="mb-4 flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10"
           >
-            <CheckCircle size={15} className="text-emerald-400 shrink-0" />
+            {webhookDelivered
+              ? <CheckCircle size={15} className="text-emerald-400 shrink-0" />
+              : <AlertCircle size={15} className="text-amber-400 shrink-0" />}
             <div>
               <p className="text-[13px] text-emerald-300 font-medium">Comment posted!</p>
-              <p className="text-[11px] text-emerald-400/60">Muhammad Sahad has been notified at dev.sxhd@gmail.com</p>
+              <p className="text-[11px] text-emerald-400/60">
+                {webhookDelivered
+                  ? 'The comments webhook received your message.'
+                  : 'The comment was saved, but its notification could not be delivered.'}
+              </p>
             </div>
           </motion.div>
         )}
@@ -149,13 +159,13 @@ export default function CommentsSection() {
           }
         </motion.button>
 
-        {/* Email notice */}
+        {/* Delivery notice */}
         <motion.p
           variants={itemVariants}
           className="text-center text-[11px] text-white/20 flex items-center justify-center gap-1"
         >
-          <Mail size={10} />
-          Your comment will be sent to dev.sxhd@gmail.com
+          <MessageSquare size={10} />
+          Your comment will notify the comments webhook directly
         </motion.p>
       </motion.div>
 
@@ -174,7 +184,7 @@ export default function CommentsSection() {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center h-32 gap-2 text-white/20"
               >
-                <Mail size={22} />
+                <MessageSquare size={22} />
                 <p className="text-xs">Be the first to leave a comment</p>
               </motion.div>
             )}

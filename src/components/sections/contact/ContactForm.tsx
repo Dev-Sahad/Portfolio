@@ -62,6 +62,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(15_000),
         body: JSON.stringify({
           name,
           email,
@@ -113,7 +114,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
           className="flex items-center gap-2 mb-4 px-4 py-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-300 text-sm"
         >
           <CheckCircle size={16} />
-          Message sent successfully.
+          Message delivered to the contact webhook.
         </motion.div>
       )}
 
@@ -124,7 +125,7 @@ export default function ContactForm({ settings }: ContactFormProps) {
           className="flex items-center gap-2 mb-4 px-4 py-3 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-300 text-sm"
         >
           <AlertCircle size={16} />
-          Message failed. Please try again.
+          Message could not reach the contact webhook. Please try again.
         </motion.div>
       )}
 

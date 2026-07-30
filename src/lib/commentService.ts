@@ -68,9 +68,10 @@ export const createCommentService = async ({
     body:    JSON.stringify({ name, comment, imageUrl }),
   }).catch(() => null)
 
-  if (!notificationResponse?.ok) {
+  const webhookDelivered = notificationResponse?.ok === true
+  if (!webhookDelivered) {
     console.warn('The comment was saved, but its Discord notification was not delivered.')
   }
 
-  return data
+  return { comment: data, webhookDelivered }
 }
