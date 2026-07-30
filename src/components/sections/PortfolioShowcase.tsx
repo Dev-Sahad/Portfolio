@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award, ChevronDown, ChevronUp, Layers, X } from 'lucide-react'
+import { Award, ChevronDown, ChevronUp, Layers, Search, X } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
 import PortfolioCard from './PortfolioCard'
 
@@ -21,10 +21,32 @@ export default function PortfolioShowcase({
   const [activeTab, setActiveTab] = useState<'projects' | 'certificates' | 'techstack'>('projects')
   const [previewImage, setPreviewImage] = useState('')
   const [showAllProjects, setShowAllProjects] = useState(false)
+  const [query, setQuery] = useState('')
+  const [technology, setTechnology] = useState('all')
+  const deferredQuery = useDeferredValue(query)
 
   const resolvedProjects = projects.length ? projects : initialProjects
   const resolvedTech = techStacks.length ? techStacks : initialTech
-  const displayedProjects = showAllProjects ? resolvedProjects : resolvedProjects.slice(0, 3)
+  const projectTechnologies = useMemo(() => {
+    const values = new Set<string>()
+    for (const project of resolvedProjects) {
+      String(project.technologies || '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => values.add(item))
+    }
+    return [...values].sort((a, b) => a.localeCompare(b))
+  }, [resolvedProjects])
+  const filteredProjects = useMemo(() => {
+    const needle = deferredQuery.trim().toLowerCase()
+    return resolvedProjects.filter((project) => {
+      const matchesQuery = !needle || `${project.title} ${project.description} ${project.technologies}`.toLowerCase().includes(needle)
+      const matchesTechnology = technology === 'all' || String(project.technologies || '').split(',').some((item) => item.trim() === technology)
+      return matchesQuery && matchesTechnology
+    })
+  }, [deferredQuery, resolvedProjects, technology])
+  const displayedProjects = showAllProjects ? filteredProjects : filteredProjects.slice(0, 3)
 
   const tabs = [
     { id: 'projects', label: 'Projects' },
@@ -101,10 +123,30 @@ export default function PortfolioShowcase({
           >
             {activeTab === 'projects' && (
               <div className="space-y-8">
+                <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:grid-cols-[1fr_220px]">
+                  <label className="relative">
+                    <span className="sr-only">Search projects</span>
+                    <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <input
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Search projects, skills, or technologies"
+                      className="h-11 w-full rounded-xl border border-white/10 bg-black/20 pl-11 pr-4 text-sm outline-none placeholder:text-white/25 focus:border-white/25"
+                    />
+                  </label>
+                  <label>
+                    <span className="sr-only">Filter by technology</span>
+                    <select value={technology} onChange={(event) => setTechnology(event.target.value)}
+                      className="h-11 w-full rounded-xl border border-white/10 bg-[#111] px-4 text-sm text-white/65 outline-none focus:border-white/25">
+                      <option value="all">All technologies</option>
+                      {projectTechnologies.map((item) => <option key={item} value={item}>{item}</option>)}
+                    </select>
+                  </label>
+                </div>
                 {loading && !resolvedProjects.length ? (
                   <EmptyState title="Loading projects..." />
-                ) : resolvedProjects.length === 0 ? (
-                  <EmptyState title="Projects are coming soon" />
+                ) : filteredProjects.length === 0 ? (
+                  <EmptyState title={resolvedProjects.length ? 'No projects match this search' : 'Projects are coming soon'} />
                 ) : (
                   <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                     {displayedProjects.map((item, i) => (
@@ -115,13 +157,14 @@ export default function PortfolioShowcase({
                         description={item.description}
                         image={item.image_url}
                         live_url={item.live_url}
+                        github_url={item.github_url}
                         id={item.id}
                       />
                     ))}
                   </div>
                 )}
 
-                {resolvedProjects.length > 3 && (
+                {filteredProjects.length > 3 && (
                   <div className="flex justify-center pt-4">
                     <button
                       type="button"

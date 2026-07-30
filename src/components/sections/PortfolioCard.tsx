@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { trackEvent } from '@/lib/analytics'
 
 type Props = {
   title: string
@@ -14,6 +15,7 @@ type Props = {
   id?: string
   image?: string
   live_url?: string
+  github_url?: string
 }
 
 export default function PortfolioCard({
@@ -23,6 +25,7 @@ export default function PortfolioCard({
   id,
   image,
   live_url,
+  github_url,
 }: Props) {
   const router = useRouter()
 
@@ -70,6 +73,8 @@ export default function PortfolioCard({
           <a
             href={live_url}
             target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('project_live_click', { entityId: id })}
             className="flex items-center gap-2 text-[13px] text-white/70 hover:text-white transition-all"
           >
             Live Demo
@@ -81,17 +86,31 @@ export default function PortfolioCard({
           </div>
         )}
 
+        <div className="flex items-center gap-2">
+        {github_url ? (
+          <a
+            href={github_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('project_github_click', { entityId: id })}
+            className="text-[12px] text-white/45 hover:text-white"
+          >
+            Code
+          </a>
+        ) : null}
         {id && (
           <button
-            onClick={() =>
+            onClick={() => {
+              trackEvent('project_view', { entityId: id })
               router.push(`/portfolio/${id}`)
-            }
+            }}
             className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all flex items-center gap-2 text-[13px]"
           >
             Details
             <ArrowRight size={13} />
           </button>
         )}
+        </div>
       </div>
     </motion.div>
   )

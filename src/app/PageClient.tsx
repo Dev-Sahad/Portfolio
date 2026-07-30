@@ -15,17 +15,25 @@ import IntroScreen from '@/components/IntroScreen'
 import VisitorDetailsPrompt from '@/components/VisitorDetailsPrompt'
 import CommandPalette from '@/components/CommandPalette'
 import ThemeToggle from '@/components/ThemeToggle'
+import TestimonialsSection from '@/components/sections/TestimonialsSection'
+import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
+import MotionSettings from '@/components/MotionSettings'
+import PortfolioAssistant from '@/components/PortfolioAssistant'
+import AnalyticsBeacon from '@/components/AnalyticsBeacon'
 import { useVisitor } from '@/hooks/useVisitor'
 import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
+import type { BlogPost, Testimonial } from '@/lib/growthTypes'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 interface PageClientProps {
   projects: any[];
   technologies: any[];
   settings?: Partial<SiteSettings> | null;
+  testimonials?: Testimonial[];
+  posts?: BlogPost[];
 }
 
-export default function PageClient({ projects, technologies, settings: settingsInput }: PageClientProps) {
+export default function PageClient({ projects, technologies, settings: settingsInput, testimonials = [], posts = [] }: PageClientProps) {
   const settings = mergeSiteSettings(settingsInput)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showExit, setShowExit] = useState(false)
@@ -88,7 +96,8 @@ export default function PageClient({ projects, technologies, settings: settingsI
   }, [])
 
   return (
-    <main style={{ position: 'relative', overflow: 'hidden' }}>
+    <main id="main-content" style={{ position: 'relative', overflow: 'hidden' }}>
+      <AnalyticsBeacon />
       <AnimatedBackground />
 
       {/* Global controls share the navigation rhythm without covering its links. */}
@@ -112,8 +121,13 @@ export default function PageClient({ projects, technologies, settings: settingsI
         <Hero showApp={showApp} settings={settings} />
         <About settings={settings} />
         <PortfolioShowcase projects={projects} technologies={technologies} />
+        {settings.show_testimonials ? <TestimonialsSection testimonials={testimonials} /> : null}
+        <BlogPreviewSection posts={posts} />
         <ContactSection settings={settings} />
       </div>
+
+      <MotionSettings defaultMode={settings.performance_mode} />
+      {settings.assistant_enabled ? <PortfolioAssistant /> : null}
 
       <AnimatePresence>
         {showWelcome && (

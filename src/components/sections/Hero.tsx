@@ -61,7 +61,7 @@ export default function Hero({ showApp, settings }: HeroProps) {
       className="px-6 md:pl-[120px] md:pr-[60px]"
       style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "flex-start", position: "relative", overflow: "hidden" }}
     >
-      <div style={{ position: "absolute", top: 0, right: 0, width: "60%", height: "100%", zIndex: 2, pointerEvents: "none", opacity: 0.85 }}>
+      <div data-heavy-visual="true" style={{ position: "absolute", top: 0, right: 0, width: "60%", height: "100%", zIndex: 2, pointerEvents: "none", opacity: 0.85 }}>
         {showApp && (
           <AppErrorBoundary>
             <App words={sceneWords} />

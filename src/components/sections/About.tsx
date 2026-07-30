@@ -5,6 +5,7 @@ import { motion, Variants } from "framer-motion";
 import { Code, Award, Globe, FileText, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { SiteSettings } from "@/lib/siteSettings";
+import { trackEvent } from "@/lib/analytics";
 
 /* ================== ANIMATION ================== */
 
@@ -250,6 +251,7 @@ export default function About({ settings }: AboutProps) {
                   href={settings.cv_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEvent('cv_download')}
                   style={{ textDecoration: "none" }}
                 >
                   <button
@@ -325,6 +327,18 @@ export default function About({ settings }: AboutProps) {
                 <ArrowUpRight size={14} />
                 View Projects
               </button>
+
+              {settings.booking_url ? (
+                <a
+                  href={settings.booking_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('booking_click')}
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-[18px] py-[10px] text-[13px] font-semibold text-white transition hover:bg-white hover:text-black"
+                >
+                  Book a call <ArrowUpRight size={14} />
+                </a>
+              ) : null}
             </motion.div>
           </motion.div>
 

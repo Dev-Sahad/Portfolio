@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics";
 
 import {
   ArrowLeft,
@@ -27,6 +28,12 @@ interface Project {
   image_url?: string;
   image_urls?: string[];
   dev_notes?: string;
+  problem?: string;
+  project_role?: string;
+  solution?: string;
+  challenges?: string;
+  results?: string;
+  metrics?: Array<{ label: string; value: string }>;
 }
 
 export default function PortfolioDetailPage() {
@@ -51,6 +58,7 @@ export default function PortfolioDetailPage() {
 
     if (id) {
       fetchProject()
+      trackEvent('project_view', { entityId: String(id) })
     }
   }, [id])
 
@@ -152,6 +160,34 @@ export default function PortfolioDetailPage() {
             {project.description}
           </motion.p>
 
+          {(project.problem || project.project_role || project.solution || project.challenges || project.results) && (
+            <div className="mb-8 grid gap-4">
+              {[
+                ['The problem', project.problem],
+                ['My role', project.project_role],
+                ['The solution', project.solution],
+                ['Challenges', project.challenges],
+                ['Results', project.results],
+              ].filter(([, value]) => value).map(([label, value]) => (
+                <section key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                  <h2 className="text-sm font-semibold">{label}</h2>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/55">{value}</p>
+                </section>
+              ))}
+            </div>
+          )}
+
+          {Array.isArray(project.metrics) && project.metrics.length > 0 && (
+            <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {project.metrics.map((metric, index) => (
+                <div key={`${metric.label}-${index}`} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-xl font-bold">{metric.value}</p>
+                  <p className="mt-1 text-xs text-white/40">{metric.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* STATS */}
           <motion.div
 
@@ -195,6 +231,7 @@ export default function PortfolioDetailPage() {
                 href={project.live_url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('project_live_click', { entityId: String(project.id) })}
                 className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#101010] border border-white/10 hover:bg-white/5 transition"
               >
                 <ExternalLink size={15} />
@@ -212,6 +249,7 @@ export default function PortfolioDetailPage() {
                 href={project.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('project_github_click', { entityId: String(project.id) })}
                 className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#101010] border border-white/10 hover:bg-white/5 transition"
               >
                 <GitBranch size={15} />

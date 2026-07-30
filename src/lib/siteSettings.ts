@@ -17,6 +17,12 @@ export type SiteSettings = {
   tiktok_url: string
   contact_heading: string
   contact_subheading: string
+  maintenance_mode: boolean
+  maintenance_message: string
+  booking_url: string
+  show_testimonials: boolean
+  assistant_enabled: boolean
+  performance_mode: 'auto' | 'full' | 'reduced'
 }
 
 export const defaultSiteSettings: SiteSettings = {
@@ -40,6 +46,12 @@ export const defaultSiteSettings: SiteSettings = {
   tiktok_url: 'https://www.tiktok.com/@sahad_____sha?_r=1&_t=ZS-975TzehiVhI',
   contact_heading: 'Contact Me',
   contact_subheading: "Have something in mind? Send a message and let's connect.",
+  maintenance_mode: false,
+  maintenance_message: 'The portfolio is receiving an update. Please check back shortly.',
+  booking_url: '',
+  show_testimonials: true,
+  assistant_enabled: true,
+  performance_mode: 'auto',
 }
 
 export function mergeSiteSettings(settings?: Partial<SiteSettings> | null): SiteSettings {

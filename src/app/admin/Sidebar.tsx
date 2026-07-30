@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Settings,
   Sparkles,
+  TrendingUp,
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,6 +31,7 @@ const menus = [
   { name: "System Status", icon: Activity, path: "/admin/status" },
   { name: "Settings", icon: Settings, path: "/admin/settings" },
   { name: "Webhook", icon: Bell, path: "/admin/webhook" },
+  { name: "Growth & Content", icon: TrendingUp, path: "/admin/growth" },
 ];
 
 function isActive(menuPath: string, currentPath: string): boolean {

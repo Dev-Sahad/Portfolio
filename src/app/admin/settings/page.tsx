@@ -76,12 +76,15 @@ export default function SettingsPage() {
     setSaving(true)
     setMessage('')
 
-    const { error } = await supabase
-      .from('site_settings')
-      .upsert({ id: 1, ...settings, updated_at: new Date().toISOString() })
+    const response = await fetch('/api/admin/growth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_site_settings', settings }),
+    })
+    const result = await response.json().catch(() => ({}))
 
     setSaving(false)
-    setMessage(error ? 'Failed to save settings. Make sure the site_settings table exists.' : 'Settings saved.')
+    setMessage(response.ok ? 'Settings saved with revision history.' : result.error || 'Failed to save settings.')
   }
 
   return (
@@ -125,14 +128,14 @@ export default function SettingsPage() {
                   <span className="mb-2 block text-sm text-white/45">{field.label}</span>
                   {field.type === 'textarea' ? (
                     <textarea
-                      value={settings[field.key]}
+                      value={String(settings[field.key] ?? '')}
                       onChange={(event) => handleChange(field.key, event.target.value)}
                       rows={field.key === 'hero_description' || field.key === 'about_description' ? 4 : 3}
                       className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm outline-none transition focus:border-white/30"
                     />
                   ) : (
                     <input
-                      value={settings[field.key]}
+                      value={String(settings[field.key] ?? '')}
                       onChange={(event) => handleChange(field.key, event.target.value)}
                       className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm outline-none transition focus:border-white/30"
                     />

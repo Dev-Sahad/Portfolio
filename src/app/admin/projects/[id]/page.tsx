@@ -17,7 +17,11 @@ export default function ProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', live_url: '', github_url: '', technologies: '', key_features: '' });
+  const [form, setForm] = useState({
+    title: '', description: '', live_url: '', github_url: '', technologies: '', key_features: '',
+    problem: '', project_role: '', solution: '', challenges: '', results: '', metrics: '',
+    featured_order: 100, is_featured: false,
+  });
 
   const fetchProject = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -48,6 +52,16 @@ export default function ProjectDetailsPage() {
           key_features: Array.isArray(data.key_features)
             ? data.key_features.join(', ')
             : (data.key_features || ''),
+          problem: data.problem || '',
+          project_role: data.project_role || '',
+          solution: data.solution || '',
+          challenges: data.challenges || '',
+          results: data.results || '',
+          metrics: Array.isArray(data.metrics)
+            ? data.metrics.map((metric: any) => `${metric.label}: ${metric.value}`).join('\n')
+            : '',
+          featured_order: data.featured_order || 100,
+          is_featured: data.is_featured === true,
         });
       }
     }
@@ -73,26 +87,43 @@ export default function ProjectDetailsPage() {
     if (!form.title.trim()) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from('projects')
-      .update({
+    const response = await fetch('/api/admin/growth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save_project',
+        id,
+        item: {
         title: form.title,
         description: form.description,
         live_url: form.live_url || null,
         github_url: form.github_url || null,
         technologies: form.technologies,
         key_features: form.key_features,
-      })
-      .eq('id', id);
+        problem: form.problem || null,
+        project_role: form.project_role || null,
+        solution: form.solution || null,
+        challenges: form.challenges || null,
+        results: form.results || null,
+        metrics: form.metrics.split('\n').map((line) => {
+          const [label, ...value] = line.split(':')
+          return { label: label?.trim(), value: value.join(':').trim() }
+        }).filter((metric) => metric.label && metric.value),
+        featured_order: Number(form.featured_order) || 100,
+        is_featured: form.is_featured,
+        },
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
     setSaving(false);
 
-    if (!error) {
+    if (response.ok) {
       setEditing(false);
       fetchProject();
       Swal.fire({ title: 'Saved!', icon: 'success', timer: 1400, showConfirmButton: false, background: '#0f0f0f', color: '#fff' });
     } else {
-      Swal.fire({ title: 'Error', text: 'Failed to save changes.', icon: 'error', background: '#0f0f0f', color: '#fff' });
+      Swal.fire({ title: 'Error', text: result.error || 'Failed to save changes.', icon: 'error', background: '#0f0f0f', color: '#fff' });
     }
   };
 
@@ -112,12 +143,17 @@ export default function ProjectDetailsPage() {
 
     if (!result.isConfirmed) return;
 
-    const { error } = await supabase.from('projects').delete().eq('id', id);
+    const response = await fetch('/api/admin/growth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', entity: 'project', id }),
+    });
+    const responseBody = await response.json().catch(() => ({}));
 
-    if (!error) {
+    if (response.ok) {
       router.push('/admin/projects');
     } else {
-      Swal.fire({ title: 'Error', text: 'Failed to delete.', icon: 'error', background: '#0f0f0f', color: '#fff' });
+      Swal.fire({ title: 'Error', text: responseBody.error || 'Failed to delete.', icon: 'error', background: '#0f0f0f', color: '#fff' });
     }
   };
 
@@ -226,6 +262,52 @@ export default function ProjectDetailsPage() {
                 ) : (
                   <p className='text-white/60 leading-relaxed text-sm'>{project.description}</p>
                 )}
+              </div>
+
+              {/* CASE STUDY */}
+              <div className='mb-6 rounded-3xl border border-white/10 bg-white/[0.025] p-5'>
+                <h2 className='mb-4 text-sm font-semibold'>Professional Case Study</h2>
+                <div className='grid gap-4'>
+                  {[
+                    ['problem', 'Problem / user need'],
+                    ['project_role', 'Your role and responsibilities'],
+                    ['solution', 'Solution and approach'],
+                    ['challenges', 'Challenges and decisions'],
+                    ['results', 'Results and measurable impact'],
+                    ['metrics', 'Metrics — one per line as Label: Value'],
+                  ].map(([key, label]) => (
+                    <label key={key}>
+                      <span className='mb-1.5 block text-xs text-white/40'>{label}</span>
+                      {editing ? (
+                        <textarea
+                          value={String(form[key as keyof typeof form])}
+                          onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
+                          rows={key === 'metrics' ? 3 : 4}
+                          className='w-full resize-none rounded-2xl border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none'
+                        />
+                      ) : (
+                        <p className='whitespace-pre-wrap text-sm leading-7 text-white/55'>
+                          {key === 'metrics'
+                            ? (project.metrics || []).map((metric: any) => `${metric.label}: ${metric.value}`).join('\n') || 'Not added yet'
+                            : project[key] || 'Not added yet'}
+                        </p>
+                      )}
+                    </label>
+                  ))}
+                </div>
+                <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+                  <label className='flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111] px-4 py-3 text-sm'>
+                    <input type='checkbox' checked={form.is_featured} disabled={!editing}
+                      onChange={(event) => setForm((current) => ({ ...current, is_featured: event.target.checked }))} />
+                    Feature this project
+                  </label>
+                  <label>
+                    <span className='mb-1 block text-xs text-white/40'>Display order</span>
+                    <input type='number' value={form.featured_order} disabled={!editing}
+                      onChange={(event) => setForm((current) => ({ ...current, featured_order: Number(event.target.value) }))}
+                      className='w-full rounded-2xl border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none disabled:opacity-60' />
+                  </label>
+                </div>
               </div>
 
               {/* TECHNOLOGIES */}

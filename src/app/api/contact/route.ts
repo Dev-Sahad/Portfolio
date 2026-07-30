@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { getWebhookDelivery, renderWebhookMessage } from '@/lib/webhookSettings'
+import { getServiceDatabase } from '@/lib/supabaseAdmin'
 
 type ContactPayload = {
   name?: string
@@ -79,6 +80,23 @@ export async function POST(request: Request) {
       { error: 'Name, email, and message are required.' },
       { status: 400 },
     )
+  }
+
+  const database = getServiceDatabase()
+  if (database) {
+    await Promise.all([
+      database.from('contact_messages').insert({
+        name,
+        email,
+        message,
+        page: page || null,
+      }),
+      database.from('analytics_events').insert({
+        event_type: 'contact_submit',
+        path: page || '/#contact',
+        metadata: {},
+      }),
+    ])
   }
 
   // Send email

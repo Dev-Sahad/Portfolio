@@ -25,7 +25,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
 
-      const sections = ['home', 'about', 'portfolio', 'contact']
+      const sections = ['home', 'about', 'portfolio', 'testimonials', 'notes', 'contact']
 
       for (const sectionId of sections) {
         const section = document.getElementById(sectionId)
@@ -121,6 +121,7 @@ export default function Navbar() {
     { label: 'Home', id: 'home' },
     { label: 'About', id: 'about' },
     { label: 'Portfolio', id: 'portfolio' },
+    { label: 'Notes', id: 'notes' },
     { label: 'Contact', id: 'contact' },
   ]
 
