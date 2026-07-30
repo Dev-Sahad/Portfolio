@@ -121,6 +121,9 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
   opacity: 0.96;
   mask-image: linear-gradient(to right, transparent 0%, black 22%, black 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 22%, black 100%);
+  transform: translate3d(var(--pointer-x-medium), var(--pointer-y-medium), 0);
+  transition: opacity 240ms ease;
+  will-change: transform;
 }
 
 .intro-3d-stage {
@@ -129,6 +132,47 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
   overflow: hidden;
   perspective: 1100px;
   transform-style: preserve-3d;
+}
+
+.pointer-parallax-root {
+  --pointer-x-small: 0px;
+  --pointer-y-small: 0px;
+  --pointer-x-medium: 0px;
+  --pointer-y-medium: 0px;
+  --pointer-x-large: 0px;
+  --pointer-y-large: 0px;
+  --pointer-x-reverse: 0px;
+  --pointer-y-reverse: 0px;
+  --pointer-rotate-x: 0deg;
+  --pointer-rotate-y: 0deg;
+  --pointer-spot-x: 50%;
+  --pointer-spot-y: 50%;
+}
+
+.pointer-ambient-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 260px at var(--pointer-spot-x) var(--pointer-spot-y),
+    rgba(103, 232, 249, 0.07),
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+}
+
+.hero-copy-parallax {
+  transform: translate3d(var(--pointer-x-reverse), var(--pointer-y-reverse), 0);
+  will-change: transform;
+}
+
+.intro-panel-parallax {
+  transform: translate3d(var(--pointer-x-reverse), var(--pointer-y-reverse), 70px)
+    rotateX(var(--pointer-rotate-x))
+    rotateY(var(--pointer-rotate-y));
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .intro-3d-stage::before {
@@ -147,8 +191,13 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
   top: 50%;
   width: 310px;
   height: 310px;
-  transform: translate(-50%, -50%) rotateX(-8deg);
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--pointer-x-large), var(--pointer-y-large), 0)
+    rotateX(var(--pointer-rotate-x))
+    rotateY(var(--pointer-rotate-y));
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .intro-3d-core {
@@ -240,13 +289,16 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
 .intro-3d-copy--top {
   left: calc(50% + 250px);
   top: calc(50% - 210px);
+  transform: translate3d(var(--pointer-x-small), var(--pointer-y-small), 0);
 }
 
 .intro-3d-copy--side {
   left: calc(50% + 465px);
   top: calc(50% + 160px);
   color: rgba(216, 180, 254, 0.48);
-  transform: rotate(90deg);
+  transform:
+    translate3d(var(--pointer-x-medium), var(--pointer-y-medium), 0)
+    rotate(90deg);
   transform-origin: left center;
 }
 
@@ -307,6 +359,8 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
     opacity: 0.42;
     mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
+    transform: none;
+    will-change: auto;
   }
 
   .hero-3d-vignette {
@@ -314,4 +368,12 @@ html[data-motion='reduced'] [data-heavy-visual='true'] {
       linear-gradient(180deg, rgba(13, 13, 13, 0.18) 0%, rgba(13, 13, 13, 0.52) 48%, var(--bg-primary) 100%),
       linear-gradient(90deg, rgba(13, 13, 13, 0.78) 0%, transparent 72%);
   }
+}
+
+html[data-motion='reduced'] .hero-3d-scene,
+html[data-motion='reduced'] .hero-copy-parallax,
+html[data-motion='reduced'] .intro-panel-parallax,
+html[data-motion='reduced'] .intro-3d-object,
+html[data-motion='reduced'] .intro-3d-copy {
+  transform: none !important;
 }

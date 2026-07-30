@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Code2, Github, Globe, LogOut, Sparkles, User } from 'lucide-react'
+import { usePointerParallax } from '@/hooks/usePointerParallax'
 
 const DEFAULT_GITHUB_URL = 'https://github.com/Dev-Sahad'
 
@@ -19,9 +20,13 @@ export default function IntroScreen({
   const isExit = mode === 'exit'
   const icons = isExit ? [Sparkles, Globe, LogOut] : [Code2, User, Globe]
   const words = isExit ? ['Thanks', 'for visiting'] : ['Welcome', 'to my']
+  const introRef = usePointerParallax<HTMLDivElement>({ smoothing: 0.08 })
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#05060a] px-5 text-white">
+    <div
+      ref={introRef}
+      className="pointer-parallax-root fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#05060a] px-5 text-white"
+    >
       <div
         aria-hidden="true"
         data-heavy-visual="true"
@@ -58,12 +63,13 @@ export default function IntroScreen({
         className="absolute h-[min(72vw,640px)] w-[min(72vw,640px)] rounded-full border border-cyan-200/10 bg-[radial-gradient(circle,rgba(103,232,249,0.08),transparent_62%)] blur-sm"
       />
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex w-full max-w-[390px] flex-col items-center gap-5 rounded-[2rem] border border-white/10 bg-black/20 px-6 py-7 text-center shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-[3px]"
-      >
+      <div className="intro-panel-parallax relative z-10 w-full max-w-[390px]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex w-full flex-col items-center gap-5 rounded-[2rem] border border-white/10 bg-black/20 px-6 py-7 text-center shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-[3px]"
+        >
         <motion.div
           initial="hidden"
           animate="visible"
@@ -129,7 +135,8 @@ export default function IntroScreen({
               {(githubUrl || DEFAULT_GITHUB_URL).replace(/^https?:\/\//, '')}
             </span>
         </motion.div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }

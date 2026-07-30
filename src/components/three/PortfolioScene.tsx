@@ -3,7 +3,7 @@
 import * as THREE from 'three'
 import { Float, RoundedBox, Text } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 
 export type SceneWord = {
   id?: string
@@ -35,8 +35,48 @@ function seededRandom(seed: number) {
   }
 }
 
-function ParticleField({ count, radius }: { count: number; radius: number }) {
+function useWindowPointer() {
+  const pointer = useRef(new THREE.Vector2(0, 0))
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const finePointer = window.matchMedia('(pointer: fine)')
+    if (reducedMotion.matches || !finePointer.matches) return
+
+    const handlePointerMove = (event: PointerEvent) => {
+      pointer.current.set(
+        (event.clientX / window.innerWidth - 0.5) * 2,
+        (event.clientY / window.innerHeight - 0.5) * 2,
+      )
+    }
+
+    const resetPointer = () => pointer.current.set(0, 0)
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    document.documentElement.addEventListener('pointerleave', resetPointer)
+    window.addEventListener('blur', resetPointer)
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      document.documentElement.removeEventListener('pointerleave', resetPointer)
+      window.removeEventListener('blur', resetPointer)
+    }
+  }, [])
+
+  return pointer
+}
+
+function ParticleField({
+  count,
+  radius,
+  pointerTarget,
+}: {
+  count: number
+  radius: number
+  pointerTarget: RefObject<THREE.Vector2>
+}) {
   const points = useRef<THREE.Points>(null)
+  const smoothedPointer = useRef(new THREE.Vector2())
   const positions = useMemo(() => {
     const random = seededRandom(23917)
     const values = new Float32Array(count * 3)
@@ -55,8 +95,29 @@ function ParticleField({ count, radius }: { count: number; radius: number }) {
 
   useFrame((_, delta) => {
     if (!points.current) return
+    const pointer = pointerTarget.current
+    if (!pointer) return
+    smoothedPointer.current.lerp(pointer, 1 - Math.exp(-delta * 3.5))
     points.current.rotation.y += delta * 0.025
     points.current.rotation.z -= delta * 0.008
+    points.current.rotation.x = THREE.MathUtils.damp(
+      points.current.rotation.x,
+      smoothedPointer.current.y * 0.08,
+      4,
+      delta,
+    )
+    points.current.position.x = THREE.MathUtils.damp(
+      points.current.position.x,
+      smoothedPointer.current.x * 0.35,
+      3,
+      delta,
+    )
+    points.current.position.y = THREE.MathUtils.damp(
+      points.current.position.y,
+      smoothedPointer.current.y * -0.25,
+      3,
+      delta,
+    )
   })
 
   return (
@@ -241,9 +302,18 @@ function SpatialWords({ words }: { words: SceneWord[] }) {
   )
 }
 
-function Scene({ variant, words }: Required<Pick<PortfolioSceneProps, 'variant'>> & Pick<PortfolioSceneProps, 'words'>) {
+function Scene({
+  variant,
+  words,
+  pointerTarget,
+}: Required<Pick<PortfolioSceneProps, 'variant'>> &
+  Pick<PortfolioSceneProps, 'words'> & {
+    pointerTarget: RefObject<THREE.Vector2>
+  }) {
   const compact = variant === 'intro'
   const rig = useRef<THREE.Group>(null)
+  const cursorLight = useRef<THREE.PointLight>(null)
+  const smoothedPointer = useRef(new THREE.Vector2())
   const viewport = useThree((state) => state.viewport)
   const activeWords = words?.length ? words : DEFAULT_WORDS
   const introIsNarrow = viewport.width < 7
@@ -259,12 +329,43 @@ function Scene({ variant, words }: Required<Pick<PortfolioSceneProps, 'variant'>
     ? [0, -4.05, -0.3]
     : [-4.15, 1.5, -0.3]
 
-  useFrame(({ clock, pointer }) => {
+  useFrame(({ clock }, delta) => {
     if (!rig.current) return
-    const targetX = pointer.y * 0.16 + Math.sin(clock.elapsedTime * 0.18) * 0.05
-    const targetY = pointer.x * 0.2 + Math.cos(clock.elapsedTime * 0.15) * 0.07
-    rig.current.rotation.x = THREE.MathUtils.lerp(rig.current.rotation.x, targetX, 0.035)
-    rig.current.rotation.y = THREE.MathUtils.lerp(rig.current.rotation.y, targetY, 0.035)
+    const pointer = pointerTarget.current
+    if (!pointer) return
+    smoothedPointer.current.lerp(pointer, 1 - Math.exp(-delta * 5))
+
+    const targetX = -smoothedPointer.current.y * 0.2 + Math.sin(clock.elapsedTime * 0.18) * 0.05
+    const targetY = smoothedPointer.current.x * 0.28 + Math.cos(clock.elapsedTime * 0.15) * 0.07
+    rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, targetX, 5, delta)
+    rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, targetY, 5, delta)
+    rig.current.position.x = THREE.MathUtils.damp(
+      rig.current.position.x,
+      rigPosition[0] + smoothedPointer.current.x * (compact ? 0.28 : 0.55),
+      4,
+      delta,
+    )
+    rig.current.position.y = THREE.MathUtils.damp(
+      rig.current.position.y,
+      rigPosition[1] - smoothedPointer.current.y * (compact ? 0.2 : 0.38),
+      4,
+      delta,
+    )
+
+    if (cursorLight.current) {
+      cursorLight.current.position.x = THREE.MathUtils.damp(
+        cursorLight.current.position.x,
+        smoothedPointer.current.x * 6,
+        6,
+        delta,
+      )
+      cursorLight.current.position.y = THREE.MathUtils.damp(
+        cursorLight.current.position.y,
+        smoothedPointer.current.y * -4,
+        6,
+        delta,
+      )
+    }
   })
 
   return (
@@ -272,9 +373,14 @@ function Scene({ variant, words }: Required<Pick<PortfolioSceneProps, 'variant'>
       <ambientLight intensity={0.45} />
       <directionalLight color="#e0f7ff" intensity={3} position={[4, 6, 5]} />
       <directionalLight color="#8b5cf6" intensity={2} position={[-5, -3, 2]} />
+      <pointLight ref={cursorLight} color="#67e8f9" intensity={12} distance={10} position={[0, 0, 5]} />
       <fog attach="fog" args={['#05060a', compact ? 10 : 12, compact ? 23 : 27]} />
 
-      <ParticleField count={compact ? 110 : 190} radius={compact ? 8.5 : 10.5} />
+      <ParticleField
+        count={compact ? 110 : 190}
+        pointerTarget={pointerTarget}
+        radius={compact ? 8.5 : 10.5}
+      />
 
       <group ref={rig} position={rigPosition} scale={compact ? 0.88 : 1}>
         <CrystalCore compact={compact} />
@@ -317,6 +423,7 @@ function Scene({ variant, words }: Required<Pick<PortfolioSceneProps, 'variant'>
 
 export default function PortfolioScene({ variant = 'hero', words = [] }: PortfolioSceneProps) {
   const compact = variant === 'intro'
+  const pointerTarget = useWindowPointer()
 
   return (
     <Canvas
@@ -328,8 +435,11 @@ export default function PortfolioScene({ variant = 'hero', words = [] }: Portfol
         powerPreference: 'high-performance',
         toneMapping: THREE.ACESFilmicToneMapping,
       }}
+      onCreated={({ gl }) => {
+        gl.setClearColor('#000000', 0)
+      }}
     >
-      <Scene variant={variant} words={words} />
+      <Scene pointerTarget={pointerTarget} variant={variant} words={words} />
     </Canvas>
   )
 }

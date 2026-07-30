@@ -7,6 +7,7 @@ import TextType from "@/components/band/TextType";
 import { supabase } from "@/lib/supabase";
 import { SiteSettings } from "@/lib/siteSettings";
 import type { SceneWord } from "@/components/three/PortfolioScene";
+import { usePointerParallax } from "@/hooks/usePointerParallax";
 
 const PortfolioScene = dynamic(() => import("@/components/three/PortfolioScene"), { ssr: false });
 
@@ -36,6 +37,7 @@ type HeroProps = {
 export default function Hero({ showApp, settings }: HeroProps) {
   const [startAnim, setStartAnim] = useState(false);
   const [sceneWords, setSceneWords] = useState<SceneWord[]>([]);
+  const heroRef = usePointerParallax<HTMLElement>({ smoothing: 0.065 });
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -58,8 +60,9 @@ export default function Hero({ showApp, settings }: HeroProps) {
 
   return (
     <section
+      ref={heroRef}
       id="home"
-      className="px-6 md:pl-[120px] md:pr-[60px]"
+      className="pointer-parallax-root px-6 md:pl-[120px] md:pr-[60px]"
       style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "flex-start", position: "relative", overflow: "hidden" }}
     >
       <div
@@ -75,8 +78,9 @@ export default function Hero({ showApp, settings }: HeroProps) {
       </div>
 
       <div aria-hidden="true" className="hero-3d-vignette" />
+      <div aria-hidden="true" className="pointer-ambient-glow" />
 
-      <div className="md:max-w-[600px]" style={{ width: "100%", position: "relative", zIndex: 5 }}>
+      <div className="hero-copy-parallax md:max-w-[600px]" style={{ width: "100%", position: "relative", zIndex: 5 }}>
         <motion.div
           initial={false}
           animate={startAnim ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 30, filter: "blur(12px)" }}
