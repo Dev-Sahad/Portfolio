@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
-import { getWebhookDelivery, renderWebhookMessage } from '@/lib/webhookSettings'
+import {
+  getWebhookDelivery,
+  renderWebhookMessage,
+  sendDiscordWebhook,
+} from '@/lib/webhookSettings'
 import { getServiceDatabase } from '@/lib/supabaseAdmin'
 
 type ContactPayload = {
@@ -14,10 +18,19 @@ type ContactPayload = {
 const clean = (value: unknown) =>
   typeof value === 'string' ? value.trim().slice(0, 1000) : ''
 
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  })[character] || character)
+
 async function sendEmail(name: string, senderEmail: string, message: string) {
   try {
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
-      throw new Error('Gmail delivery is not configured.')
+      return false
     }
 
     const transporter = nodemailer.createTransport({
@@ -36,11 +49,11 @@ async function sendEmail(name: string, senderEmail: string, message: string) {
             <h1 style="margin: 0; font-size: 24px;">New Contact Form Message</h1>
           </div>
           <div style="border: 1px solid #ddd; padding: 20px; border-radius: 0 0 10px 10px;">
-            <p><strong>From:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${senderEmail}</p>
+            <p><strong>From:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(senderEmail)}</p>
             <p><strong>Message:</strong></p>
             <p style="background: #f5f5f5; padding: 15px; border-left: 4px solid #667eea; border-radius: 5px; white-space: pre-wrap;">
-              ${message}
+              ${escapeHtml(message)}
             </p>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
             <p style="font-size: 12px; color: #999;">
@@ -99,65 +112,74 @@ export async function POST(request: Request) {
     ])
   }
 
-  // Send email
-  const emailSent = await sendEmail(name, email, message)
-  if (!emailSent) {
-    return NextResponse.json({ error: 'Unable to send your message right now.' }, { status: 502 })
-  }
-
   // Admin settings override the server environment value after the migration is applied.
   const { url: webhookUrl, message: customMessage } = await getWebhookDelivery('contact')
-  if (webhookUrl) {
-    try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'Portfolio Contact',
-          content: renderWebhookMessage(customMessage, { name, email, message }, `New portfolio message from ${name}`),
-          allowed_mentions: { parse: [] },
-          embeds: [
-            {
-              title: 'New Portfolio Message',
-              color: 0xffffff,
-              author: {
-                name,
-              },
-              description: message.slice(0, 3900),
-              fields: [
-                {
-                  name: 'Viewer Name',
-                  value: name,
-                  inline: true,
-                },
-                {
-                  name: 'Email',
-                  value: email,
-                  inline: true,
-                },
-                {
-                  name: 'Page',
-                  value: page || 'Unknown',
-                  inline: false,
-                },
-                {
-                  name: 'Browser',
-                  value: userAgent || 'Unknown',
-                  inline: false,
-                },
-              ],
-              footer: {
-                text: 'Sent from the portfolio contact form',
-              },
-              timestamp: new Date().toISOString(),
-            },
-          ],
-        }),
-      })
-    } catch (error) {
-      console.error('Error sending Discord notification:', error)
-    }
+  const webhookPayload = {
+    username: 'Portfolio Contact',
+    content: renderWebhookMessage(
+      customMessage,
+      { name, email, message },
+      `New portfolio message from ${name}`,
+    ),
+    allowed_mentions: { parse: [] },
+    embeds: [
+      {
+        title: 'New Portfolio Message',
+        color: 0xffffff,
+        author: {
+          name: name.slice(0, 256),
+        },
+        description: message.slice(0, 3900),
+        fields: [
+          {
+            name: 'Viewer Name',
+            value: name.slice(0, 1024),
+            inline: true,
+          },
+          {
+            name: 'Email',
+            value: email.slice(0, 1024),
+            inline: true,
+          },
+          {
+            name: 'Page',
+            value: (page || 'Unknown').slice(0, 1024),
+            inline: false,
+          },
+          {
+            name: 'Browser',
+            value: (userAgent || 'Unknown').slice(0, 1024),
+            inline: false,
+          },
+        ],
+        footer: {
+          text: 'Sent from the portfolio contact form',
+        },
+        timestamp: new Date().toISOString(),
+      },
+    ],
   }
 
-  return NextResponse.json({ ok: true })
+  // Discord is the primary notification channel. Gmail is optional and must not
+  // prevent a configured webhook from receiving the contact message.
+  const [webhookResult, emailResult] = await Promise.allSettled([
+    sendDiscordWebhook(webhookUrl, webhookPayload),
+    sendEmail(name, email, message),
+  ])
+
+  if (webhookResult.status === 'rejected') {
+    console.error('Contact webhook delivery failed:', webhookResult.reason)
+    return NextResponse.json(
+      { error: 'Unable to deliver your message right now.' },
+      { status: 502 },
+    )
+  }
+
+  return NextResponse.json({
+    ok: true,
+    deliveries: {
+      discord: true,
+      email: emailResult.status === 'fulfilled' && emailResult.value,
+    },
+  })
 }

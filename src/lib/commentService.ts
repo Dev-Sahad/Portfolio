@@ -59,12 +59,18 @@ export const createCommentService = async ({
 
   if (error) throw error
 
-  // 2. Send notification email + Discord — fire and forget, never blocks the UI
-  fetch('/api/notify-comment', {
+  // 2. Wait for the server to complete its single Discord delivery attempt.
+  // The comment is already saved, so a notification error is logged instead of
+  // throwing and encouraging a retry that could create a duplicate comment.
+  const notificationResponse = await fetch('/api/notify-comment', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ name, comment, imageUrl }),
   }).catch(() => null)
+
+  if (!notificationResponse?.ok) {
+    console.warn('The comment was saved, but its Discord notification was not delivered.')
+  }
 
   return data
 }
