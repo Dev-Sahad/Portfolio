@@ -9,6 +9,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/auth/:path*',
+    '/api/admin/:path*',
     '/api/add-sample-certificates',
     '/api/import-github-projects',
     '/api/seed-certificates',

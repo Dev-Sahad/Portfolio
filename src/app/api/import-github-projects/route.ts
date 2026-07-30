@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedAdminUser } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,6 +107,10 @@ async function ensureProjectsTable(
 }
 
 export async function POST(request: Request) {
+  if (!await getAuthenticatedAdminUser()) {
+    return Response.json({ error: 'Admin access required' }, { status: 403 })
+  }
+
   const { searchParams } = new URL(request.url)
   const username    = searchParams.get('username') || 'Dev-Sahad'
   const githubToken = process.env.GITHUB_TOKEN || undefined

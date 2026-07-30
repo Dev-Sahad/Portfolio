@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getAuthenticatedAdminUser } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,10 @@ const sampleCertificates = [
 ]
 
 export async function POST() {
+  if (!await getAuthenticatedAdminUser()) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+  }
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY

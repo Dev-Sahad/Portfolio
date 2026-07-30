@@ -1,24 +1,32 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdminUser } from "@/lib/adminAccess";
+
+function getSafeAdminPath(value: string | null) {
+  return value?.startsWith('/admin/') && !value.startsWith('//')
+    ? value
+    : '/admin/dashboard'
+}
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get("next") ?? "/admin";
+  const next = getSafeAdminPath(searchParams.get("next"));
 
   if (code) {
-    // FIX: You must await the creation of the Supabase client
-    const supabase = await createClient(); 
-    
-    // Now 'supabase' is the client and has the 'auth' property
+    const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    
+
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const { data: { user } } = await supabase.auth.getUser()
+      if (isAdminUser(user)) {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+
+      await supabase.auth.signOut()
+      return NextResponse.redirect(`${origin}/admin/login?error=unauthorized`)
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  return NextResponse.redirect(`${origin}/admin/login?error=callback`);
 }

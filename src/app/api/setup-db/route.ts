@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedAdminUser } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
 
@@ -105,6 +106,10 @@ const DEFAULT_WORDS = [
 ]
 
 export async function POST() {
+  if (!await getAuthenticatedAdminUser()) {
+    return Response.json({ error: 'Admin access required' }, { status: 403 })
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 

@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { getAuthenticatedAdminUser } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
 
 type ServiceStatus = 'healthy' | 'degraded' | 'unavailable'
 
 export async function GET() {
+  if (!await getAuthenticatedAdminUser()) {
+    return NextResponse.json(
+      { error: 'Admin access required' },
+      { status: 403, headers: { 'Cache-Control': 'private, no-store' } },
+    )
+  }
+
   const startedAt = Date.now()
   const hasSupabaseConfig = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&

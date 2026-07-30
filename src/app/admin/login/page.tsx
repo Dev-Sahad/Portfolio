@@ -39,12 +39,27 @@ export default function LoginPage() {
     if (!email || !password) { setErrorMsg('Please enter both email and password.'); return }
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
     if (error) {
+      setLoading(false)
       setErrorMsg('Invalid credentials. Please try again.')
     } else {
-      setSuccessMsg('Login successful! Redirecting...')
-      window.location.replace('/admin/dashboard')
+      const sessionCheck = await fetch('/api/admin/session', {
+        cache: 'no-store',
+        credentials: 'same-origin',
+      })
+      if (!sessionCheck.ok) {
+        await supabase.auth.signOut()
+        setLoading(false)
+        setErrorMsg('This account is not authorized to access the Admin panel.')
+        return
+      }
+
+      setSuccessMsg('Admin verified. Redirecting...')
+      const next = new URLSearchParams(window.location.search).get('next')
+      const safeNext = next?.startsWith('/admin/') && !next.startsWith('//')
+        ? next
+        : '/admin/dashboard'
+      window.location.replace(safeNext)
     }
   }
 
@@ -154,6 +169,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                required
                 className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-4 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
               />
             </div>
@@ -170,6 +186,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
+                required
                 className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-12 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}

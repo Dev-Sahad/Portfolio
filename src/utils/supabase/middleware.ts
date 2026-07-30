@@ -20,6 +20,7 @@ export async function updateSession(request: NextRequest) {
     '/api/setup-db',
   ])
   const isProtectedAdminApiRoute =
+    request.nextUrl.pathname.startsWith('/api/admin/') ||
     protectedAdminApiRoutes.has(request.nextUrl.pathname) ||
     (request.nextUrl.pathname === '/api/visitors' && request.method === 'GET')
   const isPublicVisitorRequest =
@@ -30,8 +31,10 @@ export async function updateSession(request: NextRequest) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/admin/login'
     loginUrl.search = ''
+    loginUrl.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
     const redirect = NextResponse.redirect(loginUrl)
     currentResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
+    redirect.headers.set('Cache-Control', 'private, no-store')
     return redirect
   }
 
@@ -41,13 +44,18 @@ export async function updateSession(request: NextRequest) {
     dashboardUrl.search = ''
     const redirect = NextResponse.redirect(dashboardUrl)
     currentResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
+    redirect.headers.set('Cache-Control', 'private, no-store')
     return redirect
   }
 
-  const denyApiRequest = (status: 401 | 403) => NextResponse.json(
-    { error: status === 401 ? 'Authentication required' : 'Admin access required' },
-    { status },
-  )
+  const denyApiRequest = (status: 401 | 403) => {
+    const denial = NextResponse.json(
+      { error: status === 401 ? 'Authentication required' : 'Admin access required' },
+      { status },
+    )
+    denial.headers.set('Cache-Control', 'private, no-store')
+    return denial
+  }
 
   if (!url || !key) {
     if (isProtectedAdminApiRoute) return denyApiRequest(401)
@@ -88,6 +96,10 @@ export async function updateSession(request: NextRequest) {
 
   if (isAdminLoginRoute && isAdmin) {
     return redirectToDashboard(supabaseResponse)
+  }
+
+  if (isProtectedAdminRoute || isProtectedAdminApiRoute || isAdminLoginRoute) {
+    supabaseResponse.headers.set('Cache-Control', 'private, no-store')
   }
 
   return supabaseResponse

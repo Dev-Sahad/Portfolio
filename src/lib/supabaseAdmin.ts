@@ -9,10 +9,15 @@ export function getServiceDatabase() {
   return createClient(url, key, { auth: { persistSession: false } })
 }
 
-export async function getAuthenticatedAdminDatabase() {
+export async function getAuthenticatedAdminUser() {
   const sessionClient = await createServerClient()
   const { data: { user } } = await sessionClient.auth.getUser()
-  if (!user || !isAdminUser(user)) return null
+  return user && isAdminUser(user) ? user : null
+}
+
+export async function getAuthenticatedAdminDatabase() {
+  const user = await getAuthenticatedAdminUser()
+  if (!user) return null
   return getServiceDatabase()
 }
 
