@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Lock, Menu, X } from 'lucide-react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Navbar() {
-  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [open, setOpen] = useState(false)
@@ -19,7 +20,7 @@ export default function Navbar() {
     setMounted(true)
 
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768)
+      setIsMobile(window.innerWidth < 960)
     }
 
     const handleScroll = () => {
@@ -75,10 +76,13 @@ export default function Navbar() {
     e: React.MouseEvent<HTMLAnchorElement>,
     targetId: string
   ) => {
-    e.preventDefault()
-
     const target = document.querySelector(targetId)
-    if (!target) return
+    if (!target) {
+      setOpen(false)
+      return
+    }
+
+    e.preventDefault()
 
     const navbarOffset = 3
     const targetPosition =
@@ -118,11 +122,11 @@ export default function Navbar() {
   }
 
   const navItems = [
-    { label: 'Home', id: 'home' },
-    { label: 'About', id: 'about' },
-    { label: 'Portfolio', id: 'portfolio' },
-    { label: 'Notes', id: 'notes' },
-    { label: 'Contact', id: 'contact' },
+    { label: 'Home', id: 'home', href: '#home' },
+    { label: 'About', id: 'about', href: '#about' },
+    { label: 'Portfolio', id: 'portfolio', href: '#portfolio' },
+    { label: 'Notes', id: 'notes', href: '/blog' },
+    { label: 'Contact', id: 'contact', href: '#contact' },
   ]
 
   return (
@@ -172,68 +176,76 @@ export default function Navbar() {
           </span>
         </div>
 
-        {!isMobile && (
-          <div style={{ display: 'flex', gap: 40 }}>
-            {navItems.map((item) => {
-              const isActive = activeSection === item.id
+        <div className="flex items-center gap-2">
+          {!isMobile && (
+            <div className="mr-3 flex items-center gap-5 xl:gap-8">
+              {navItems.map((item) => {
+                const isActive = activeSection === item.id
 
-              return (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => smoothScrollTo(e, `#${item.id}`)}
-                  style={{
-                    position: 'relative',
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: 13,
-                    color: isActive
-                      ? 'var(--text-primary)'
-                      : 'var(--text-secondary)',
-                    textDecoration: 'none',
-                    letterSpacing: '0.08em',
-                    cursor: 'pointer',
-                    paddingBottom: 4,
-                    transition: '0.25s ease',
-                  }}
-                >
-                  {item.label}
-
-                  <span
+                return (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    onClick={(event) => smoothScrollTo(event, `#${item.id}`)}
                     style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      width: '100%',
-                      height: 1,
-                      background: 'white',
-                      transform: isActive
-                        ? 'scaleX(1)'
-                        : 'scaleX(0)',
-                      transformOrigin: 'left',
-                      transition: 'transform 0.25s ease',
+                      position: 'relative',
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 13,
+                      color: isActive
+                        ? 'var(--text-primary)'
+                        : 'var(--text-secondary)',
+                      textDecoration: 'none',
+                      letterSpacing: '0.08em',
+                      cursor: 'pointer',
+                      paddingBottom: 4,
+                      transition: '0.25s ease',
                     }}
-                  />
-                </a>
-              )
-            })}
-          </div>
-        )}
+                  >
+                    {item.label}
 
-        {isMobile && (
-          <div
-            onClick={() => setOpen(!open)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-              cursor: 'pointer',
-            }}
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        height: 1,
+                        background: 'white',
+                        transform: isActive
+                          ? 'scaleX(1)'
+                          : 'scaleX(0)',
+                        transformOrigin: 'left',
+                        transition: 'transform 0.25s ease',
+                      }}
+                    />
+                  </a>
+                )
+              })}
+            </div>
+          )}
+
+          <ThemeToggle />
+          <Link
+            href="/admin"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-neutral-800 backdrop-blur-md transition hover:scale-105 hover:bg-white/20 dark:bg-black/20 dark:text-neutral-200"
+            title="Admin Panel"
+            aria-label="Open admin panel"
           >
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-          </div>
-        )}
+            <Lock className="h-4 w-4" />
+          </Link>
+
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={() => setOpen((current) => !current)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white"
+              aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={open}
+            >
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {isMobile && open && (
@@ -259,8 +271,8 @@ export default function Navbar() {
             return (
               <a
                 key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => smoothScrollTo(e, `#${item.id}`)}
+                href={item.href}
+                onClick={(event) => smoothScrollTo(event, `#${item.id}`)}
                 style={{
                   fontFamily: "'DM Mono', monospace",
                   fontSize: 13,

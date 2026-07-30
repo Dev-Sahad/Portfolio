@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Lock } from 'lucide-react' // Lucide-react for standard production UI iconography
-import Link from 'next/link'
 
 import AnimatedBackground from '@/components/AnimatedBackground'
 import Navbar from '@/components/ui/Navbar'
@@ -14,7 +12,6 @@ import ContactSection from '@/components/sections/contact/ContactSection'
 import IntroScreen from '@/components/IntroScreen'
 import VisitorDetailsPrompt from '@/components/VisitorDetailsPrompt'
 import CommandPalette from '@/components/CommandPalette'
-import ThemeToggle from '@/components/ThemeToggle'
 import TestimonialsSection from '@/components/sections/TestimonialsSection'
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
 import MotionSettings from '@/components/MotionSettings'
@@ -99,20 +96,6 @@ export default function PageClient({ projects, technologies, settings: settingsI
     <main id="main-content" style={{ position: 'relative', overflow: 'hidden' }}>
       <AnalyticsBeacon />
       <AnimatedBackground />
-
-      {/* Global controls share the navigation rhythm without covering its links. */}
-      <div className="fixed right-4 top-5 z-50 flex items-center gap-2 sm:right-6 sm:top-6 lg:right-10">
-        <ThemeToggle />
-        
-        {/* Admin Login Gateway Button */}
-        <Link 
-          href="/admin" 
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-neutral-800 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:bg-white/20 dark:bg-black/20 dark:text-neutral-200"
-          title="Admin Panel"
-        >
-          <Lock className="w-5 h-5" />
-        </Link>
-      </div>
 
       <CommandPalette />
 
