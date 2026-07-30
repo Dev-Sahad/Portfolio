@@ -1,22 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getWebhookDelivery, renderWebhookMessage } from '@/lib/webhookSettings'
+import {
+  getWebhookDelivery,
+  renderWebhookMessage,
+  sendDiscordWebhook,
+} from '@/lib/webhookSettings'
 
 const OWNER_EMAIL     = 'dev.sxhd@gmail.com'
+
+const clean = (value: unknown, limit = 1000) =>
+  typeof value === 'string' ? value.trim().slice(0, limit) : ''
+
 export async function POST(req: NextRequest) {
   try {
-    const { name, comment, imageUrl } = await req.json()
+    const payload = await req.json()
+    const name = clean(payload.name, 100)
+    const comment = clean(payload.comment, 1000)
+    const imageUrl = clean(payload.imageUrl, 1000)
 
-    if (!name?.trim() || !comment?.trim()) {
+    if (!name || !comment) {
       return NextResponse.json({ error: 'Missing name or comment' }, { status: 400 })
     }
 
     const { url: webhookUrl, message: customMessage } = await getWebhookDelivery('comments')
 
     // ── Discord embed ─────────────────────────────────────────────
-    if (webhookUrl) await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    await sendDiscordWebhook(webhookUrl, {
         content: renderWebhookMessage(customMessage, { name, comment }, `New portfolio comment from ${name}`),
         allowed_mentions: { parse: [] },
         embeds: [{
@@ -25,14 +33,13 @@ export async function POST(req: NextRequest) {
           fields: [
             { name: '👤 From',    value: `**${name}**`, inline: true },
             { name: '📧 Notify',  value: OWNER_EMAIL,   inline: true },
-            { name: '💬 Message', value: comment,       inline: false },
-            ...(imageUrl ? [{ name: '🖼️ Image', value: imageUrl, inline: false }] : []),
+            { name: '💬 Message', value: comment.slice(0, 1024), inline: false },
+            ...(imageUrl ? [{ name: '🖼️ Image', value: imageUrl.slice(0, 1024), inline: false }] : []),
           ],
           footer: { text: 'portfolio-v1 · Comments' },
           timestamp: new Date().toISOString(),
         }],
-      }),
-    }).catch(() => null) // never block comment on webhook failure
+      })
 
     // ── Build mailto URL (opened on client if user wants to reply) ─
     const subject = encodeURIComponent(`Re: Comment from ${name} on your portfolio`)
@@ -48,9 +55,10 @@ export async function POST(req: NextRequest) {
       ownerMail: `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(`New comment from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nComment: ${comment}`)}`,
     })
   } catch (err: unknown) {
+    console.error('Comment webhook delivery failed:', err)
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Unexpected error' },
-      { status: 500 },
+      { error: 'Unable to deliver the comment notification right now.' },
+      { status: 502 },
     )
   }
 }
