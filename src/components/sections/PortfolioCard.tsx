@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
+import { getProjectThumbnail } from '@/lib/portfolioMedia'
 
 type Props = {
   title: string
@@ -28,6 +29,7 @@ export default function PortfolioCard({
   github_url,
 }: Props) {
   const router = useRouter()
+  const thumbnail = getProjectThumbnail({ github_url, image_url: image })
 
   return (
     <motion.div
@@ -49,10 +51,11 @@ export default function PortfolioCard({
       className="group relative rounded-[26px] border border-white/10 bg-white/5 p-4 backdrop-blur-xl flex flex-col min-h-[270px]"
     >
       <div className="w-full h-36 rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] mb-3">
-        {image ? (
+        {thumbnail ? (
           <img
-            src={image}
+            src={thumbnail}
             alt={title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
           />
         ) : (

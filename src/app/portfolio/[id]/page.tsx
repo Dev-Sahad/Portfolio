@@ -6,6 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { trackEvent } from "@/lib/analytics";
+import { getProjectImages } from "@/lib/portfolioMedia";
+import ProjectReadme from "@/components/portfolio/ProjectReadme";
 
 import {
   ArrowLeft,
@@ -70,12 +72,7 @@ export default function PortfolioDetailPage() {
     .split(",")
     .filter((f) => f.trim() !== "");
 
-  const galleryImages =
-    project?.image_urls && Array.isArray(project.image_urls)
-      ? project.image_urls
-      : project?.image_url
-        ? [project.image_url]
-        : [];
+  const galleryImages = project ? getProjectImages(project) : [];
 
   const nextImage = () => {
     if (currentImage < galleryImages.length - 1) {
@@ -291,6 +288,7 @@ export default function PortfolioDetailPage() {
               </p>
             </motion.div>
           )}
+
         </motion.div>
 
         {/* RIGHT */}
@@ -371,6 +369,8 @@ export default function PortfolioDetailPage() {
           </motion.div>
         </motion.div>
       </div>
+
+      <ProjectReadme githubUrl={project.github_url} />
     </div>
   );
 }
