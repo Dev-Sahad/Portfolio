@@ -363,19 +363,6 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <MessageSquare className="h-4 w-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setCopilotOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Sahad AI Co-Pilot Assistant"
-            aria-label="Open AI Co-Pilot"
-          >
-            <Bot className="h-4 w-4" />
-          </button>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link
@@ -413,6 +400,28 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       <TailoredCVModal isOpen={tailoredCVOpen} onClose={() => setTailoredCVOpen(false)} />
       <DirectInquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
       <PortfolioCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
+
+      {/* Floating Bottom Left AI Co-Pilot Trigger */}
+      <div className="fixed bottom-6 left-6 z-[95]">
+        <button
+          type="button"
+          onClick={() => {
+            playClick()
+            setCopilotOpen(true)
+          }}
+          onMouseEnter={playHover}
+          className="group relative flex items-center gap-2 rounded-full border border-cyan-400/50 bg-[#0a0c16]/90 px-4 py-3 text-xs font-bold text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-xl hover:scale-105 transition cursor-pointer"
+          title="Sahad AI Co-Pilot Assistant"
+          aria-label="Open AI Co-Pilot"
+        >
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400" />
+          </span>
+          <Bot className="h-4 w-4 text-cyan-300 group-hover:rotate-12 transition" />
+          <span className="font-mono">AI Co-Pilot</span>
+        </button>
+      </div>
 
 
 
