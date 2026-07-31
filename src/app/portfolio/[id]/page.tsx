@@ -7,7 +7,10 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { trackEvent } from "@/lib/analytics";
 import { getProjectImages } from "@/lib/portfolioMedia";
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import ProjectReadme from "@/components/portfolio/ProjectReadme";
+
 
 import {
   ArrowLeft,
@@ -150,12 +153,9 @@ export default function PortfolioDetailPage() {
             className="w-16 h-[2px] rounded-full bg-white/20 mb-5"
           />
 
-          <motion.p
-
-            className="text-sm md:text-[13px] leading-7 text-white/60 text-justify mb-6"
-          >
-            {project.description}
-          </motion.p>
+          <div className="text-sm md:text-base leading-7 text-white/70 text-justify mb-6 space-y-3 font-sans">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{project.description}</ReactMarkdown>
+          </div>
 
           {(project.problem || project.project_role || project.solution || project.challenges || project.results) && (
             <div className="mb-8 grid gap-4">
@@ -167,12 +167,15 @@ export default function PortfolioDetailPage() {
                 ['Results', project.results],
               ].filter(([, value]) => value).map(([label, value]) => (
                 <section key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                  <h2 className="text-sm font-semibold">{label}</h2>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/55">{value}</p>
+                  <h2 className="text-sm font-semibold mb-2">{label}</h2>
+                  <div className="text-sm leading-7 text-white/60 space-y-2">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+                  </div>
                 </section>
               ))}
             </div>
           )}
+
 
           {Array.isArray(project.metrics) && project.metrics.length > 0 && (
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">

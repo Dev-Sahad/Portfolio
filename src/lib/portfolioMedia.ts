@@ -60,12 +60,52 @@ export function getRepositoryThumbnail(githubUrl?: string | null) {
   return `https://opengraph.githubassets.com/portfolio-project/${encodeURIComponent(repository.owner)}/${encodeURIComponent(repository.repo)}`
 }
 
-export function getProjectThumbnail(project: ProjectMedia) {
+export function generateWorkGraphicThumbnail(title: string = 'Portfolio Project', tech: string = 'React, Next.js'): string {
+  const safeTitle = escapeXml(title)
+  const safeTech = escapeXml(tech)
+
+  const is3D = title.toLowerCase().includes('3d') || tech.toLowerCase().includes('three')
+  const isAI = title.toLowerCase().includes('ai') || title.toLowerCase().includes('assistant') || tech.toLowerCase().includes('ai')
+  const isBackend = title.toLowerCase().includes('backend') || title.toLowerCase().includes('supabase') || title.toLowerCase().includes('api')
+
+  const gradient1 = is3D ? '#a855f7' : isAI ? '#ec4899' : isBackend ? '#10b981' : '#06b6d4'
+  const gradient2 = is3D ? '#3b82f6' : isAI ? '#8b5cf6' : isBackend ? '#059669' : '#3b82f6'
+  const category = is3D ? '3D & GRAPHICS WORK' : isAI ? 'AI & MACHINE LEARNING' : isBackend ? 'FULL-STACK & BACKEND' : 'WEB APPLICATION'
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0a0b10" />
+        <stop offset="100%" stop-color="#141624" />
+      </linearGradient>
+      <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${gradient1}" />
+        <stop offset="100%" stop-color="${gradient2}" />
+      </linearGradient>
+    </defs>
+    <rect width="600" height="340" fill="url(#bg)" />
+    <circle cx="500" cy="80" r="180" fill="url(#accent)" opacity="0.15" filter="blur(40px)" />
+    <circle cx="100" cy="260" r="140" fill="url(#accent)" opacity="0.1" filter="blur(30px)" />
+    <rect x="40" y="40" width="520" height="260" rx="20" fill="none" stroke="url(#accent)" stroke-width="1.5" stroke-opacity="0.3" />
+    <rect x="60" y="60" width="130" height="26" rx="8" fill="url(#accent)" opacity="0.2" />
+    <text x="72" y="77" font-family="monospace" font-size="10" font-weight="bold" fill="${gradient1}">${category}</text>
+    <text x="60" y="140" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#ffffff">${safeTitle}</text>
+    <text x="60" y="175" font-family="monospace" font-size="13" fill="#a0a5ba">${safeTech}</text>
+  </svg>`
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+export function getProjectThumbnail(project: ProjectMedia & { title?: string; technologies?: string }) {
   const uploadedImage = project.image_url?.trim()
   if (uploadedImage && !isGenericPlaceholderImage(uploadedImage)) return uploadedImage
 
-  return getRepositoryThumbnail(project.github_url) || uploadedImage || ''
+  const repoThumb = getRepositoryThumbnail(project.github_url)
+  if (repoThumb) return repoThumb
+
+  return generateWorkGraphicThumbnail(project.title, project.technologies)
 }
+
 
 export function getProjectImages(project: ProjectMedia) {
   const uploadedGallery = Array.isArray(project.image_urls)

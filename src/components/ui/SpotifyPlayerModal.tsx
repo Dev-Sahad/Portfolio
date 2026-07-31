@@ -13,12 +13,24 @@ interface SpotifyPlayerModalProps {
 
 function formatSpotifyEmbedUrl(url: string): string {
   if (!url) return 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g?utm_source=generator&theme=0'
-  
-  if (url.includes('/embed/')) return url
 
-  // Convert open.spotify.com/playlist/ID or open.spotify.com/track/ID
-  return url.replace('open.spotify.com/', 'open.spotify.com/embed/') + '?utm_source=generator&theme=0'
+  try {
+    const cleanUrl = url.trim()
+    if (cleanUrl.includes('/embed/')) return cleanUrl
+
+    // Extract type (playlist, track, album) and ID
+    const match = cleanUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(playlist|track|album)\/([a-zA-Z0-9]+)/)
+    if (match) {
+      const [, type, id] = match
+      return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
+    }
+
+    return cleanUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')
+  } catch {
+    return 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g?utm_source=generator&theme=0'
+  }
 }
+
 
 export default function SpotifyPlayerModal({
   isOpen,

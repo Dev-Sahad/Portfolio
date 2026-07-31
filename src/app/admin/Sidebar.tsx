@@ -6,6 +6,7 @@ import {
   Award,
   Bell,
   Folder,
+  Globe,
   LayoutDashboard,
   Layers,
   LogOut,
@@ -16,6 +17,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
+
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -61,10 +63,21 @@ function SidebarContent({
     <>
       <div>
         {!hideTitle && (
-          <h1 className="text-lg font-semibold mb-8 tracking-wide text-white">
-            Admin Panel
-          </h1>
+          <div className="mb-6 space-y-3">
+            <Link
+              href="/"
+              onClick={onLinkClick}
+              className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-xs font-semibold text-white backdrop-blur-md shadow-lg transition hover:bg-white hover:text-black hover:scale-[1.02]"
+            >
+              <Globe size={14} className="text-cyan-400" />
+              ⬅ Back to Portfolio
+            </Link>
+            <h1 className="text-lg font-semibold tracking-wide text-white">
+              Admin Panel
+            </h1>
+          </div>
         )}
+
 
         <nav className="space-y-2" aria-label="Admin navigation">
           {menus.map((menu) => {
@@ -146,7 +159,16 @@ export default function Sidebar() {
       {isMobile && (
         <>
           <div className="fixed top-0 left-0 right-0 h-[70px] bg-black/95 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-5 z-[60]">
-            <h1 className="text-white font-semibold text-base">Admin Panel</h1>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md"
+              >
+                <Globe size={13} className="text-cyan-400" />
+                Portfolio
+              </Link>
+              <h1 className="text-white font-semibold text-sm">Admin</h1>
+            </div>
             <button
               type="button"
               onClick={() => setOpen(true)}
@@ -156,6 +178,7 @@ export default function Sidebar() {
               <Menu size={20} />
             </button>
           </div>
+
 
           <AnimatePresence>
             {open && (

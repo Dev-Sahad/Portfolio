@@ -23,6 +23,9 @@ import type { BlogPost, Testimonial } from '@/lib/growthTypes'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 import ScrollProgressBar from '@/components/ui/ScrollProgressBar'
+import GraphicScrollBanner from '@/components/ui/GraphicScrollBanner'
+import OutroExitModal from '@/components/ui/OutroExitModal'
+
 
 interface PageClientProps {
   projects: any[];
@@ -133,6 +136,8 @@ export default function PageClient({
           <About settings={settings} />
         </motion.div>
 
+        <GraphicScrollBanner />
+
         <motion.div
           initial={{ opacity: 0, y: 35 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -141,6 +146,7 @@ export default function PageClient({
         >
           <PortfolioShowcase projects={projects} technologies={technologies} />
         </motion.div>
+
 
         {settings.show_testimonials ? (
           <motion.div
@@ -202,7 +208,7 @@ export default function PageClient({
       </AnimatePresence>
 
       <VisitorDetailsPrompt enabled={showApp} />
+      <OutroExitModal />
     </main>
   )
 }
-
