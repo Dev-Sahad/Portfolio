@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Eye, Zap, ShieldCheck, RefreshCw, Cpu } from 'lucide-react'
+import { Sparkles, Eye, Zap, ShieldCheck, RefreshCw, Cpu, Instagram } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
 
 interface HeroCyberAvatarProps {
@@ -71,10 +71,18 @@ export default function HeroCyberAvatar({ className = '', compact = false }: Her
 
         {/* Bottom Interactive Controls */}
         <div className="absolute bottom-3 left-3 right-3 z-30 flex items-center justify-between bg-black/70 backdrop-blur-md p-2.5 rounded-2xl border border-white/15">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-mono text-cyan-300 font-bold tracking-wider">{currentTitle}</span>
-            <span className="text-[9px] font-mono text-white/50">SYSTEM STATE: ACTIVE</span>
-          </div>
+          <a
+            href="https://www.instagram.com/sahad_____sha/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            onMouseEnter={playHover}
+            className="flex items-center gap-1.5 rounded-xl border border-pink-500/40 bg-pink-500/20 px-2.5 py-1.5 text-[11px] font-mono text-pink-300 hover:bg-pink-500/30 transition backdrop-blur-md"
+            title="Connect on Instagram @sahad_____sha"
+          >
+            <Instagram size={13} className="text-pink-400" />
+            <span>@sahad_____sha</span>
+          </a>
 
           <button
             type="button"

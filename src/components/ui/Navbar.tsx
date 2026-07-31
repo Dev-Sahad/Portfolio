@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot, Mic, Trophy, Code2, Sparkles } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot, Mic, Trophy, Code2, Sparkles, Instagram } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
@@ -423,6 +423,18 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <Sparkles className="h-4 w-4" />
           </button>
+          <a
+            href="https://www.instagram.com/sahad_____sha/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Instagram Profile @sahad_____sha"
+            aria-label="Open Instagram profile"
+          >
+            <Instagram className="h-4 w-4" />
+          </a>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link
