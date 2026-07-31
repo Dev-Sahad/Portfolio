@@ -115,7 +115,7 @@ export default function AdminAudioPage() {
             <Youtube size={20} /> Intro Screen Background Music (YouTube / Direct Link)
           </h2>
           <p className="text-xs text-white/60 font-mono">
-            YouTube Video or Short link played during the intro sequence. (e.g., https://youtu.be/JCzJu2ZXSRw)
+            YouTube Video or Short link played during the intro sequence. (e.g., https://youtu.be/JCzJu2ZXSRw?si=82scZffeqbuwFZeO)
           </p>
 
           <input
