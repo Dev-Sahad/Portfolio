@@ -99,122 +99,124 @@ export default function SpotifyPlayerModal({
   }
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Spotify Music Player"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-[#121218]/95 p-6 shadow-2xl backdrop-blur-2xl text-white"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                  <Disc className="h-5 w-5 animate-spin-slow" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-base flex items-center gap-2">
-                    Portfolio Music Engine
-                    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 font-mono">
-                      Spotify Connected
-                    </span>
-                  </h3>
-                  <p className="text-xs text-white/40">Listen live while browsing Sahad&apos;s portfolio</p>
-                </div>
-              </div>
+    <>
+      {/* Persistent Spotify Audio iFrame */}
+      <div className={isOpen ? "relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 min-h-[152px]" : "fixed bottom-0 right-0 h-1 w-1 opacity-0 pointer-events-none overflow-hidden z-[-1]"}>
+        <iframe
+          src={embedUrl}
+          width="100%"
+          height={isOpen ? "352" : "1"}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title="Spotify Web Player"
+          className="w-full rounded-2xl border-0"
+        />
+      </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  playClick()
-                  onClose()
-                }}
-                onMouseEnter={playHover}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 hover:bg-white/15 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                aria-label="Close Spotify Modal"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Mode Switcher */}
-            <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 mb-4">
-              <button
-                type="button"
-                onClick={() => {
-                  playClick()
-                  setMode('spotify')
-                }}
-                onMouseEnter={playHover}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'spotify' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold' : 'text-white/50 hover:text-white'
-                  }`}
-              >
-                <Music size={14} />
-                Spotify Player
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playClick()
-                  setMode('ambient')
-                }}
-                onMouseEnter={playHover}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'ambient' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold' : 'text-white/50 hover:text-white'
-                  }`}
-              >
-                <Sparkles size={14} />
-                Synth Ambient
-              </button>
-            </div>
-
-            {/* Presets Bar */}
-            {mode === 'spotify' && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
-                <span className="text-[10px] font-mono text-white/40 flex items-center gap-1 shrink-0 mr-1">
-                  <Radio size={10} /> Presets:
-                </span>
-                {PRESETS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    type="button"
-                    onClick={() => handleSelectPreset(preset.url)}
-                    onMouseEnter={playHover}
-                    className="shrink-0 rounded-lg bg-white/5 border border-white/10 px-2.5 py-1 text-[11px] text-white/70 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30 transition"
-                  >
-                    {preset.name}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Content Body */}
-            {mode === 'spotify' ? (
-              <div className="space-y-4">
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 min-h-[152px]">
-                  <iframe
-                    src={embedUrl}
-                    width="100%"
-                    height="352"
-                    frameBorder="0"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                    title="Spotify Web Player"
-                    className="w-full rounded-2xl border-0"
-                  />
-                </div>
-
-                {/* Toast feedback */}
-                {loadedMsg && (
-                  <div className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 p-2 text-xs text-emerald-300 font-mono">
-                    <Check size={14} /> Audio source updated successfully!
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Spotify Music Player"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-[#121218]/95 p-6 shadow-2xl backdrop-blur-2xl text-white"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    <Disc className="h-5 w-5 animate-spin-slow" />
                   </div>
-                )}
+                  <div>
+                    <h3 className="font-semibold text-base flex items-center gap-2">
+                      Portfolio Music Engine
+                      <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 font-mono">
+                        Spotify Connected
+                      </span>
+                    </h3>
+                    <p className="text-xs text-white/40">Listen live while browsing Sahad&apos;s portfolio</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick()
+                    onClose()
+                  }}
+                  onMouseEnter={playHover}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 hover:bg-white/15 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  aria-label="Close Spotify Modal"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Mode Switcher */}
+              <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 mb-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick()
+                    setMode('spotify')
+                  }}
+                  onMouseEnter={playHover}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'spotify' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold' : 'text-white/50 hover:text-white'
+                    }`}
+                >
+                  <Music size={14} />
+                  Spotify Player
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick()
+                    setMode('ambient')
+                  }}
+                  onMouseEnter={playHover}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'ambient' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold' : 'text-white/50 hover:text-white'
+                    }`}
+                >
+                  <Sparkles size={14} />
+                  Synth Ambient
+                </button>
+              </div>
+
+              {/* Presets Bar */}
+              {mode === 'spotify' && (
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
+                  <span className="text-[10px] font-mono text-white/40 flex items-center gap-1 shrink-0 mr-1">
+                    <Radio size={10} /> Presets:
+                  </span>
+                  {PRESETS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => handleSelectPreset(preset.url)}
+                      onMouseEnter={playHover}
+                      className="shrink-0 rounded-lg bg-white/5 border border-white/10 px-2.5 py-1 text-[11px] text-white/70 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30 transition"
+                    >
+                      {preset.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Content Body */}
+              {mode === 'spotify' ? (
+                <div className="space-y-4">
+                  {/* Toast feedback */}
+                  {loadedMsg && (
+                    <div className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 p-2 text-xs text-emerald-300 font-mono">
+                      <Check size={14} /> Audio source updated successfully!
+                    </div>
+                  )}
 
                 {/* Custom Spotify Link Input */}
                 <form onSubmit={handleCustomSubmit} className="flex gap-2">
@@ -296,5 +298,6 @@ export default function SpotifyPlayerModal({
         </div>
       )}
     </AnimatePresence>
+    </>
   )
 }

@@ -105,31 +105,46 @@ function getYouTubeId(url?: string): string | null {
     try {
       audio = new Audio(musicUrl)
       audio.volume = 0
-      audio.play().then(() => {
-        let currentVol = 0
-        fadeInInterval = setInterval(() => {
-          if (currentVol < TARGET_VOL) {
-            currentVol += volumeStep
-            if (audio) audio.volume = Math.min(TARGET_VOL, currentVol)
-          } else {
-            clearInterval(fadeInInterval)
-          }
-        }, STEP_INTERVAL)
 
-        const elapsedTime = Date.now() - startTime
-        const fadeOutDelay = Math.max(0, INTRO_TOTAL_DURATION - FADE_IN_DURATION - elapsedTime)
-
-        fadeOutTimer = setTimeout(() => {
-          fadeOutInterval = setInterval(() => {
-            if (audio && audio.volume > volumeStep) {
-              audio.volume = Math.max(0, audio.volume - volumeStep)
+      const playAudio = () => {
+        if (!audio) return
+        audio.play().then(() => {
+          let currentVol = 0
+          fadeInInterval = setInterval(() => {
+            if (currentVol < TARGET_VOL) {
+              currentVol += volumeStep
+              if (audio) audio.volume = Math.min(TARGET_VOL, currentVol)
             } else {
-              if (audio) audio.volume = 0
-              clearInterval(fadeOutInterval)
+              clearInterval(fadeInInterval)
             }
           }, STEP_INTERVAL)
-        }, fadeOutDelay)
-      }).catch(() => {})
+
+          const elapsedTime = Date.now() - startTime
+          const fadeOutDelay = Math.max(0, INTRO_TOTAL_DURATION - FADE_IN_DURATION - elapsedTime)
+
+          fadeOutTimer = setTimeout(() => {
+            fadeOutInterval = setInterval(() => {
+              if (audio && audio.volume > volumeStep) {
+                audio.volume = Math.max(0, audio.volume - volumeStep)
+              } else {
+                if (audio) audio.volume = 0
+                clearInterval(fadeOutInterval)
+              }
+            }, STEP_INTERVAL)
+          }, fadeOutDelay)
+        }).catch(() => {})
+      }
+
+      playAudio()
+
+      // Mobile Touch unlock listener for iOS / Android autoplay policies
+      const handleMobileUnlock = () => {
+        playAudio()
+        window.removeEventListener('touchstart', handleMobileUnlock)
+        window.removeEventListener('click', handleMobileUnlock)
+      }
+      window.addEventListener('touchstart', handleMobileUnlock, { once: true })
+      window.addEventListener('click', handleMobileUnlock, { once: true })
     } catch {}
 
     return () => {
