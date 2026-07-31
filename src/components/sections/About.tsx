@@ -15,6 +15,7 @@ import TailoredCVModal from "@/components/ui/TailoredCVModal";
 import HeroCyberAvatar from "@/components/ui/HeroCyberAvatar";
 import SkillCosmosGraph from "@/components/three/SkillCosmosGraph";
 import AnimatedBioTerminal from "@/components/sections/AnimatedBioTerminal";
+import GitHubActivityCard from "@/components/sections/GitHubActivityCard";
 import { useAudio } from "@/context/AudioContext";
 
 
@@ -490,6 +491,7 @@ export default function About({ settings }: AboutProps) {
 
         <RolePitchSelector />
         <AnimatedBioTerminal />
+        <GitHubActivityCard />
         <SkillCosmosGraph />
         <CareerTimeline />
         <DeveloperVoiceMemos />

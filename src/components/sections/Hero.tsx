@@ -9,6 +9,7 @@ import { SiteSettings } from "@/lib/siteSettings";
 import type { SceneWord } from "@/components/three/PortfolioScene";
 import { usePointerParallax } from "@/hooks/usePointerParallax";
 import HeroCyberAvatar from "@/components/ui/HeroCyberAvatar";
+import LocalStatusWidget from "@/components/sections/LocalStatusWidget";
 
 const PortfolioScene = dynamic(() => import("@/components/three/PortfolioScene"), { ssr: false });
 
@@ -135,6 +136,10 @@ export default function Hero({ showApp, settings }: HeroProps) {
               {settings.hero_description}
             </p>
           </motion.div>
+
+          <div className="mb-6">
+            <LocalStatusWidget />
+          </div>
 
           <motion.div
             initial="hidden"

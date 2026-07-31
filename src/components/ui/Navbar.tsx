@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot, Mic, Trophy, Code2, Sparkles } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
@@ -15,6 +15,10 @@ import PerformanceLabModal from '@/components/ui/PerformanceLabModal'
 import TailoredCVModal from '@/components/ui/TailoredCVModal'
 import DirectInquiryDrawer from '@/components/ui/DirectInquiryDrawer'
 import PortfolioCopilot from '@/components/ui/PortfolioCopilot'
+import ShaderPlaygroundModal from '@/components/ui/ShaderPlaygroundModal'
+import VoiceControlModal from '@/components/ui/VoiceControlModal'
+import DevQuizArenaModal from '@/components/ui/DevQuizArenaModal'
+import SnippetVaultModal from '@/components/ui/SnippetVaultModal'
 import { useAudio } from '@/context/AudioContext'
 
 interface NavbarProps {
@@ -36,6 +40,10 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [tailoredCVOpen, setTailoredCVOpen] = useState(false)
   const [inquiryOpen, setInquiryOpen] = useState(false)
   const [copilotOpen, setCopilotOpen] = useState(false)
+  const [shaderOpen, setShaderOpen] = useState(false)
+  const [voiceOpen, setVoiceOpen] = useState(false)
+  const [quizOpen, setQuizOpen] = useState(false)
+  const [snippetOpen, setSnippetOpen] = useState(false)
 
 
 
@@ -363,6 +371,58 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <MessageSquare className="h-4 w-4" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setVoiceOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Voice Navigation"
+            aria-label="Open Voice Control"
+          >
+            <Mic className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setQuizOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-amber-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Dev Quiz Arena"
+            aria-label="Open Dev Quiz"
+          >
+            <Trophy className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setSnippetOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-purple-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Snippet Vault"
+            aria-label="Open Snippet Vault"
+          >
+            <Code2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setShaderOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="3D Shader Canvas Playground"
+            aria-label="Open Shader Canvas"
+          >
+            <Sparkles className="h-4 w-4" />
+          </button>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link
@@ -400,6 +460,10 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       <TailoredCVModal isOpen={tailoredCVOpen} onClose={() => setTailoredCVOpen(false)} />
       <DirectInquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
       <PortfolioCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
+      <ShaderPlaygroundModal isOpen={shaderOpen} onClose={() => setShaderOpen(false)} />
+      <VoiceControlModal isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} />
+      <DevQuizArenaModal isOpen={quizOpen} onClose={() => setQuizOpen(false)} />
+      <SnippetVaultModal isOpen={snippetOpen} onClose={() => setSnippetOpen(false)} />
 
       {/* Floating Bottom Left AI Co-Pilot Trigger */}
       <div className="fixed bottom-6 left-6 z-[95]">
