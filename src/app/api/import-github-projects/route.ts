@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedAdminUser } from '@/lib/supabaseAdmin'
+import { getRepositoryThumbnail } from '@/lib/portfolioMedia'
 
 export const dynamic = 'force-dynamic'
 
@@ -187,7 +188,7 @@ CREATE POLICY "admin_write" ON public.projects
       live_url: r.homepage?.startsWith('http') ? r.homepage : null,
       technologies: [r.language, ...(r.topics ?? [])].filter(Boolean).join(', ') || 'JavaScript',
       key_features: r.topics?.join(', ') || null,
-      image_url: null,
+      image_url: getRepositoryThumbnail(r.html_url),
       image_urls: [],
     }))
 

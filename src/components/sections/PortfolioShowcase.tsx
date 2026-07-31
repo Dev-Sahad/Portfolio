@@ -2,8 +2,9 @@
 
 import { useDeferredValue, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award, ChevronDown, ChevronUp, Layers, Search, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Layers, Search, X } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
+import { getCertificateThumbnail } from '@/lib/portfolioMedia'
 import PortfolioCard from './PortfolioCard'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -184,29 +185,33 @@ export default function PortfolioShowcase({
                 {certificates.length === 0 ? (
                   <EmptyState title={loading ? 'Loading certificates...' : 'Certificates are coming soon'} />
                 ) : (
-                  certificates.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => item.image_url && setPreviewImage(item.image_url)}
-                      className="group flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.07]"
-                    >
-                      {/* aspect-video locks thumbnail dimension symmetry cross-platform */}
-                      <div className="mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-black/30 border border-white/5">
-                        {item.image_url ? (
-                          <img 
-                            src={item.image_url} 
-                            alt={item.title} 
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105" 
+                  certificates.map((item) => {
+                    const thumbnail = getCertificateThumbnail(item)
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setPreviewImage(thumbnail)}
+                        className="group flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.07]"
+                      >
+                        {/* aspect-video locks thumbnail dimension symmetry cross-platform */}
+                        <div className="mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-black/30 border border-white/5">
+                          <img
+                            src={thumbnail}
+                            alt={`${item.title}${item.issuer ? ` — ${item.issuer}` : ''}`}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                             loading="lazy"
                           />
-                        ) : (
-                          <Award className="text-white/25" size={32} />
-                        )}
-                      </div>
-                      <h3 className="line-clamp-2 text-sm font-semibold text-white/90 group-hover:text-white mt-auto">{item.title}</h3>
-                    </button>
-                  ))
+                        </div>
+                        <h3 className="line-clamp-2 text-sm font-semibold text-white/90 group-hover:text-white mt-auto">{item.title}</h3>
+                        {item.issuer ? (
+                          <p className="mt-2 text-xs text-white/40">
+                            {item.issuer}{item.date ? ` · ${item.date}` : ''}
+                          </p>
+                        ) : null}
+                      </button>
+                    )
+                  })
                 )}
               </div>
             )}
