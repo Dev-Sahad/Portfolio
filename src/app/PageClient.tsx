@@ -26,6 +26,7 @@ import GraphicScrollBanner from '@/components/ui/GraphicScrollBanner'
 import OutroExitModal from '@/components/ui/OutroExitModal'
 import AchievementSystem from '@/components/AchievementSystem'
 import TestimonialWall from '@/components/sections/TestimonialWall'
+import PerspectiveImage3DWall from '@/components/three/PerspectiveImage3DWall'
 
 interface PageClientProps {
   projects: any[]
@@ -146,6 +147,7 @@ export default function PageClient({
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <PortfolioShowcase projects={projects} technologies={technologies} />
+          <PerspectiveImage3DWall />
         </motion.div>
 
         {settings.show_testimonials ? (
