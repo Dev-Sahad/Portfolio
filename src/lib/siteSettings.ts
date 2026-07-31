@@ -24,6 +24,7 @@ export type SiteSettings = {
   assistant_enabled: boolean
   performance_mode: 'auto' | 'full' | 'reduced'
   spotify_playlist_url: string
+  intro_music_url: string
 }
 
 export const defaultSiteSettings: SiteSettings = {
@@ -43,7 +44,7 @@ export const defaultSiteSettings: SiteSettings = {
   github_url: 'https://github.com/Dev-Sahad/',
   linkedin_url: 'https://www.linkedin.com/in/muhammad--sahad',
   instagram_url: 'https://www.instagram.com/sahad_____sha/',
-  youtube_url: 'https://www.youtube.com/@SAHAD-IS-LIVE',
+  youtube_url: 'https://www.youtube.com/@SAHAD-IS-LIVE?sub_confirmation=1',
   tiktok_url: 'https://www.tiktok.com/@sahad_____sha?_r=1&_t=ZS-975TzehiVhI',
   contact_heading: 'Contact Me',
   contact_subheading: "Have something in mind? Send a message and let's connect.",
@@ -54,6 +55,7 @@ export const defaultSiteSettings: SiteSettings = {
   assistant_enabled: true,
   performance_mode: 'auto',
   spotify_playlist_url: 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
+  intro_music_url: '',
 }
 
 

@@ -29,7 +29,8 @@ const fields: Array<{
   { key: 'linkedin_url', label: 'LinkedIn URL' },
   { key: 'instagram_url', label: 'Instagram URL' },
   { key: 'youtube_url', label: 'YouTube URL' },
-  { key: 'tiktok_url', label: 'TikTok URL' },
+  { key: 'spotify_playlist_url', label: 'Spotify Playlist Embed URL' },
+  { key: 'intro_music_url', label: 'Intro Screen Background Music URL' },
   { key: 'contact_heading', label: 'Contact Heading' },
   { key: 'contact_subheading', label: 'Contact Subheading', type: 'textarea' },
 ]

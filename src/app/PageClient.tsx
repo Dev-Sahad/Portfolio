@@ -26,6 +26,7 @@ import ScrollProgressBar from '@/components/ui/ScrollProgressBar'
 import GraphicScrollBanner from '@/components/ui/GraphicScrollBanner'
 import OutroExitModal from '@/components/ui/OutroExitModal'
 import AchievementSystem from '@/components/AchievementSystem'
+import TestimonialWall from '@/components/sections/TestimonialWall'
 
 interface PageClientProps {
   projects: any[]
@@ -156,6 +157,7 @@ export default function PageClient({
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <TestimonialsSection testimonials={testimonials} />
+            <TestimonialWall />
           </motion.div>
         ) : null}
 
@@ -190,7 +192,7 @@ export default function PageClient({
             transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            <IntroScreen mode="loading" ownerName={settings.owner_name} githubUrl={settings.github_url} />
+            <IntroScreen mode="loading" ownerName={settings.owner_name} githubUrl={settings.github_url} musicUrl={settings.intro_music_url} />
           </motion.div>
         )}
 
@@ -202,7 +204,7 @@ export default function PageClient({
             transition={{ duration: 0.75, ease: [0.76, 0, 0.24, 1] }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}
           >
-            <IntroScreen mode="exit" ownerName={settings.owner_name} githubUrl={settings.github_url} />
+            <IntroScreen mode="exit" ownerName={settings.owner_name} githubUrl={settings.github_url} musicUrl={settings.intro_music_url} />
           </motion.div>
         )}
       </AnimatePresence>

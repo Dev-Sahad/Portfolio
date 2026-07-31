@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Music, X, Volume2, ExternalLink, Sparkles, Disc, Radio, Check } from 'lucide-react'
+import { Music, X, Volume2, ExternalLink, Sparkles, Disc, Radio, Check, Sliders } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
+import DevSoundscapeMixer from '@/components/ui/DevSoundscapeMixer'
 
 interface SpotifyPlayerModalProps {
   isOpen: boolean
@@ -12,7 +13,7 @@ interface SpotifyPlayerModalProps {
 }
 
 const PRESETS = [
-  { name: "Sahad's Mix", url: 'https://open.spotify.com/playlist/0vvRV2Fw8k78yF31oN4L4g' },
+  { name: "Sahad's Mix", url: 'https://open.spotify.com/playlist/37i9dQZF1F5p3rmiWPIYgZ?si=ea0b77c84a834f66' },
   { name: 'Lofi Coding', url: 'https://open.spotify.com/playlist/0vvRV2Fw8k78yF31oN4L4g' },
   { name: 'Deep Focus', url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ' },
   { name: 'Synthwave', url: 'https://open.spotify.com/playlist/37i9dQZF1DXdWjL1Vq0p7a' },
@@ -151,9 +152,8 @@ export default function SpotifyPlayerModal({
                   setMode('spotify')
                 }}
                 onMouseEnter={playHover}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${
-                  mode === 'spotify' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold' : 'text-white/50 hover:text-white'
-                }`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'spotify' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold' : 'text-white/50 hover:text-white'
+                  }`}
               >
                 <Music size={14} />
                 Spotify Player
@@ -165,9 +165,8 @@ export default function SpotifyPlayerModal({
                   setMode('ambient')
                 }}
                 onMouseEnter={playHover}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${
-                  mode === 'ambient' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold' : 'text-white/50 hover:text-white'
-                }`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition ${mode === 'ambient' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold' : 'text-white/50 hover:text-white'
+                  }`}
               >
                 <Sparkles size={14} />
                 Synth Ambient
@@ -269,14 +268,15 @@ export default function SpotifyPlayerModal({
                     import('@/components/AchievementSystem').then((m) => m.unlockAchievement('audiophile'))
                   }}
                   onMouseEnter={playHover}
-                  className={`w-full py-3 rounded-xl font-medium text-xs transition border ${
-                    isAmbientPlaying
+                  className={`w-full py-3 rounded-xl font-medium text-xs transition border ${isAmbientPlaying
                       ? 'bg-purple-500/30 text-purple-200 border-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]'
                       : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                  }`}
+                    }`}
                 >
-                  {isAmbientPlaying ? 'Stop Ambient Drone' : 'Play Ambient Drone'}
+                  {isAmbientPlaying ? 'Stop Web Audio Drone' : 'Start Web Audio Drone'}
                 </button>
+
+                <DevSoundscapeMixer />
               </div>
             )}
 

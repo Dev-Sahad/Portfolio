@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
@@ -14,6 +14,7 @@ import BugSmasherModal from '@/components/ui/BugSmasherModal'
 import PerformanceLabModal from '@/components/ui/PerformanceLabModal'
 import TailoredCVModal from '@/components/ui/TailoredCVModal'
 import DirectInquiryDrawer from '@/components/ui/DirectInquiryDrawer'
+import PortfolioCopilot from '@/components/ui/PortfolioCopilot'
 import { useAudio } from '@/context/AudioContext'
 
 interface NavbarProps {
@@ -34,6 +35,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [perfLabOpen, setPerfLabOpen] = useState(false)
   const [tailoredCVOpen, setTailoredCVOpen] = useState(false)
   const [inquiryOpen, setInquiryOpen] = useState(false)
+  const [copilotOpen, setCopilotOpen] = useState(false)
 
 
 
@@ -361,6 +363,19 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <MessageSquare className="h-4 w-4" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setCopilotOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Sahad AI Co-Pilot Assistant"
+            aria-label="Open AI Co-Pilot"
+          >
+            <Bot className="h-4 w-4" />
+          </button>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link
@@ -397,6 +412,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       <PerformanceLabModal isOpen={perfLabOpen} onClose={() => setPerfLabOpen(false)} />
       <TailoredCVModal isOpen={tailoredCVOpen} onClose={() => setTailoredCVOpen(false)} />
       <DirectInquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
+      <PortfolioCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
 
 
 

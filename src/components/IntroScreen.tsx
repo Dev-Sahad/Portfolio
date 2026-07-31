@@ -38,12 +38,14 @@ type IntroScreenProps = {
   mode?: 'loading' | 'exit'
   ownerName?: string
   githubUrl?: string
+  musicUrl?: string
 }
 
 export default function IntroScreen({
   mode = 'loading',
   ownerName = 'Muhammad Sahad',
   githubUrl = DEFAULT_GITHUB_URL,
+  musicUrl,
 }: IntroScreenProps) {
   const isExit = mode === 'exit'
   const icons = isExit ? [Sparkles, Globe, LogOut] : [Code2, Zap, Globe]
@@ -75,6 +77,19 @@ export default function IntroScreen({
 
     return () => clearInterval(timer)
   }, [isExit])
+
+  useEffect(() => {
+    if (!musicUrl || isExit) return
+    try {
+      const audio = new Audio(musicUrl)
+      audio.volume = 0.5
+      audio.play().catch(() => {})
+      return () => {
+        audio.pause()
+        audio.currentTime = 0
+      }
+    } catch {}
+  }, [musicUrl, isExit])
 
   return (
     <div
