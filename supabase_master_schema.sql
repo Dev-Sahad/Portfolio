@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     contact_heading text DEFAULT 'Contact Me',
     contact_subheading text DEFAULT 'Have something in mind? Send a message and let us connect.',
     spotify_playlist_url text DEFAULT 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
-    intro_music_url text DEFAULT 'https://www.youtube.com/watch?v=LNUlNbmsDBk',
+    intro_music_url text DEFAULT 'https://youtu.be/JCzJu2ZXSRw?si=82scZffeqbuwFZeO',
     maintenance_mode boolean DEFAULT false,
     show_testimonials boolean DEFAULT true,
     assistant_enabled boolean DEFAULT true,
