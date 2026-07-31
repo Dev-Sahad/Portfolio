@@ -19,13 +19,13 @@ interface GridPost {
   location?: string
 }
 
-const PROFILE_PIC = "https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-19/683766249_18314607391302713_2744361709957459017_n.jpg?stp=dst-jpg_s320x320_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=105&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=7er7oOWxIUMQ7kNvwHm_vc9&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AQCgoLtY3m0U-NXraGid3wG-VPky9eilQv7ON4ostgG3yA&oe=6A549859&_nc_sid=8b3546"
+const PROFILE_PIC = "https://scontent.cdninstagram.com/v/t51.82787-19/683766249_18314607391302713_2744361709957459017_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=102&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=Sz5jW7y0jYwQ7kNvwEbTgId&_nc_oc=Adpf7AFfRTY1ZduD488bEFs_RaUxtREJuuZxQiTcQb5KgQdULpoUNqAZBDNNjOLu8Ig&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=BVxtCcXPgZ5lz3sdw1fR4w&_nc_ss=7b6a8&oh=00_AQEc9LGAmKVEjRI9A7x_u2cjSuYkS-Zj7j4YXS9xCVZ-QA&oe=6A72EAD9"
 
 const INSTAGRAM_GRID: GridPost[] = [
   {
     id: 'post-1',
-    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-15/708254652_18132984598598775_7865932475014215820_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=103&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=74wwzpVMtFsQ7kNvwFz62t8&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&ig_cache_key=MzkwNzAyOTY5NDg1MzMwOTU0Mw%3D%3D.3-ccb7-5&oh=00_AQDf6FpketoCXi-cjYRucna2Oq9MzmiMbsJh52AWzRcUcw&oe=6A54B95A&_nc_sid=8b3546',
-    postUrl: 'https://www.instagram.com/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfQbM5YeGD6L00/',
+    image: 'https://instagram.ffjr1-3.fna.fbcdn.net/v/t51.82787-15/708254652_18132984598598775_7865932475014215820_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=108&_nc_map=urlgen_bucketless&ig_cache_key=MzkwNzAyOTY5NDg1MzMwOTU0Mw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyMy5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=b0sic4aNwowQ7kNvwH_j4cU&_nc_oc=AdqoQ2C4NQ5-620EB7jNvSJBidqx9cvPEqje5akGU0msuTHJgOVnaoblDceyvW0hI7o&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-3.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQFupVHr8YZ9Kj96CCv1M0TsgXlEiLpu_ByRYGsCL8XUvg&oe=6A72D39A',
+    postUrl: 'https://www.instagram.com/sxhd_sha/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfQbM5YeGD6L00/?hl=en',
     isPinned: true,
     isCarousel: true,
     likes: '100+',
@@ -35,35 +35,106 @@ const INSTAGRAM_GRID: GridPost[] = [
   },
   {
     id: 'post-2',
-    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-15/710405211_18132984607598775_152351731615104826_n.jpg?stp=dst-jpg_e35_p1080x1080_sh2.08_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=103&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=Lnr0tIEQs0EQ7kNvwG0ialX&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&ig_cache_key=MzkwNzAyOTcwMDQ0ODYxMzY4MA%3D%3D.3-ccb7-5&oh=00_AQDIJKM9Qpu-ldTf5Rddx7uqT6UT4OQNdRun__JMa2pYaQ&oe=6A5497E1&_nc_sid=8b3546',
-    postUrl: 'https://www.instagram.com/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfQbM5YeGD6L00/',
+    image: 'https://instagram.ffjr1-4.fna.fbcdn.net/v/t51.82787-15/625081274_18078888470215555_4106789207188025613_n.webp?stp=dst-webp_p480x480&_nc_cat=105&_nc_map=urlgen_bucketless&ig_cache_key=MzM6MTg6MjQ1NDIzMjM0MTUwMw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=vHTKnyWiZmUQ7kNvwG2W-Fu&_nc_oc=Adq-5UyUASU1l8p3FKcJZ3u4mVUlS--XD-7T0OLfbuEjFmFkYqgBkfd7_PNPhlKAZ7g&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-4.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQGNeQQKXAdXosKoTeYbo_Ih--KCajFKdO5elYsLbK4joQ&oe=6A72EC36',
+    postUrl: 'https://www.instagram.com/sxhd_sha/p/C6nvBcYPdv_aQyIi64IQb7MWFTnI8hmfpZQcgM0/?hl=en',
     isPinned: true,
     isCarousel: true,
-    likes: '100+',
-    comments: '5',
-    caption: 'Mirror selfie fit post. Safari Mall Sharjah 🚗🔥',
-    location: 'Safari Mall Sharjah 📍',
+    likes: '4,720',
+    comments: '34',
+    caption: 'Oversized streetwear drip & car vibes 🚗🔥',
+    location: 'Sharjah, UAE 📍',
+  },
+  {
+    id: 'reel-1',
+    image: 'https://instagram.ffjr1-1.fna.fbcdn.net/v/t51.71878-15/501519752_1034357782130027_5631186158904034494_n.jpg?stp=dst-jpg_e15_p480x480_tt6&_nc_cat=105&_nc_map=urlgen_bucketless&ig_cache_key=MzMyNzg6MzA4MTI5NTI0Mzc0MA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNMSVBTLnhwaWRzLjIyNjguc2RyLnZpZGVvX2RlZmF1bHRfY292ZXJfZnJhbWUuQzMifQ%3D%3D&_nc_ohc=cpLOqojEtWEQ7kNvwFrOuam&_nc_oc=Ado8jvRRJW9zuxtIx-GL4UlZ4xXtDDTjZpRalS71Xt_wMkODLEiZk1aWAIHIhPeAbkA&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-1.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQGQfC2MovbWttQ7wKy_OiCgOoX6LbGloY0MICfaJ2vBow&oe=6A73026F',
+    postUrl: 'https://www.instagram.com/sxhd_sha/reel/C4u8dc1vWncx7H542EdpjU-uwQh5E7I9gHVTBE0/?hl=en',
+    isReel: true,
+    likes: '8,950',
+    comments: '64',
+    views: '15,400',
+    caption: 'Trending aesthetic reel vibes ✨ #reels #dubai',
+    location: 'Dubai, UAE 📍',
   },
   {
     id: 'post-3',
-    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.71878-15/491433335_1843696379758860_6861718011608796917_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=xToX8b_6LLoQ7kNvwHpdRUP&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AQARe_Jou9qGJw9T3AsvBUvjt-FXGgze3IAey0IwruxvYQ&oe=6A54AB84&_nc_sid=8b3546',
-    postUrl: 'https://www.instagram.com/p/C4mdQp5RMmX/',
+    image: 'https://instagram.ffjr1-1.fna.fbcdn.net/v/t51.82787-15/551499801_18106688197598775_2867788868625513353_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=109&_nc_map=urlgen_bucketless&ig_cache_key=MzcyNTQyNDY2Mzc7MTM4Mjc0Mw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuNzY4LnNkci5yZWd1bGFyX3Bob3RvLkMzIn0%3D&_nc_ohc=6f_Vi0D5KZYQ7kNvwE0-62U&_nc_oc=AdpU3xBU8FHMsMcagpFKETLVz_ePdFXWGqDamYVU-atZd9UzbFchm8v6ZIaluW1CMmM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-1.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQE_vJZpbVcEPFyeS1DbMbmVBDVlfDu0D-OA-EdanuCftw&oe=6A730344',
+    postUrl: 'https://www.instagram.com/sxhd_sha/p/DOzXgAwEojhaATRyy0PsQ2C9iwZ431Cj3yMkzc0/?hl=en',
+    isCarousel: true,
+    likes: '6,540',
+    comments: '42',
+    caption: 'Casual sunset photoshoot 📸🌅',
+    location: 'Dubai, UAE 📍',
+  },
+  {
+    id: 'post-4',
+    image: 'https://instagram.ffjr8-1.fna.fbcdn.net/v/t51.82787-15/653511854_18083319182604989_6847857828392533047_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=110&_nc_map=urlgen_bucketless&ig_cache_key=MzA6ODMxNzUxNTc4ODQ0MzUyNQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=xn50ShMzMLMQ7kNvwELUQKA&_nc_oc=AdrSkCrqfU_27it2aFXA5eSAZCfDl0bpFUpKfzgBw4L6ZpaH1kapnSHc_TnnrFFUMkM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr8-1.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQFuTGNOpfR2JJ_hxV4_0svaL42oHH7roOgBWlwKcMWJgg&oe=6A730222',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CqU2ob2rqRO/?hl=en',
+    isCarousel: true,
+    likes: '12,250',
+    comments: '92',
+    caption: 'White graphic tee & blue denim streetwear wall pose. ⚡',
+    location: 'Dubai, UAE 📍',
+  },
+  {
+    id: 'post-5',
+    image: 'https://instagram.ffjr1-2.fna.fbcdn.net/v/t51.82787-15/638900458_18450972757096202_1595816522331517599_n.webp?stp=dst-webp_p480x480&_nc_cat=109&_nc_map=urlgen_bucketless&ig_cache_key=Mjk0NTcwODQ3MTQ1MDcxOTE3MQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTA8MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=8fwpHtfTXPkQ7kNvwEFPrMk&_nc_oc=AdrIn3rYt6TXjYXOXg_jdS3PcrITjz3i0quqXUQOGrj6tQTP_4_B21UWWGmw2_mIC5c&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-2.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQGM3eaoumwK79IhTnC01ZgZvZ_MKNbzFkNauLBZ7kICbg&oe=6A72F9F1',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CjhQj9srdPD/?hl=en',
+    isCarousel: true,
+    likes: '1,890',
+    comments: '110',
+    caption: 'Autumn streetwear collection pose 🍁',
+    location: 'Kerala, India 📍',
+  },
+  {
+    id: 'reel-2',
+    image: 'https://instagram.ffjr1-3.fna.fbcdn.net/v/t51.71878-15/491433335_1843696379758860_6861718011608796917_n.jpg?stp=dst-jpg_e15_p480x480_tt6&_nc_cat=103&_nc_map=urlgen_bucketless&ig_cache_key=MzMyNTQ3NDA2MjcwNDM2MzkyNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNMSVBTLnhwaWRzLjcyMC5zZHIudmlkZW9fZGVmYXVsdF9jb3Zlcl9mcmFtZS5DMyJ9&_nc_ohc=AgsrYuRVOtgQ7kNvwHuuA5n&_nc_oc=AdrB3apX0-yg-pR1ydqduQOt11a_RdeELMjlS8uSahgl903iHdRveVkX_o95ATu0UA4&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-3.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQEs31_TJLONETYf27i1km8lk9y08UMyZ6V06gplrpGp8A&oe=6A72FE04',
+    postUrl: 'https://www.instagram.com/sahad_____sha/reel/C4mdQp5RMmX/?hl=en',
     isReel: true,
-    likes: '488',
+    likes: '4,887',
     comments: '30',
     views: '11,125',
     caption: '🧸🥹 #fy #fyp #trendingreels #instagram #trendingreels',
     location: 'Kasaragod, Kerala, India 📍',
   },
   {
-    id: 'post-4',
-    image: '/hero-cyber-portrait.jpg',
-    postUrl: 'https://www.instagram.com/sahad_____sha/',
+    id: 'post-6',
+    image: 'https://instagram.ffjr1-1.fna.fbcdn.net/v/t51.82787-15/669896525_18116990392671883_404786775128994916_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=107&_nc_map=urlgen_bucketless&ig_cache_key=MzA3MTA4Njc2OTg2NDY0ODgyOA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=__Z6vYziTbYQ7kNvwFmGUhH&_nc_oc=Adqv-3y9IUwBUuZpcW7tgrcv4yuhrpINjwCWfwejz8FxFhs2QWjo4UM4xwKI5abuPk8&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-1.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQHFBb9jLz-EPUoQFpvkEzcW3Z-6j3_2hMWoWJVFY82b4Q&oe=6A72EDE9',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CqesSZXLgj9/?hl=en',
     isCarousel: true,
-    likes: '2,150',
-    comments: '128',
-    caption: 'Cyberpunk avatar portrait showcase. ⚡ #nextjs #webgl #react',
+    likes: '1,780',
+    comments: '88',
+    caption: 'Green collar sweater outfit leaning by the pillar. 🌿',
+    location: 'Sharjah, UAE 📍',
+  },
+  {
+    id: 'post-7',
+    image: 'https://instagram.ffjr1-5.fna.fbcdn.net/v/t51.82787-15/628294200_18363212107160093_3442531180608265819_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=111&_nc_map=urlgen_bucketless&ig_cache_key=MjY4OTExNTIzNTgyODE2NDczMQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=phyJQiE3afUQ7kNvwFeT9sw&_nc_oc=AdrUKBBdTte-nMzwlQjJBNu73cWEYLsJuPBO5tqrD-Be0zm8CkoEvzH_n6dmxiPOLb8&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-5.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQE5nEmJfGl18ernatzUH-xW7nDGb4sipoc1AQdj-CS16w&oe=6A72DCCE',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CVRqA83oOh7/?hl=en',
+    isCarousel: true,
+    likes: '2,340',
+    comments: '145',
+    caption: 'Outdoor garden aesthetic portrait 🍃',
+    location: 'Kerala, India 📍',
+  },
+  {
+    id: 'post-8',
+    image: 'https://instagram.ffjr1-2.fna.fbcdn.net/v/t51.82787-15/663195676_18124901605609064_383854183201678273_n.webp?stp=dst-webp_p480x480&_nc_cat=102&_nc_map=urlgen_bucketless&ig_cache_key=Mjk5ODEzNTUxOTE4MDUxMjQ5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=O1yy56SCKxkQ7kNvwHW_s-O&_nc_oc=AdpOdwc9yohOi5Y29WP9aI8uGGto6SAXNWiQKFQ5uaN6WFwx5psgSB6aACwJsmzSZLU&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-2.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQEZivxzKNryPKI6G41Zqq7VvjWJaET69a71tVNrhmnsdg&oe=6A72D631',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CmbhF_WPN0p/?hl=en',
+    isCarousel: true,
+    likes: '1,560',
+    comments: '78',
+    caption: 'Late night coding sessions & 3D particle shader experimentation 💻✨',
     location: 'Dubai, UAE 📍',
+  },
+  {
+    id: 'post-9',
+    image: 'https://instagram.ffjr1-6.fna.fbcdn.net/v/t51.82787-15/628719359_18438984640114466_6176946705586958827_n.jpg?stp=dst-jpg_e35_p480x480_tt6&_nc_cat=107&_nc_map=urlgen_bucketless&ig_cache_key=MjY4MTc3MTk3OTM1ODI3NTIzMw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=A_uMQ8h11N4Q7kNvwEs5pkg&_nc_oc=Adrqdn-N-P26O1Qrt7xoHUXFbjm5KBQ7ZS1LdDEFb4zsmu3xVnaN9qFuNR_yWoAS68I&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffjr1-6.fna&_nc_gid=7OgIwLfIrzrkyULul0nVZg&_nc_ss=7a22e&oh=00_AQGfuCZIOEBWB8gidw3I5uJlk98fKuKmdmWoYCqBCbWpXw&oe=6A72D04E',
+    postUrl: 'https://www.instagram.com/sahad_____sha/p/CU3kWgWPwah/?hl=en',
+    isCarousel: true,
+    likes: '3,210',
+    comments: '164',
+    caption: 'Red & white hoodie combo with shades outdoors 🕶️🔥',
+    location: 'Kerala, India 📍',
   },
 ]
 
@@ -140,7 +211,7 @@ export default function InstagramPostGallery() {
 
             {/* Stats Row */}
             <div className="flex justify-center md:justify-start gap-6 text-sm font-sans mb-4 border-y border-white/10 py-2.5">
-              <div><strong className="text-white font-bold">4</strong> <span className="text-white/60">posts</span></div>
+              <div><strong className="text-white font-bold">11</strong> <span className="text-white/60">posts</span></div>
               <div><strong className="text-white font-bold">11,355</strong> <span className="text-white/60">followers</span></div>
               <div><strong className="text-white font-bold">459</strong> <span className="text-white/60">following</span></div>
             </div>
@@ -196,7 +267,7 @@ export default function InstagramPostGallery() {
             className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'posts' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
               }`}
           >
-            <Grid size={14} /> POSTS (4)
+            <Grid size={14} /> POSTS (11)
           </button>
           <button
             type="button"
