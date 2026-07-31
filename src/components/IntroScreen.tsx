@@ -60,7 +60,7 @@ export default function IntroScreen({
       return
     }
 
-    const duration = 3000
+    const duration = 30000
     const intervalTime = 30
     const steps = duration / intervalTime
     let currentStep = 0
