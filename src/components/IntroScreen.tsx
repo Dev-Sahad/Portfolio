@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Code2, Github, Globe, LogOut, Sparkles, User, Zap } from 'lucide-react'
+import { Code2, Github, Globe, LogOut, Sparkles, User, Zap, Volume2, VolumeX } from 'lucide-react'
 import { usePointerParallax } from '@/hooks/usePointerParallax'
 
 const DEFAULT_GITHUB_URL = 'https://github.com/Dev-Sahad'
@@ -53,6 +53,16 @@ export default function IntroScreen({
   const introRef = usePointerParallax<HTMLDivElement>({ smoothing: 0.08 })
 
   const [progress, setProgress] = useState(0)
+  const [isIntroMuted, setIsIntroMuted] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const toggleIntroMute = () => {
+    setIsIntroMuted((prev) => {
+      const next = !prev
+      if (audioRef.current) audioRef.current.muted = next
+      return next
+    })
+  }
 
   useEffect(() => {
     if (isExit) {
@@ -104,6 +114,7 @@ function getYouTubeId(url?: string): string | null {
 
     try {
       audio = new Audio(musicUrl)
+      audioRef.current = audio
       audio.volume = 0
 
       const playAudio = () => {
@@ -171,6 +182,21 @@ function getYouTubeId(url?: string): string | null {
           aria-hidden="true"
           className="absolute -top-96 -left-96 w-1 h-1 opacity-0 pointer-events-none"
         />
+      )}
+
+      {/* Intro Screen Sound & Mute Control */}
+      {!isExit && (
+        <div className="absolute top-6 right-6 z-[10000] flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleIntroMute}
+            className="flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-3.5 py-2 text-xs font-mono text-cyan-300 backdrop-blur-md hover:bg-black/80 transition shadow-xl"
+            title={isIntroMuted ? "Unmute Intro Audio" : "Mute Intro Audio"}
+          >
+            {isIntroMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-cyan-400 animate-pulse" />}
+            <span>{isIntroMuted ? "MUTED" : "50% VOL"}</span>
+          </button>
+        </div>
       )}
 
       {/* KINETIC SCROLLING BACKGROUND MARQUEE */}

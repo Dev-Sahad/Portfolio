@@ -14,11 +14,12 @@ interface ShowcaseProject {
 }
 
 const SHOWCASE_ITEMS: ShowcaseProject[] = [
-  { id: '1', title: 'Next.js 15 E-Commerce Dashboard', category: 'Web App', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop' },
-  { id: '2', title: 'Cyberpunk WebGL 3D Portfolio', category: '3D Experience', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop' },
-  { id: '3', title: 'Realtime Supabase SaaS Hub', category: 'Full Stack', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop' },
-  { id: '4', title: 'AI Assistant Co-Pilot Suite', category: 'AI Integration', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' },
-  { id: '5', title: '3D Hardware Telemetry Lab', category: 'Analytics', image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop' },
+  { id: '1', title: 'Sahad Cyberpunk Persona Avatar', category: 'Instagram @sahad_____sha', image: '/hero-cyber-portrait.jpg', url: 'https://www.instagram.com/sahad_____sha/' },
+  { id: '2', title: 'Sahad Anime Visor Edition', category: 'Instagram @sahad_____sha', image: '/hero-anime-portrait.jpg', url: 'https://www.instagram.com/sahad_____sha/' },
+  { id: '3', title: 'Next.js 15 E-Commerce Dashboard', category: 'Web App', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop' },
+  { id: '4', title: 'Cyberpunk WebGL 3D Portfolio', category: '3D Experience', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop' },
+  { id: '5', title: 'Realtime Supabase SaaS Hub', category: 'Full Stack', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop' },
+  { id: '6', title: 'AI Assistant Co-Pilot Suite', category: 'AI Integration', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' },
 ]
 
 export default function PerspectiveImage3DWall() {
