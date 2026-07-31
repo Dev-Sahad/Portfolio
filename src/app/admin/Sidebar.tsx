@@ -6,6 +6,7 @@ import {
   Award,
   Bell,
   Bot,
+  Database,
   Folder,
   Gauge,
   Globe,
@@ -34,6 +35,7 @@ import { supabase } from "@/lib/supabase";
 const menus = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
   { name: "Projects", icon: Folder, path: "/admin/projects" },
+  { name: "Database Studio", icon: Database, path: "/admin/database" },
   { name: "Certificates", icon: Award, path: "/admin/certificates" },
   { name: "Instagram Feed", icon: Instagram, path: "/admin/instagram" },
   { name: "Visitor Radar", icon: Users, path: "/admin/visitors" },
