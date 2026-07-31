@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, MessageCircle, Share2, Instagram, CheckCircle2, Bookmark, Grid, Sparkles, ExternalLink } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
+import { supabase } from '@/lib/supabase'
 
 interface InstagramPost {
   id: string
@@ -50,11 +51,33 @@ const INSTAGRAM_POSTS: InstagramPost[] = [
 ]
 
 export default function InstagramPostGallery() {
+  const [posts, setPosts] = useState<InstagramPost[]>(INSTAGRAM_POSTS)
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>(() =>
     INSTAGRAM_POSTS.reduce((acc, p) => ({ ...acc, [p.id]: p.likes }), {})
   )
   const { playClick, playHover, playSuccess } = useAudio()
+
+  useEffect(() => {
+    supabase
+      .from('instagram_posts')
+      .select('*')
+      .then((res: any) => {
+        const data = res.data
+        if (data && data.length > 0) {
+          const fetched = data.map((d: any) => ({
+            id: d.id,
+            image: d.image_url,
+            likes: d.likes_count || 400,
+            comments: d.comments_count || 30,
+            caption: d.caption || 'Muhammad Sahad Instagram Post',
+            date: 'RECENT POST',
+          }))
+          setPosts(fetched)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const handleLike = (id: string) => {
     playClick()
@@ -114,9 +137,9 @@ export default function InstagramPostGallery() {
 
       {/* 4-Post Interactive Photo Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {INSTAGRAM_POSTS.map((post) => {
+        {posts.map((post) => {
           const isLiked = likedPosts[post.id]
-          const currentLikes = likeCounts[post.id]
+          const currentLikes = likeCounts[post.id] ?? post.likes
 
           return (
             <motion.div

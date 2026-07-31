@@ -61,30 +61,56 @@ const TABLES_SQL = [
   // Portfolio settings
   `CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     id int PRIMARY KEY DEFAULT 1,
-    name text,
-    title text,
-    subtitle text,
-    bio text,
-    email text,
-    location text,
-    available boolean DEFAULT true,
+    owner_name text DEFAULT 'Muhammad Sahad',
+    hero_title_primary text DEFAULT 'Frontend',
+    hero_title_secondary text DEFAULT 'Developer',
+    hero_role text DEFAULT 'Junior Programmer',
+    hero_description text,
+    availability_text text,
+    about_eyebrow text,
+    about_title text,
+    about_description text,
+    about_quote text,
     cv_url text,
-    avatar_url text,
-    hero_badge text,
-    hero_heading_1 text,
-    hero_heading_2 text,
-    hero_desc text,
-    hero_skills text,
     github_url text,
     linkedin_url text,
     instagram_url text,
     youtube_url text,
     tiktok_url text,
-    discord_url text,
-    site_title text,
-    site_description text,
-    og_image_url text,
-    accent_color text DEFAULT '#ffffff',
+    spotify_playlist_url text,
+    intro_music_url text,
+    created_at timestamptz DEFAULT now()
+  )`,
+
+  // Instagram posts
+  `CREATE TABLE IF NOT EXISTS public.instagram_posts (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    image_url text NOT NULL,
+    caption text,
+    likes_count int DEFAULT 400,
+    comments_count int DEFAULT 30,
+    post_url text DEFAULT 'https://www.instagram.com/sahad_____sha/',
+    created_at timestamptz DEFAULT now()
+  )`,
+
+  // Visitors geolocation
+  `CREATE TABLE IF NOT EXISTS public.visitors (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    ip_address text,
+    city text,
+    country text,
+    country_code text,
+    user_agent text,
+    created_at timestamptz DEFAULT now()
+  )`,
+
+  // Web vitals & telemetry analytics
+  `CREATE TABLE IF NOT EXISTS public.analytics (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type text NOT NULL,
+    metric_name text,
+    metric_value float,
+    metadata jsonb DEFAULT '{}'::jsonb,
     created_at timestamptz DEFAULT now()
   )`,
 ]
