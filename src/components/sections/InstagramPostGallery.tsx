@@ -19,11 +19,13 @@ interface GridPost {
   location?: string
 }
 
+const PROFILE_PIC = "https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-19/683766249_18314607391302713_2744361709957459017_n.jpg?stp=dst-jpg_s320x320_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=105&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=7er7oOWxIUMQ7kNvwHm_vc9&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AQCgoLtY3m0U-NXraGid3wG-VPky9eilQv7ON4ostgG3yA&oe=6A549859&_nc_sid=8b3546"
+
 const INSTAGRAM_GRID: GridPost[] = [
   {
     id: 'post-1',
-    image: '/hero-cyber-portrait.jpg',
-    postUrl: 'https://www.instagram.com/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfKfQbM5YeGD6L00/',
+    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-15/708254652_18132984598598775_7865932475014215820_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=103&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=74wwzpVMtFsQ7kNvwFz62t8&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&ig_cache_key=MzkwNzAyOTY5NDg1MzMwOTU0Mw%3D%3D.3-ccb7-5&oh=00_AQDf6FpketoCXi-cjYRucna2Oq9MzmiMbsJh52AWzRcUcw&oe=6A54B95A&_nc_sid=8b3546',
+    postUrl: 'https://www.instagram.com/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfQbM5YeGD6L00/',
     isPinned: true,
     isCarousel: true,
     likes: '100+',
@@ -33,7 +35,18 @@ const INSTAGRAM_GRID: GridPost[] = [
   },
   {
     id: 'post-2',
-    image: '/hero-anime-portrait.jpg',
+    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.82787-15/710405211_18132984607598775_152351731615104826_n.jpg?stp=dst-jpg_e35_p1080x1080_sh2.08_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=103&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=Lnr0tIEQs0EQ7kNvwG0ialX&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&ig_cache_key=MzkwNzAyOTcwMDQ0ODYxMzY4MA%3D%3D.3-ccb7-5&oh=00_AQDIJKM9Qpu-ldTf5Rddx7uqT6UT4OQNdRun__JMa2pYaQ&oe=6A5497E1&_nc_sid=8b3546',
+    postUrl: 'https://www.instagram.com/p/DY4j9GnCFnZ0QBSJoDQL3O8AZKfQbM5YeGD6L00/',
+    isPinned: true,
+    isCarousel: true,
+    likes: '100+',
+    comments: '5',
+    caption: 'Mirror selfie fit post. Safari Mall Sharjah 🚗🔥',
+    location: 'Safari Mall Sharjah 📍',
+  },
+  {
+    id: 'post-3',
+    image: 'https://instagram.ftol2-1.fna.fbcdn.net/v/t51.71878-15/491433335_1843696379758860_6861718011608796917_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.ftol2-1.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2gFXfQEBWUPSonp4Zc8HBcKe6MPXymNJUCOiPMzbKDIY_3U58_eOffYnzRrxwhFe49Y&_nc_ohc=xToX8b_6LLoQ7kNvwHpdRUP&_nc_gid=Mw_U8uEw_i_rtg9ufznuLA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AQARe_Jou9qGJw9T3AsvBUvjt-FXGgze3IAey0IwruxvYQ&oe=6A54AB84&_nc_sid=8b3546',
     postUrl: 'https://www.instagram.com/p/C4mdQp5RMmX/',
     isReel: true,
     likes: '488',
@@ -43,24 +56,14 @@ const INSTAGRAM_GRID: GridPost[] = [
     location: 'Kasaragod, Kerala, India 📍',
   },
   {
-    id: 'post-3',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    postUrl: 'https://www.instagram.com/sahad_____sha/',
-    isCarousel: true,
-    likes: '1,420',
-    comments: '84',
-    caption: 'Standing tall outside. Streetwear fit & Dubai aesthetic. #lifestyle #dubai',
-    location: 'Dubai, UAE 📍',
-  },
-  {
     id: 'post-4',
-    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop',
+    image: '/hero-cyber-portrait.jpg',
     postUrl: 'https://www.instagram.com/sahad_____sha/',
     isCarousel: true,
     likes: '2,150',
     comments: '128',
-    caption: 'Traditional black kurta outfit with brother by the ride. 🚗🔥',
-    location: 'Kerala, India 📍',
+    caption: 'Cyberpunk avatar portrait showcase. ⚡ #nextjs #webgl #react',
+    location: 'Dubai, UAE 📍',
   },
 ]
 
@@ -70,7 +73,7 @@ const HIGHLIGHTS = [
   { name: 'Glow', label: '✨', color: 'bg-pink-950 text-pink-400 border-pink-500/40' },
   { name: 'Mx', label: 'Mx', color: 'bg-slate-900 text-cyan-300 border-cyan-500/40' },
   { name: 'K', label: 'K...', color: 'bg-zinc-900 text-amber-300 border-amber-500/40' },
-  { name: 'MINAL', label: 'MINAL', color: 'bg-rose-950 text-rose-400 border-rose-500/40' },
+  { name: 'MINNAL', label: 'MINNAL', color: 'bg-rose-950 text-rose-400 border-rose-500/40' },
   { name: 'Cyber', label: '🔥', color: 'bg-cyan-950 text-cyan-400 border-cyan-500/40' },
 ]
 
@@ -94,7 +97,8 @@ export default function InstagramPostGallery() {
           <div className="relative shrink-0">
             <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-1 shadow-2xl">
               <img
-                src="/hero-cyber-portrait.jpg"
+                src={PROFILE_PIC}
+                onError={(e: any) => { e.currentTarget.src = '/hero-cyber-portrait.jpg' }}
                 alt="Sahad Sha profile picture"
                 className="h-full w-full rounded-full object-cover border-4 border-[#0a0a0c]"
               />
@@ -189,27 +193,24 @@ export default function InstagramPostGallery() {
           <button
             type="button"
             onClick={() => { playClick(); setActiveTab('posts'); }}
-            className={`py-4 flex items-center gap-2 border-t-2 transition ${
-              activeTab === 'posts' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
-            }`}
+            className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'posts' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
+              }`}
           >
             <Grid size={14} /> POSTS (4)
           </button>
           <button
             type="button"
             onClick={() => { playClick(); setActiveTab('reels'); }}
-            className={`py-4 flex items-center gap-2 border-t-2 transition ${
-              activeTab === 'reels' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
-            }`}
+            className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'reels' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
+              }`}
           >
             <Play size={14} /> REELS
           </button>
           <button
             type="button"
             onClick={() => { playClick(); setActiveTab('saved'); }}
-            className={`py-4 flex items-center gap-2 border-t-2 transition ${
-              activeTab === 'saved' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
-            }`}
+            className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'saved' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
+              }`}
           >
             <Bookmark size={14} /> SAVED
           </button>
@@ -228,6 +229,7 @@ export default function InstagramPostGallery() {
             >
               <img
                 src={post.image}
+                onError={(e: any) => { e.currentTarget.src = '/hero-cyber-portrait.jpg' }}
                 alt={post.caption}
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 opacity-90 group-hover:opacity-100"
               />
