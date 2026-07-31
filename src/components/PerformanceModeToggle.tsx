@@ -34,6 +34,7 @@ export default function PerformanceModeToggle() {
     document.documentElement.dataset.motion = nextReduced ? 'reduced' : 'full'
     localStorage.setItem('portfolio-motion-mode', nextMode)
     window.dispatchEvent(new Event('portfolio-motion-change'))
+    import('@/components/AchievementSystem').then((m) => m.unlockAchievement('eco_engineer'))
   }
 
   if (!mounted) return <div className="h-9 w-9 rounded-full bg-white/10 animate-pulse" />

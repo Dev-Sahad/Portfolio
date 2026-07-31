@@ -2,11 +2,13 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, Layers, Search, Star, X, ArrowRightLeft } from 'lucide-react'
+import { ChevronDown, ChevronUp, Layers, Search, Star, X, ArrowRightLeft, Cpu } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
 import { getCertificateThumbnail } from '@/lib/portfolioMedia'
 import PortfolioCard from './PortfolioCard'
 import ProjectCompareModal from '@/components/portfolio/ProjectCompareModal'
+import SystemArchitectureModal from '@/components/ui/SystemArchitectureModal'
+import DeviceFrameModal from '@/components/ui/DeviceFrameModal'
 import { useAudio } from '@/context/AudioContext'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -30,8 +32,22 @@ export default function PortfolioShowcase({
   const [starredIds, setStarredIds] = useState<string[]>([])
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [compareOpen, setCompareOpen] = useState(false)
+  const [archModalOpen, setArchModalOpen] = useState(false)
+  const [archProjectTitle, setArchProjectTitle] = useState('Portfolio Architecture')
+  const [deviceModalOpen, setDeviceModalOpen] = useState(false)
+  const [inspectTitle, setInspectTitle] = useState('')
+  const [inspectUrl, setInspectUrl] = useState<string | undefined>('')
+  const [inspectImage, setInspectImage] = useState<string | undefined>('')
   const deferredQuery = useDeferredValue(query)
   const { playClick, playHover } = useAudio()
+
+  const handleInspectDevice = (title: string, url?: string, image?: string) => {
+    playClick()
+    setInspectTitle(title)
+    setInspectUrl(url)
+    setInspectImage(image)
+    setDeviceModalOpen(true)
+  }
 
 
   // Load starred project IDs from localStorage on mount
@@ -260,7 +276,7 @@ export default function PortfolioShowcase({
           >
             {activeTab === 'projects' && (
               <div className="space-y-8">
-                <div className="grid gap-3 rounded-2xl border border-white/15 bg-white/[0.04] p-3 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:grid-cols-[1fr_220px]">
+                <div className="grid gap-3 rounded-2xl border border-white/15 bg-white/[0.04] p-3 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:grid-cols-[1fr_200px_auto]">
                   <label className="relative">
                     <span className="sr-only">Search projects</span>
                     <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
@@ -279,6 +295,18 @@ export default function PortfolioShowcase({
                       {projectTechnologies.map((item) => <option key={item} value={item} className="bg-[#111] text-white">{item}</option>)}
                     </select>
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClick()
+                      setArchProjectTitle('Portfolio Architecture')
+                      setArchModalOpen(true)
+                    }}
+                    onMouseEnter={playHover}
+                    className="flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-4 text-xs font-mono text-cyan-300 hover:bg-cyan-500/20 transition backdrop-blur-md shrink-0"
+                  >
+                    <Cpu size={15} /> System Design
+                  </button>
                 </div>
                 {loading && !resolvedProjects.length ? (
                   <EmptyState title="Loading projects..." />
@@ -300,6 +328,7 @@ export default function PortfolioShowcase({
                         onToggleStar={toggleStar}
                         isCompared={compareIds.includes(String(item.id))}
                         onToggleCompare={toggleCompare}
+                        onInspectDevice={handleInspectDevice}
                       />
 
                     ))}
@@ -433,6 +462,20 @@ export default function PortfolioShowcase({
         isOpen={compareOpen}
         onClose={() => setCompareOpen(false)}
         projects={compareProjectsList}
+      />
+
+      <SystemArchitectureModal
+        isOpen={archModalOpen}
+        onClose={() => setArchModalOpen(false)}
+        projectTitle={archProjectTitle}
+      />
+
+      <DeviceFrameModal
+        isOpen={deviceModalOpen}
+        onClose={() => setDeviceModalOpen(false)}
+        projectTitle={inspectTitle}
+        projectUrl={inspectUrl}
+        projectImage={inspectImage}
       />
     </>
   )

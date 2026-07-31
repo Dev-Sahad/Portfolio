@@ -8,6 +8,8 @@ import { SiteSettings } from "@/lib/siteSettings";
 import { trackEvent } from "@/lib/analytics";
 import SkillOrbitGalaxy from "@/components/three/SkillOrbitGalaxy";
 import CertificateBadgeModal from "@/components/ui/CertificateBadgeModal";
+import RolePitchSelector from "@/components/RolePitchSelector";
+import CareerTimeline from "@/components/sections/CareerTimeline";
 import { useAudio } from "@/context/AudioContext";
 
 
@@ -480,6 +482,9 @@ export default function About({ settings }: AboutProps) {
             </motion.div>
           ))}
         </motion.div>
+
+        <RolePitchSelector />
+        <CareerTimeline />
       </div>
 
       <CertificateBadgeModal

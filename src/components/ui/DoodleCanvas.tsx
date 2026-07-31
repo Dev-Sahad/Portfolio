@@ -31,6 +31,7 @@ export default function DoodleCanvas({ onCanvasChange }: DoodleCanvasProps) {
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     setIsDrawing(true)
+    import('@/components/AchievementSystem').then((m) => m.unlockAchievement('picasso'))
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')

@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Star,
   ArrowRightLeft,
+  Maximize2,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
@@ -23,6 +24,7 @@ type Props = {
   onToggleStar?: (id: string) => void
   isCompared?: boolean
   onToggleCompare?: (id: string) => void
+  onInspectDevice?: (title: string, url?: string, image?: string) => void
 }
 
 export default function PortfolioCard({
@@ -37,6 +39,7 @@ export default function PortfolioCard({
   onToggleStar,
   isCompared = false,
   onToggleCompare,
+  onInspectDevice,
 }: Props) {
 
   const router = useRouter()
@@ -90,6 +93,21 @@ export default function PortfolioCard({
                 aria-label="Compare project"
               >
                 <ArrowRightLeft size={13} />
+              </button>
+            )}
+
+            {onInspectDevice && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onInspectDevice(title, live_url, thumbnail)
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-purple-400/40 bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition backdrop-blur-md"
+                title="Inspect in 3D Device Theater"
+                aria-label="Inspect project in 3D Device Viewport"
+              >
+                <Maximize2 size={13} />
               </button>
             )}
 

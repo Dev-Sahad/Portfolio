@@ -245,11 +245,28 @@ export default function SpotifyPlayerModal({
                   <p className="text-xs text-white/40 mt-1">Synthesized low-pass ambient synth pad for focus</p>
                 </div>
 
+                {/* Animated Equalizer Bars */}
+                {isAmbientPlaying && (
+                  <div className="flex items-center justify-center gap-1.5 py-2">
+                    {[40, 70, 100, 60, 85, 45, 90, 65].map((height, i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 rounded-full bg-gradient-to-t from-purple-500 to-indigo-400 animate-pulse"
+                        style={{
+                          height: `${height * 0.3}px`,
+                          animationDuration: `${0.4 + (i % 4) * 0.2}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => {
                     playClick()
                     toggleAmbient()
+                    import('@/components/AchievementSystem').then((m) => m.unlockAchievement('audiophile'))
                   }}
                   onMouseEnter={playHover}
                   className={`w-full py-3 rounded-xl font-medium text-xs transition border ${

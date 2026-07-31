@@ -25,15 +25,15 @@ import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 import ScrollProgressBar from '@/components/ui/ScrollProgressBar'
 import GraphicScrollBanner from '@/components/ui/GraphicScrollBanner'
 import OutroExitModal from '@/components/ui/OutroExitModal'
-
+import AchievementSystem from '@/components/AchievementSystem'
 
 interface PageClientProps {
-  projects: any[];
-  technologies: any[];
-  settings?: Partial<SiteSettings> | null;
-  testimonials?: Testimonial[];
-  posts?: BlogPost[];
-  isAdminPreview?: boolean;
+  projects: any[]
+  technologies: any[]
+  settings?: Partial<SiteSettings> | null
+  testimonials?: Testimonial[]
+  posts?: BlogPost[]
+  isAdminPreview?: boolean
 }
 
 export default function PageClient({
@@ -110,6 +110,7 @@ export default function PageClient({
       <ScrollProgressBar />
       <AnalyticsBeacon />
       <AnimatedBackground />
+      <AchievementSystem />
 
       {isAdminPreview && (
         <div className="sticky top-0 z-[99999] flex items-center justify-center gap-2 bg-amber-500/90 py-2 px-4 text-center font-mono text-xs font-bold text-black backdrop-blur-md shadow-lg">
@@ -146,7 +147,6 @@ export default function PageClient({
         >
           <PortfolioShowcase projects={projects} technologies={technologies} />
         </motion.div>
-
 
         {settings.show_testimonials ? (
           <motion.div

@@ -49,6 +49,8 @@ export default function TerminalModal({ isOpen, onClose }: TerminalModalProps) {
 
     if (!raw) return
 
+    import('@/components/AchievementSystem').then((m) => m.unlockAchievement('terminal_ninja'))
+
     let output: React.ReactNode = null
 
     switch (cmd) {
@@ -115,6 +117,7 @@ export default function TerminalModal({ isOpen, onClose }: TerminalModalProps) {
       case 'sudo hire-sahad':
         playSuccess()
         setShowConfetti(true)
+        import('@/components/AchievementSystem').then((m) => m.unlockAchievement('hired_sahad'))
         setTimeout(() => setShowConfetti(false), 3000)
         output = (
           <div className="text-xs text-emerald-300 font-mono space-y-2 bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl">

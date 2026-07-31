@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
+import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
 import SpotifyPlayerModal from '@/components/ui/SpotifyPlayerModal'
 import TerminalModal from '@/components/ui/TerminalModal'
+import GlobalVisitorRadar from '@/components/ui/GlobalVisitorRadar'
 import { useAudio } from '@/context/AudioContext'
 
 interface NavbarProps {
@@ -23,6 +25,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [shareOpen, setShareOpen] = useState(false)
   const [spotifyOpen, setSpotifyOpen] = useState(false)
   const [terminalOpen, setTerminalOpen] = useState(false)
+  const [radarOpen, setRadarOpen] = useState(false)
 
 
 
@@ -285,7 +288,21 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <Terminal className="h-4 w-4" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setRadarOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Global Visitor Radar & Live Map"
+            aria-label="Open global visitor radar"
+          >
+            <Globe className="h-4 w-4" />
+          </button>
           <PerformanceModeToggle />
+          <CyberPaletteSelector />
           <Link
             href="/admin"
             onClick={playClick}
@@ -315,6 +332,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
       <SpotifyPlayerModal isOpen={spotifyOpen} onClose={() => setSpotifyOpen(false)} playlistUrl={playlistUrl} />
       <TerminalModal isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
+      <GlobalVisitorRadar isOpen={radarOpen} onClose={() => setRadarOpen(false)} />
 
 
 
