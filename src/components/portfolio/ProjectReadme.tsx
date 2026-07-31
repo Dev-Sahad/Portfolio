@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { BookOpen, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 import CodeSandbox from '@/components/ui/CodeSandbox'
 
@@ -88,6 +89,7 @@ export default function ProjectReadme({ githubUrl }: { githubUrl?: string }) {
         <article className="readme-content px-5 py-7 md:px-8 md:py-9">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
             components={{
               a: ({ children, href }) => (
                 <a

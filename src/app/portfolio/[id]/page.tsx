@@ -10,6 +10,7 @@ import { getProjectImages } from "@/lib/portfolioMedia";
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ProjectReadme from "@/components/portfolio/ProjectReadme";
+import FormattedRichText from "@/components/ui/FormattedRichText";
 
 
 import {
@@ -153,8 +154,8 @@ export default function PortfolioDetailPage() {
             className="w-16 h-[2px] rounded-full bg-white/20 mb-5"
           />
 
-          <div className="text-sm md:text-base leading-7 text-white/70 text-justify mb-6 space-y-3 font-sans">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{project.description || ''}</ReactMarkdown>
+          <div className="text-sm md:text-base leading-7 text-white/70 mb-6 font-sans">
+            <FormattedRichText content={project.description || ''} />
           </div>
 
           {(project.problem || project.project_role || project.solution || project.challenges || project.results) && (
@@ -168,8 +169,8 @@ export default function PortfolioDetailPage() {
               ].filter(([, value]) => value).map(([label, value]) => (
                 <section key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
                   <h2 className="text-sm font-semibold mb-2">{label}</h2>
-                  <div className="text-sm leading-7 text-white/60 space-y-2">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+                  <div className="text-sm leading-7 text-white/60">
+                    <FormattedRichText content={value || ''} />
                   </div>
                 </section>
               ))}
@@ -285,10 +286,9 @@ export default function PortfolioDetailPage() {
           {project.dev_notes && (
             <motion.div className="mt-8">
               <h3 className="font-semibold mb-3">Developer Notes</h3>
-
-              <p className="text-xs text-white/50 leading-6">
-                {project.dev_notes}
-              </p>
+              <div className="text-xs text-white/60">
+                <FormattedRichText content={project.dev_notes} />
+              </div>
             </motion.div>
           )}
 

@@ -12,6 +12,10 @@ import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
 import { getProjectThumbnail } from '@/lib/portfolioMedia'
 
+function stripHtml(text: string = '') {
+  return text.replace(/<[^>]*>?/gm, '').replace(/&[a-z0-9#]+;/gi, ' ').trim()
+}
+
 type Props = {
   title: string
   description: string
@@ -139,7 +143,7 @@ export default function PortfolioCard({
       </h3>
 
       <p className="text-[13px] text-white/60 leading-relaxed line-clamp-2 min-h-[38px]">
-        {description}
+        {stripHtml(description)}
       </p>
 
       <div className="mt-auto pt-4 flex items-center justify-between">

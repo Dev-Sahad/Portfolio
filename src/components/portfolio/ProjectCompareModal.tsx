@@ -16,6 +16,10 @@ interface Project {
   image_url?: string
 }
 
+function stripHtml(text: string = '') {
+  return text.replace(/<[^>]*>?/gm, '').replace(/&[a-z0-9#]+;/gi, ' ').trim()
+}
+
 interface ProjectCompareModalProps {
   isOpen: boolean
   onClose: () => void
@@ -93,7 +97,7 @@ export default function ProjectCompareModal({
                       )}
 
                       <h4 className="text-base font-bold text-white mb-2">{p.title}</h4>
-                      <p className="text-xs leading-5 text-white/60 line-clamp-3 mb-4">{p.description}</p>
+                      <p className="text-xs leading-5 text-white/60 line-clamp-3 mb-4">{stripHtml(p.description)}</p>
 
                       {/* Tech Stack */}
                       <div className="mb-4">
@@ -106,7 +110,7 @@ export default function ProjectCompareModal({
                               key={i}
                               className="rounded-lg bg-white/5 border border-white/10 px-2 py-1 text-[10px] font-mono text-cyan-300"
                             >
-                              {t.trim()}
+                              {stripHtml(t)}
                             </span>
                           ))}
                         </div>
@@ -122,7 +126,7 @@ export default function ProjectCompareModal({
                             {featureList.slice(0, 4).map((f, i) => (
                               <li key={i} className="flex gap-2">
                                 <span className="text-cyan-400">•</span>
-                                <span className="line-clamp-1">{f.trim()}</span>
+                                <span className="line-clamp-1">{stripHtml(f)}</span>
                               </li>
                             ))}
                           </ul>
