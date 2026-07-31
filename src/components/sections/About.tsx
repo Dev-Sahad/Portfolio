@@ -12,6 +12,7 @@ import RolePitchSelector from "@/components/RolePitchSelector";
 import CareerTimeline from "@/components/sections/CareerTimeline";
 import DeveloperVoiceMemos from "@/components/sections/DeveloperVoiceMemos";
 import TailoredCVModal from "@/components/ui/TailoredCVModal";
+import HeroCyberAvatar from "@/components/ui/HeroCyberAvatar";
 import { useAudio } from "@/context/AudioContext";
 
 
