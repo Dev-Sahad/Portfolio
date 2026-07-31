@@ -53,7 +53,7 @@ export default function IntroScreen({
   const introRef = usePointerParallax<HTMLDivElement>({ smoothing: 0.08 })
 
   const [progress, setProgress] = useState(0)
-  const [volume, setVolume] = useState(100)
+  const [volume, setVolume] = useState(45)
   const [isIntroMuted, setIsIntroMuted] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const ytRef = useRef<HTMLIFrameElement | null>(null)
