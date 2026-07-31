@@ -208,7 +208,7 @@ export default function PageClient({
       </AnimatePresence>
 
       <VisitorDetailsPrompt enabled={showApp} />
-      <OutroExitModal />
+      <OutroExitModal enabled={showApp} />
     </main>
   )
 }

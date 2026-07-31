@@ -26,8 +26,7 @@ export function isAdminUser(user?: AdminIdentity | null) {
     isDev ||
     user.app_metadata?.role === 'admin' ||
     Boolean(user.email && allowedEmails.has(user.email.toLowerCase())) ||
-    Boolean(configuredUserId && user.id === configuredUserId) ||
-    Boolean(user.email && user.email.includes('admin'))
+    Boolean(configuredUserId && user.id === configuredUserId)
   )
 }
 

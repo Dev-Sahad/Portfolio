@@ -154,7 +154,7 @@ export default function PortfolioDetailPage() {
           />
 
           <div className="text-sm md:text-base leading-7 text-white/70 text-justify mb-6 space-y-3 font-sans">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{project.description}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{project.description || ''}</ReactMarkdown>
           </div>
 
           {(project.problem || project.project_role || project.solution || project.challenges || project.results) && (

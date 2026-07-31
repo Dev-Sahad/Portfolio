@@ -111,6 +111,9 @@ CONTACT_DISCORD_WEBHOOK_URL=your-contact-discord-webhook
 COMMENTS_DISCORD_WEBHOOK_URL=your-comments-discord-webhook
 ```
 
+> [!WARNING]
+> `SUPABASE_SERVICE_ROLE_KEY` is an elevated server-only credential. It **must not** use the `NEXT_PUBLIC_` prefix and **must never** be committed to source control or exposed to client-side code.
+
 ### 3. Run Development Server
 
 ```bash

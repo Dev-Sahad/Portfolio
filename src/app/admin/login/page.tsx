@@ -58,27 +58,24 @@ export default function LoginPage() {
     if (!email || !password) { setErrorMsg('Please enter both email and password.'); return }
     setLoading(true)
 
-    // Try Supabase auth
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      // Try Supabase auth
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      // Development or demo admin login fallback
-      if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('sahad') || password === 'admin123') {
-        setSuccessMsg('Admin verified (Dev/Demo Mode). Redirecting...')
-        setTimeout(() => {
-          window.location.replace('/admin/dashboard')
-        }, 800)
-        return
+      if (error) {
+        setLoading(false)
+        setErrorMsg('Invalid credentials.')
+      } else {
+        setSuccessMsg('Admin verified. Redirecting...')
+        const next = new URLSearchParams(window.location.search).get('next')
+        const safeNext = next?.startsWith('/admin/') && !next.startsWith('//')
+          ? next
+          : '/admin/dashboard'
+        window.location.replace(safeNext)
       }
+    } catch (err: any) {
       setLoading(false)
-      setErrorMsg('Invalid credentials. (Hint: Use admin@portfolio.com / admin123 for demo access)')
-    } else {
-      setSuccessMsg('Admin verified. Redirecting...')
-      const next = new URLSearchParams(window.location.search).get('next')
-      const safeNext = next?.startsWith('/admin/') && !next.startsWith('//')
-        ? next
-        : '/admin/dashboard'
-      window.location.replace(safeNext)
+      setErrorMsg(err?.message || 'An unexpected error occurred during authentication.')
     }
   }
 

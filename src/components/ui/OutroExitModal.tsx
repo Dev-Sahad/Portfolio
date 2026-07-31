@@ -1,18 +1,30 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, X, FileText, Send, Star, Heart } from 'lucide-react'
+import { Sparkles, X, Send, Star, Heart } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
 
-export default function OutroExitModal() {
+interface OutroExitModalProps {
+  enabled?: boolean
+}
+
+export default function OutroExitModal({ enabled = true }: OutroExitModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [rating, setRating] = useState(5)
   const [submitted, setSubmitted] = useState(false)
   const { playClick, playHover, playSuccess } = useAudio()
 
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  const handleClose = useCallback(() => {
+    playClick()
+    setIsOpen(false)
+  }, [playClick])
+
   useEffect(() => {
-    // Only trigger once per session
+    if (!enabled) return
     if (typeof window === 'undefined') return
     const hasSeenOutro = sessionStorage.getItem('_outro_seen')
     if (hasSeenOutro) return
@@ -26,12 +38,29 @@ export default function OutroExitModal() {
 
     document.addEventListener('mouseleave', handleMouseLeave)
     return () => document.removeEventListener('mouseleave', handleMouseLeave)
-  }, [])
+  }, [enabled])
 
-  const handleClose = () => {
-    playClick()
-    setIsOpen(false)
-  }
+  useEffect(() => {
+    if (!isOpen) return
+
+    previousFocusRef.current = document.activeElement as HTMLElement
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      if (previousFocusRef.current && typeof previousFocusRef.current.focus === 'function') {
+        previousFocusRef.current.focus()
+      }
+    }
+  }, [isOpen, handleClose])
 
   const handleRate = (r: number) => {
     playSuccess()
@@ -42,9 +71,12 @@ export default function OutroExitModal() {
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {enabled && isOpen && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="outro-modal-title"
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -52,10 +84,12 @@ export default function OutroExitModal() {
             className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/20 bg-[#0b0c16]/95 p-7 shadow-2xl backdrop-blur-2xl text-white text-center"
           >
             <button
+              ref={closeButtonRef}
               type="button"
+              aria-label="Close modal"
               onClick={handleClose}
               onMouseEnter={playHover}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/15 hover:text-white transition"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/15 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <X size={16} />
             </button>
@@ -65,7 +99,9 @@ export default function OutroExitModal() {
               <Sparkles size={28} className="animate-bounce" />
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">Thank You for Visiting! ✨</h3>
+            <h3 id="outro-modal-title" className="text-xl font-bold text-white mb-2">
+              Thank You for Visiting! ✨
+            </h3>
             <p className="text-xs leading-6 text-white/60 mb-6 max-w-sm mx-auto">
               Before you go, Sahad is currently available for full-time roles, contracts, and high-impact web projects.
             </p>
@@ -85,7 +121,7 @@ export default function OutroExitModal() {
                       type="button"
                       onClick={() => handleRate(star)}
                       onMouseEnter={playHover}
-                      className="p-1 transition hover:scale-125"
+                      className="p-1 transition hover:scale-125 focus:outline-none focus:ring-2 focus:ring-amber-400 rounded"
                     >
                       <Star
                         size={20}
@@ -103,7 +139,7 @@ export default function OutroExitModal() {
                 href="#contact"
                 onClick={handleClose}
                 onMouseEnter={playHover}
-                className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white text-black py-3 text-xs font-bold hover:bg-white/90 transition shadow-lg"
+                className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white text-black py-3 text-xs font-bold hover:bg-white/90 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               >
                 <Send size={14} /> Hire Sahad
               </a>
@@ -111,7 +147,7 @@ export default function OutroExitModal() {
                 type="button"
                 onClick={handleClose}
                 onMouseEnter={playHover}
-                className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 py-3 text-xs font-semibold text-white hover:bg-white/20 transition"
+                className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 py-3 text-xs font-semibold text-white hover:bg-white/20 transition focus:outline-none focus:ring-2 focus:ring-purple-400"
               >
                 Continue Browsing
               </button>
