@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
 import SpotifyPlayerModal from '@/components/ui/SpotifyPlayerModal'
 import TerminalModal from '@/components/ui/TerminalModal'
 import GlobalVisitorRadar from '@/components/ui/GlobalVisitorRadar'
+import BugSmasherModal from '@/components/ui/BugSmasherModal'
+import PerformanceLabModal from '@/components/ui/PerformanceLabModal'
+import TailoredCVModal from '@/components/ui/TailoredCVModal'
+import DirectInquiryDrawer from '@/components/ui/DirectInquiryDrawer'
 import { useAudio } from '@/context/AudioContext'
 
 interface NavbarProps {
@@ -26,6 +30,10 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [spotifyOpen, setSpotifyOpen] = useState(false)
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [radarOpen, setRadarOpen] = useState(false)
+  const [bugModalOpen, setBugModalOpen] = useState(false)
+  const [perfLabOpen, setPerfLabOpen] = useState(false)
+  const [tailoredCVOpen, setTailoredCVOpen] = useState(false)
+  const [inquiryOpen, setInquiryOpen] = useState(false)
 
 
 
@@ -301,6 +309,58 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           >
             <Globe className="h-4 w-4" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setBugModalOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-amber-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Play Bug Smasher Arcade Game"
+            aria-label="Play Arcade Game"
+          >
+            <Gamepad2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setPerfLabOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Performance Lab & Web Vitals Telemetry"
+            aria-label="Open performance lab"
+          >
+            <Activity className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setTailoredCVOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-purple-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Live Tailored CV Builder"
+            aria-label="Open CV Builder"
+          >
+            <FileText className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setInquiryOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Direct Line to Sahad"
+            aria-label="Direct Quick Inquiry"
+          >
+            <MessageSquare className="h-4 w-4" />
+          </button>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link
@@ -333,6 +393,10 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       <SpotifyPlayerModal isOpen={spotifyOpen} onClose={() => setSpotifyOpen(false)} playlistUrl={playlistUrl} />
       <TerminalModal isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
       <GlobalVisitorRadar isOpen={radarOpen} onClose={() => setRadarOpen(false)} />
+      <BugSmasherModal isOpen={bugModalOpen} onClose={() => setBugModalOpen(false)} />
+      <PerformanceLabModal isOpen={perfLabOpen} onClose={() => setPerfLabOpen(false)} />
+      <TailoredCVModal isOpen={tailoredCVOpen} onClose={() => setTailoredCVOpen(false)} />
+      <DirectInquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
 
 
 
