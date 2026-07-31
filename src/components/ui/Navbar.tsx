@@ -429,7 +429,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
             rel="noopener noreferrer"
             onClick={playClick}
             onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
             title="Instagram Profile @sahad_____sha"
             aria-label="Open Instagram profile"
           >
@@ -538,6 +538,17 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
               </a>
             )
           })}
+
+          <a
+            href="https://www.instagram.com/sahad_____sha/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            className="flex items-center gap-2 border-t border-white/10 pt-3 text-xs font-mono text-pink-300 hover:text-pink-200 transition"
+          >
+            <Instagram className="h-4 w-4 text-pink-400" />
+            Instagram (@sahad_____sha)
+          </a>
         </motion.div>
       )}
     </motion.nav>
