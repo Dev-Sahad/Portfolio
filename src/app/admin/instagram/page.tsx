@@ -24,7 +24,7 @@ export default function AdminInstagramPage() {
 
   // Instagram Graph API Credentials
   const [instagramAccount, setInstagramAccount] = useState('sahad_____sha')
-  const [appId, setAppId] = useState('')
+  const [appId, setAppId] = useState('1679398459977278')
   const [accessToken, setAccessToken] = useState('')
   const [syncInterval, setSyncInterval] = useState('6h')
   const [showSetupGuide, setShowSetupGuide] = useState(false)
