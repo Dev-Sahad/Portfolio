@@ -57,12 +57,15 @@ export default function IntroScreen({
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const toggleIntroMute = () => {
-    setIsIntroMuted((prev) => {
-      const next = !prev
-      if (audioRef.current) audioRef.current.muted = next
-      return next
-    })
+    setIsIntroMuted((prev) => !prev)
   }
+
+  // State-driven mute synchronization
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isIntroMuted
+    }
+  }, [isIntroMuted])
 
   useEffect(() => {
     if (isExit) {
@@ -114,6 +117,7 @@ function getYouTubeId(url?: string): string | null {
 
     try {
       audio = new Audio(musicUrl)
+      audio.muted = isIntroMuted
       audioRef.current = audio
       audio.volume = 0
 
@@ -166,8 +170,11 @@ function getYouTubeId(url?: string): string | null {
         audio.pause()
         audio.currentTime = 0
       }
+      if (audioRef.current === audio) {
+        audioRef.current = null
+      }
     }
-  }, [musicUrl, isExit, youtubeId])
+  }, [musicUrl, isExit, youtubeId, isIntroMuted])
 
   return (
     <div
@@ -184,8 +191,8 @@ function getYouTubeId(url?: string): string | null {
         />
       )}
 
-      {/* Intro Screen Sound & Mute Control */}
-      {!isExit && (
+      {/* Intro Screen Sound & Mute Control (Only for controllable Audio) */}
+      {!isExit && musicUrl && !youtubeId && (
         <div className="absolute top-6 right-6 z-[10000] flex items-center gap-2">
           <button
             type="button"
