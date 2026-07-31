@@ -23,19 +23,17 @@ export default function GitHubActivityCard() {
 
   useEffect(() => {
     fetch('https://api.github.com/users/Dev-Sahad')
-      ? fetch('https://api.github.com/users/Dev-Sahad')
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.public_repos) {
-              setStats((prev) => ({
-                ...prev,
-                publicRepos: data.public_repos,
-                followers: data.followers || prev.followers,
-              }))
-            }
-          })
-          .catch(() => {})
-      : null
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.public_repos) {
+          setStats((prev) => ({
+            ...prev,
+            publicRepos: data.public_repos,
+            followers: data.followers || prev.followers,
+          }))
+        }
+      })
+      .catch(() => {})
   }, [])
 
   return (
