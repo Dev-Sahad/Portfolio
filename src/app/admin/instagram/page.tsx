@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle } from 'lucide-react'
+import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle, Facebook, Link2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface InstagramPost {
@@ -25,6 +25,7 @@ export default function AdminInstagramPage() {
   // Instagram Graph API Credentials
   const [instagramAccount, setInstagramAccount] = useState('sahad_____sha')
   const [appId, setAppId] = useState('1679398459977278')
+  const [authType, setAuthType] = useState<'meta_business' | 'instagram_basic' | 'direct_token'>('meta_business')
   const [accessToken, setAccessToken] = useState('')
   const [syncInterval, setSyncInterval] = useState('6h')
   const [showSetupGuide, setShowSetupGuide] = useState(false)
@@ -60,7 +61,6 @@ export default function AdminInstagramPage() {
     setMessage('')
 
     try {
-      // If access token is provided, test Graph API call
       if (accessToken.trim()) {
         try {
           const res = await fetch(`https://graph.instagram.com/me?fields=id,username,media_count&access_token=${accessToken.trim()}`)
@@ -75,7 +75,6 @@ export default function AdminInstagramPage() {
         } catch {}
       }
 
-      // Default high-precision profile sync for @sahad_____sha
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setIsConnected(true)
       setMessage('⚡ Auto-Synced 11 posts, 11,355 followers, and profile details for @sahad_____sha into Supabase!')
@@ -87,7 +86,7 @@ export default function AdminInstagramPage() {
     }
   }
 
-  // Handle OAuth Connect Account (Prevent Invalid Platform App error)
+  // Handle OAuth Connect Account with Dual Endpoint Fallback
   const handleConnectAccount = () => {
     const cleanAppId = appId.trim()
 
@@ -98,7 +97,15 @@ export default function AdminInstagramPage() {
     }
 
     const redirectUri = window.location.origin + '/admin/instagram'
-    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
+    let authUrl = ''
+
+    if (authType === 'meta_business') {
+      // Facebook Graph API OAuth (For Business / Creator Apps)
+      authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=instagram_basic,pages_show_list&response_type=code`
+    } else {
+      // Instagram Basic Display API OAuth (For Basic Display Apps)
+      authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
+    }
 
     const width = 600
     const height = 700
@@ -107,7 +114,7 @@ export default function AdminInstagramPage() {
 
     window.open(authUrl, 'Instagram Login', `width=${width},height=${height},top=${top},left=${left}`)
     setIsConnected(true)
-    setMessage(`🔗 Initiated Instagram OAuth for App ID: ${cleanAppId}`)
+    setMessage(`🔗 Initiated ${authType === 'meta_business' ? 'Meta Business' : 'Instagram Basic'} OAuth for App ID: ${cleanAppId}`)
   }
 
   const handleAddPost = async (e: React.FormEvent) => {
@@ -226,19 +233,39 @@ export default function AdminInstagramPage() {
             >
               <LogIn size={15} /> Authenticate Instagram
             </button>
+
+            <button
+              type="button"
+              onClick={() => setShowSetupGuide((prev) => !prev)}
+              className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition"
+            >
+              <HelpCircle size={15} /> Setup Guide
+            </button>
           </div>
         </div>
 
         {/* Sync Controls & Graph Token Form */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 font-mono text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 font-mono text-xs">
+          <div className="space-y-1">
+            <label className="text-white/70">OAuth Method</label>
+            <select
+              value={authType}
+              onChange={(e: any) => setAuthType(e.target.value)}
+              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs text-white focus:outline-none"
+            >
+              <option value="meta_business">Meta Business API (Recommended)</option>
+              <option value="instagram_basic">Instagram Basic Display API</option>
+              <option value="direct_token">Direct Access Token Paste</option>
+            </select>
+          </div>
+
           <div className="space-y-1">
             <label className="text-white/70">Meta / Instagram App ID</label>
             <input
               type="text"
-              placeholder="e.g. 9876543210 (From Meta Developers)"
               value={appId}
               onChange={(e) => setAppId(e.target.value)}
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none"
+              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs text-white focus:outline-none"
             />
           </div>
 
@@ -272,15 +299,23 @@ export default function AdminInstagramPage() {
         </div>
 
         {showSetupGuide && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-2 text-xs text-amber-200 font-mono">
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-3 text-xs text-amber-200 font-mono">
             <div className="flex items-center gap-2 font-bold text-amber-300">
-              <HelpCircle size={16} /> How to get your Meta Developer App ID or Token:
+              <HelpCircle size={16} /> Understanding Meta OAuth & &quot;Invalid platform app&quot; Fix:
             </div>
-            <ol className="list-decimal list-inside space-y-1 text-white/80">
-              <li>Visit <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="underline text-amber-300">Meta for Developers</a> and create a free App with &quot;Instagram Graph API&quot;.</li>
-              <li>Copy your App ID and paste it into the <strong>Meta / Instagram App ID</strong> field above.</li>
-              <li>Or generate a Token via Meta Explorer and paste it directly into <strong>Graph API Long-Lived Token</strong>, then click <strong>Auto Sync Profile & Posts</strong>.</li>
-            </ol>
+            <p className="text-white/80 leading-relaxed">
+              If Meta displays &quot;Invalid platform app&quot;, it means your Meta Developer App ID is registered as a <strong>Meta Business / Graph API App</strong> instead of Basic Display. Switch OAuth Method above to <strong>Meta Business API</strong> or paste your Access Token directly below.
+            </p>
+            <div className="flex flex-wrap gap-3 pt-1">
+              <a
+                href="https://developers.facebook.com/tools/explorer/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 border border-amber-500/40"
+              >
+                <Link2 size={13} /> Open Meta Graph Explorer Token Generator
+              </a>
+            </div>
           </div>
         )}
       </motion.div>
