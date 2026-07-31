@@ -117,14 +117,6 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <Link
-                href="/"
-                className="h-11 px-5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all flex items-center gap-2 text-sm group justify-center"
-              >
-                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                Back to Portfolio
-              </Link>
-
               <button
                 type="button"
                 onClick={() => { fetchDashboard(); fetchLive(); }}

@@ -92,13 +92,15 @@ export default function IntroScreen({
   }, [isExit])
 
 function getYouTubeId(url?: string): string | null {
-  if (!url) return null
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-  const match = url.match(regExp)
-  return match && match[2].length === 11 ? match[2] : null
+  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('portfolio_intro_music_url') : null
+  const targetUrl = localUrl || url
+  if (!targetUrl) return null
+  const match = targetUrl.trim().match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([\w-]{11})/)
+  return match ? match[1] : null
 }
 
-  const youtubeId = getYouTubeId(musicUrl)
+  const effectiveMusicUrl = (typeof window !== 'undefined' && localStorage.getItem('portfolio_intro_music_url')) || musicUrl
+  const youtubeId = getYouTubeId(effectiveMusicUrl)
 
   useEffect(() => {
     if (!musicUrl || isExit || youtubeId) return

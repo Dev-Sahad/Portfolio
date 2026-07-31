@@ -77,21 +77,21 @@ function SidebarContent({
   return (
     <>
       <div>
-        {!hideTitle && (
-          <div className="mb-6 space-y-3">
-            <Link
-              href="/"
-              onClick={onLinkClick}
-              className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-xs font-semibold text-white backdrop-blur-md shadow-lg transition hover:bg-white hover:text-black hover:scale-[1.02]"
-            >
-              <Globe size={14} className="text-cyan-400" />
-              ⬅ Back to Portfolio
-            </Link>
+        <div className="mb-6 space-y-3">
+          <Link
+            href="/"
+            onClick={onLinkClick}
+            className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-xs font-semibold text-white backdrop-blur-md shadow-lg transition hover:bg-white hover:text-black hover:scale-[1.02]"
+          >
+            <Globe size={14} className="text-cyan-400" />
+            ⬅ Back to Portfolio
+          </Link>
+          {!hideTitle && (
             <h1 className="text-lg font-semibold tracking-wide text-white">
               Admin Panel
             </h1>
-          </div>
-        )}
+          )}
+        </div>
 
 
         <nav className="space-y-2" aria-label="Admin navigation">

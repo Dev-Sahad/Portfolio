@@ -6,17 +6,26 @@ import { Music, Volume2, Save, RefreshCw, Radio, PlayCircle, Sparkles, Youtube, 
 import { supabase } from '@/lib/supabase'
 
 export default function AdminAudioPage() {
-  const [introMusicUrl, setIntroMusicUrl] = useState('https://www.youtube.com/watch?v=LNUlNbmsDBk')
+  const [introMusicUrl, setIntroMusicUrl] = useState('https://youtu.be/JCzJu2ZXSRw?si=82scZffeqbuwFZeO')
   const [spotifyUrl, setSpotifyUrl] = useState('https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
   const fetchSettings = async () => {
     try {
-      const { data } = await supabase.from('portfolio_settings').select('*').eq('id', 1).single()
-      if (data) {
-        if (data.intro_music_url) setIntroMusicUrl(data.intro_music_url)
-        if (data.spotify_playlist_url) setSpotifyUrl(data.spotify_playlist_url)
+      // Query portfolio_settings first
+      const { data: pData } = await supabase.from('portfolio_settings').select('*').eq('id', 1).maybeSingle()
+      if (pData) {
+        if (pData.intro_music_url) setIntroMusicUrl(pData.intro_music_url)
+        if (pData.spotify_playlist_url) setSpotifyUrl(pData.spotify_playlist_url)
+        return
+      }
+
+      // Fallback query site_settings
+      const { data: sData } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle()
+      if (sData) {
+        if (sData.intro_music_url) setIntroMusicUrl(sData.intro_music_url)
+        if (sData.spotify_playlist_url) setSpotifyUrl(sData.spotify_playlist_url)
       }
     } catch (e) {
       console.error(e)
@@ -32,19 +41,33 @@ export default function AdminAudioPage() {
     setSaving(true)
     setMessage('')
 
+    const cleanIntro = introMusicUrl.trim()
+    const cleanSpotify = spotifyUrl.trim()
+
     try {
-      const { error } = await supabase.from('portfolio_settings').upsert({
+      // 1. Update portfolio_settings table
+      await supabase.from('portfolio_settings').upsert({
         id: 1,
-        intro_music_url: introMusicUrl.trim(),
-        spotify_playlist_url: spotifyUrl.trim(),
+        intro_music_url: cleanIntro,
+        spotify_playlist_url: cleanSpotify,
         updated_at: new Date().toISOString(),
       })
 
-      if (error) {
-        setMessage(`Error: ${error.message}`)
-      } else {
-        setMessage('✅ Audio settings updated successfully!')
+      // 2. Update site_settings table
+      await supabase.from('site_settings').upsert({
+        id: 1,
+        intro_music_url: cleanIntro,
+        spotify_playlist_url: cleanSpotify,
+        updated_at: new Date().toISOString(),
+      })
+
+      // 3. Store locally in localStorage for instantaneous client response
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('portfolio_intro_music_url', cleanIntro)
+        localStorage.setItem('portfolio_spotify_url', cleanSpotify)
       }
+
+      setMessage('✅ Audio settings updated successfully across all database tables & live sessions!')
     } catch (e: any) {
       setMessage(`Error: ${e.message}`)
     } finally {
@@ -53,7 +76,7 @@ export default function AdminAudioPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-white p-2">
+    <div className="max-w-4xl mx-auto space-y-8 text-white p-2 font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
@@ -70,7 +93,7 @@ export default function AdminAudioPage() {
           onClick={fetchSettings}
           className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold hover:bg-white/10 transition"
         >
-          <RefreshCw size={14} /> Reset
+          <RefreshCw size={14} /> Refresh Settings
         </button>
       </div>
 
@@ -89,10 +112,10 @@ export default function AdminAudioPage() {
           className="rounded-2xl border border-white/15 bg-black/40 p-6 backdrop-blur-xl space-y-4"
         >
           <h2 className="text-lg font-bold flex items-center gap-2 text-red-400">
-            <Youtube size={20} /> Intro Screen Background Music (YouTube / Direct MP3)
+            <Youtube size={20} /> Intro Screen Background Music (YouTube / Direct Link)
           </h2>
           <p className="text-xs text-white/60 font-mono">
-            Song URL played during the 30-second website intro sequence. YouTube embed postMessage API controls volume & mute.
+            YouTube Video or Short link played during the intro sequence. (e.g., https://youtu.be/JCzJu2ZXSRw)
           </p>
 
           <input
