@@ -149,18 +149,21 @@ export default function Navbar() {
       }}
     >
       <div
+        className="glass-tab-container"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '10px 30px',
+          padding: '8px 24px',
           width: '100%',
           borderRadius: 999,
           backgroundColor: scrolled
-            ? 'rgba(13,13,13,0.85)'
-            : 'rgba(13,13,13,0.5)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid var(--border)',
+            ? 'rgba(18, 18, 18, 0.75)'
+            : 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -168,8 +171,9 @@ export default function Navbar() {
             style={{
               fontFamily: "'DM Mono', monospace",
               fontSize: 13,
-              color: 'var(--text-secondary)',
+              color: 'var(--text-primary)',
               letterSpacing: '0.1em',
+              fontWeight: 600,
             }}
           >
             Dev-Sahad
@@ -178,7 +182,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           {!isMobile && (
-            <div className="mr-3 flex items-center gap-5 xl:gap-8">
+            <div className="mr-3 flex items-center gap-1.5 p-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md">
               {navItems.map((item) => {
                 const isActive = activeSection === item.id
 
@@ -187,37 +191,19 @@ export default function Navbar() {
                     key={item.id}
                     href={item.href}
                     onClick={(event) => smoothScrollTo(event, `#${item.id}`)}
-                    style={{
-                      position: 'relative',
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: 13,
-                      color: isActive
-                        ? 'var(--text-primary)'
-                        : 'var(--text-secondary)',
-                      textDecoration: 'none',
-                      letterSpacing: '0.08em',
-                      cursor: 'pointer',
-                      paddingBottom: 4,
-                      transition: '0.25s ease',
-                    }}
+                    className={`relative px-4 py-1.5 rounded-full text-xs font-mono tracking-wider transition-colors duration-300 ${
+                      isActive ? 'text-white font-medium' : 'text-white/60 hover:text-white'
+                    }`}
+                    style={{ textDecoration: 'none' }}
                   >
-                    {item.label}
-
-                    <span
-                      style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        width: '100%',
-                        height: 1,
-                        background: 'white',
-                        transform: isActive
-                          ? 'scaleX(1)'
-                          : 'scaleX(0)',
-                        transformOrigin: 'left',
-                        transition: 'transform 0.25s ease',
-                      }}
-                    />
+                    {isActive && (
+                      <motion.div
+                        layoutId="navbarActiveTab"
+                        className="absolute inset-0 rounded-full bg-white/20 border border-white/30 backdrop-blur-xl shadow-[0_2px_16px_rgba(255,255,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.4)]"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{item.label}</span>
                   </a>
                 )
               })}

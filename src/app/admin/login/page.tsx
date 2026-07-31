@@ -14,18 +14,36 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'github' | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     let active = true
     setMounted(true)
 
+    // Check for OAuth error messages from redirect callback
+    const params = new URLSearchParams(window.location.search)
+    const err = params.get('error')
+    if (err === 'unauthorized') {
+      setErrorMsg('This OAuth account is not authorized to access the Admin panel.')
+    } else if (err === 'callback') {
+      setErrorMsg('OAuth authentication failed. Please try again.')
+    }
+
     const redirectExistingAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      const isKnownAdmin =
-        user?.app_metadata?.role === 'admin' ||
-        user?.email?.toLowerCase() === 'dev.sxhd@gmail.com'
-      if (active && isKnownAdmin) window.location.replace('/admin/dashboard')
+      try {
+        const sessionCheck = await fetch('/api/admin/session', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        })
+        if (active && sessionCheck.ok) {
+          const next = params.get('next')
+          const safeNext = next?.startsWith('/admin/') && !next.startsWith('//')
+            ? next
+            : '/admin/dashboard'
+          window.location.replace(safeNext)
+        }
+      } catch {}
     }
 
     void redirectExistingAdmin()
@@ -65,11 +83,23 @@ export default function LoginPage() {
 
   const handleOAuth = async (provider: 'google' | 'github') => {
     setErrorMsg('')
+    setOauthLoading(provider)
+    const nextParam = new URLSearchParams(window.location.search).get('next')
+    const safeNext = nextParam?.startsWith('/admin/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/admin/dashboard'
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/admin/dashboard` },
+      options: {
+        redirectTo,
+      },
     })
-    if (error) setErrorMsg(`Unable to start ${provider} login. Please try again.`)
+    if (error) {
+      setOauthLoading(null)
+      setErrorMsg(`Unable to start ${provider} login: ${error.message}`)
+    }
   }
 
   // Floating particles for background
@@ -219,17 +249,21 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3">
             <motion.button
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              disabled={Boolean(oauthLoading) || loading}
               onClick={() => handleOAuth('google')}
-              className="h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center gap-2 text-white/60 hover:text-white hover:bg-white/10 transition text-sm font-medium"
+              className="h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center gap-2 text-white/70 hover:text-white hover:bg-white/10 transition text-sm font-medium disabled:opacity-50"
             >
-              <FaGoogle size={16} /> Google
+              {oauthLoading === 'google' ? <Loader2 size={16} className="animate-spin text-white" /> : <FaGoogle size={16} />}
+              Google
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              disabled={Boolean(oauthLoading) || loading}
               onClick={() => handleOAuth('github')}
-              className="h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center gap-2 text-white/60 hover:text-white hover:bg-white/10 transition text-sm font-medium"
+              className="h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center gap-2 text-white/70 hover:text-white hover:bg-white/10 transition text-sm font-medium disabled:opacity-50"
             >
-              <FaGithub size={16} /> GitHub
+              {oauthLoading === 'github' ? <Loader2 size={16} className="animate-spin text-white" /> : <FaGithub size={16} />}
+              GitHub
             </motion.button>
           </div>
 

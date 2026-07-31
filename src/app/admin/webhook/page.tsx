@@ -252,13 +252,20 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
           </div>
 
           {/* TABS */}
-          <div className="flex gap-1 mb-6 p-1 rounded-2xl bg-white/[0.04] border border-white/10 w-fit">
-            {(['settings', 'live'] as const).map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                className={`px-5 py-2 rounded-xl text-sm font-medium transition capitalize ${tab === t ? 'bg-white text-black' : 'text-white/50 hover:text-white'}`}>
-                {t === 'live' ? '🔴 Live Viewers' : '⚙️ Settings'}
-              </button>
-            ))}
+          <div className="flex gap-1.5 mb-6 p-1.5 rounded-2xl bg-white/[0.05] border border-white/15 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] w-fit">
+            {(['settings', 'live'] as const).map(t => {
+              const isActive = tab === t
+              return (
+                <button key={t} onClick={() => setTab(t)}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 capitalize ${
+                    isActive
+                      ? 'bg-white/20 text-white border border-white/35 backdrop-blur-2xl shadow-[0_4px_20px_rgba(255,255,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.4)] font-semibold'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white border border-transparent'
+                  }`}>
+                  {t === 'live' ? '🔴 Live Viewers' : '⚙️ Settings'}
+                </button>
+              )
+            })}
           </div>
 
           {loading ? (

@@ -113,12 +113,17 @@ export default function GrowthAdminPage() {
             </div>
           </header>
 
-          <nav className="mb-7 flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03] p-2" aria-label="Growth admin sections">
+          <nav className="mb-7 flex gap-2 overflow-x-auto rounded-2xl border border-white/15 bg-white/[0.05] p-2 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]" aria-label="Growth admin sections">
             {tabs.map((item) => {
               const Icon = item.icon
+              const isActive = tab === item.id
               return (
                 <button key={item.id} type="button" onClick={() => setTab(item.id)}
-                  className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm ${tab === item.id ? 'bg-white text-black' : 'text-white/45 hover:bg-white/5 hover:text-white'}`}>
+                  className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
+                    isActive
+                      ? 'bg-white/20 text-white border border-white/35 backdrop-blur-2xl shadow-[0_4px_20px_rgba(255,255,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.4)] font-semibold'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white border border-transparent'
+                  }`}>
                   <Icon size={14} /> {item.label}
                 </button>
               )
