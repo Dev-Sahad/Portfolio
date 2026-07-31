@@ -99,13 +99,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <Sidebar />
-
-      <main className="lg:ml-[250px] pt-[95px] lg:pt-6 min-h-screen px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="max-w-[1400px] mx-auto">
-
-          {/* HEADER */}
+    <>
+      {/* HEADER */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-7">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -373,13 +368,9 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
-
             </div>
           </div>
-        </div>
-      </main>
-
-      <HiddenAdminAccess />
-    </div>
-  );
-}
+          <HiddenAdminAccess />
+        </>
+      );
+    }

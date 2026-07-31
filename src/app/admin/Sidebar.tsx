@@ -153,6 +153,7 @@ function SidebarContent({
 }
 
 export default function Sidebar() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -162,6 +163,8 @@ export default function Sidebar() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  if (pathname === "/admin/login") return null;
 
   return (
     <>
