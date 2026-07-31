@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import HiddenAdminAccess from "./HiddenAdminAccess";
+import { AudioProvider } from "@/context/AudioContext";
 
 export default function LayoutWrapper({
   children,
@@ -13,7 +14,7 @@ export default function LayoutWrapper({
   const isAdmin = pathname?.startsWith("/admin");
 
   return (
-    <>
+    <AudioProvider>
       {children}
 
       {!isAdmin && (
@@ -31,6 +32,7 @@ export default function LayoutWrapper({
           </div>
         </>
       )}
-    </>
+    </AudioProvider>
   );
 }
+

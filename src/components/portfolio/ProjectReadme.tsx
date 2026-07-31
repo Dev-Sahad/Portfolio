@@ -5,6 +5,8 @@ import { BookOpen, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+import CodeSandbox from '@/components/ui/CodeSandbox'
+
 type ReadmeData = {
   markdown: string
   rawBaseUrl: string
@@ -103,6 +105,15 @@ export default function ProjectReadme({ githubUrl }: { githubUrl?: string }) {
                   loading="lazy"
                 />
               ),
+              code({ className, children, ...props }: React.ComponentPropsWithoutRef<'code'>) {
+                const match = /language-(\w+)/.exec(className || '')
+                const language = match ? match[1] : ''
+                const codeContent = String(children).replace(/\n$/, '')
+                if (match) {
+                  return <CodeSandbox initialCode={codeContent} language={language} />
+                }
+                return <code className={className} {...props}>{children}</code>
+              },
             }}
           >
             {data.markdown}
@@ -112,3 +123,4 @@ export default function ProjectReadme({ githubUrl }: { githubUrl?: string }) {
     </section>
   )
 }
+

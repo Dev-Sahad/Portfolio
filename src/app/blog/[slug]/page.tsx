@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { createClient } from '@/utils/supabase/server'
+import CodeSandbox from '@/components/ui/CodeSandbox'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -53,10 +56,26 @@ export default async function BlogPostPage({ params }: Props) {
             {new Date(post.published_at || post.created_at).toLocaleDateString('en', { dateStyle: 'long' })}
           </time>
         </header>
-        <div className="whitespace-pre-wrap border-t border-white/10 py-10 text-[15px] leading-8 text-white/70">
-          {post.content}
+        <div className="border-t border-white/10 py-10 text-[15px] leading-8 text-white/70">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ className, children, ...props }: React.ComponentPropsWithoutRef<'code'>) {
+                const match = /language-(\w+)/.exec(className || '')
+                const language = match ? match[1] : ''
+                const codeContent = String(children).replace(/\n$/, '')
+                if (match) {
+                  return <CodeSandbox initialCode={codeContent} language={language} />
+                }
+                return <code className={className} {...props}>{children}</code>
+              },
+            }}
+          >
+            {post.content}
+          </ReactMarkdown>
         </div>
       </article>
     </main>
   )
 }
+

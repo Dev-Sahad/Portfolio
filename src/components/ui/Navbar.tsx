@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import ShareModal from '@/components/ui/ShareModal'
+import { useAudio } from '@/context/AudioContext'
+
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -15,8 +17,11 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
 
+  const { isMuted, isAmbientPlaying, toggleMute, toggleAmbient, playClick, playHover } = useAudio()
+
   // 🔥 navbar appears only once
   const [showNavbar, setShowNavbar] = useState(false)
+
 
   useEffect(() => {
     setMounted(true)
@@ -212,9 +217,46 @@ export default function Navbar() {
             </div>
           )}
 
+          {/* Audio controls */}
           <button
             type="button"
-            onClick={() => setShareOpen(true)}
+            onClick={() => {
+              playClick()
+              toggleMute()
+            }}
+            onMouseEnter={playHover}
+            className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition hover:scale-105 ${
+              isMuted ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+            title={isMuted ? 'Unmute Sound Effects' : 'Mute Sound Effects'}
+            aria-label="Toggle sound effects"
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              toggleAmbient()
+            }}
+            onMouseEnter={playHover}
+            className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition hover:scale-105 ${
+              isAmbientPlaying ? 'bg-purple-500/30 text-purple-300 border-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+            title={isAmbientPlaying ? 'Stop Ambient Soundscape' : 'Play Ambient Soundscape'}
+            aria-label="Toggle ambient music"
+          >
+            <Music className={`h-4 w-4 ${isAmbientPlaying ? 'animate-pulse' : ''}`} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setShareOpen(true)
+            }}
+            onMouseEnter={playHover}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
             title="Share Portfolio & QR Code"
             aria-label="Share portfolio"
@@ -224,12 +266,15 @@ export default function Navbar() {
           <ThemeToggle />
           <Link
             href="/admin"
+            onClick={playClick}
+            onMouseEnter={playHover}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-neutral-800 backdrop-blur-md transition hover:scale-105 hover:bg-white/20 dark:bg-black/20 dark:text-neutral-200"
             title="Admin Panel"
             aria-label="Open admin panel"
           >
             <Lock className="h-4 w-4" />
           </Link>
+
 
           {isMobile ? (
             <button
