@@ -14,6 +14,7 @@ import DeveloperVoiceMemos from "@/components/sections/DeveloperVoiceMemos";
 import TailoredCVModal from "@/components/ui/TailoredCVModal";
 import HeroCyberAvatar from "@/components/ui/HeroCyberAvatar";
 import SkillCosmosGraph from "@/components/three/SkillCosmosGraph";
+import AnimatedBioTerminal from "@/components/sections/AnimatedBioTerminal";
 import { useAudio } from "@/context/AudioContext";
 
 
@@ -488,6 +489,7 @@ export default function About({ settings }: AboutProps) {
         </motion.div>
 
         <RolePitchSelector />
+        <AnimatedBioTerminal />
         <SkillCosmosGraph />
         <CareerTimeline />
         <DeveloperVoiceMemos />

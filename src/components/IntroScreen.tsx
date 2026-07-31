@@ -89,11 +89,42 @@ function getYouTubeId(url?: string): string | null {
 
   useEffect(() => {
     if (!musicUrl || isExit || youtubeId) return
+    let fadeInInterval: NodeJS.Timeout
+    let fadeOutInterval: NodeJS.Timeout
+    let fadeOutTimer: NodeJS.Timeout
+
     try {
       const audio = new Audio(musicUrl)
-      audio.volume = 0.5
+      audio.volume = 0
       audio.play().catch(() => {})
+
+      // Fade In over 2.5s
+      let currentVol = 0
+      fadeInInterval = setInterval(() => {
+        if (currentVol < 0.7) {
+          currentVol += 0.05
+          audio.volume = Math.min(0.7, currentVol)
+        } else {
+          clearInterval(fadeInInterval)
+        }
+      }, 150)
+
+      // Fade Out at 27.5s
+      fadeOutTimer = setTimeout(() => {
+        fadeOutInterval = setInterval(() => {
+          if (audio.volume > 0.05) {
+            audio.volume = Math.max(0, audio.volume - 0.05)
+          } else {
+            audio.volume = 0
+            clearInterval(fadeOutInterval)
+          }
+        }, 150)
+      }, 27500)
+
       return () => {
+        clearInterval(fadeInInterval)
+        clearInterval(fadeOutInterval)
+        clearTimeout(fadeOutTimer)
         audio.pause()
         audio.currentTime = 0
       }
