@@ -55,7 +55,7 @@ export const defaultSiteSettings: SiteSettings = {
   assistant_enabled: true,
   performance_mode: 'auto',
   spotify_playlist_url: 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
-  intro_music_url: '',
+  intro_music_url: 'https://www.youtube.com/watch?v=LNUlNbmsDBk',
 }
 
 

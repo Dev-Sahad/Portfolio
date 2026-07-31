@@ -78,8 +78,17 @@ export default function IntroScreen({
     return () => clearInterval(timer)
   }, [isExit])
 
+function getYouTubeId(url?: string): string | null {
+  if (!url) return null
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = url.match(regExp)
+  return match && match[2].length === 11 ? match[2] : null
+}
+
+  const youtubeId = getYouTubeId(musicUrl)
+
   useEffect(() => {
-    if (!musicUrl || isExit) return
+    if (!musicUrl || isExit || youtubeId) return
     try {
       const audio = new Audio(musicUrl)
       audio.volume = 0.5
@@ -89,13 +98,23 @@ export default function IntroScreen({
         audio.currentTime = 0
       }
     } catch {}
-  }, [musicUrl, isExit])
+  }, [musicUrl, isExit, youtubeId])
 
   return (
     <div
       ref={introRef}
       className="pointer-parallax-root fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#05060a] px-5 text-white"
     >
+      {youtubeId && !isExit && (
+        <iframe
+          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&loop=1&playlist=${youtubeId}&enablejsapi=1&controls=0`}
+          allow="autoplay"
+          title="Intro Screen Music"
+          aria-hidden="true"
+          className="absolute -top-96 -left-96 w-1 h-1 opacity-0 pointer-events-none"
+        />
+      )}
+
       {/* KINETIC SCROLLING BACKGROUND MARQUEE */}
       <div className="absolute inset-0 z-0 flex justify-between px-6 opacity-15 pointer-events-none select-none overflow-hidden">
         {/* LEFT COLUMN - SCROLLING UP */}
