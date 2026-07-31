@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal } from 'lucide-react'
-import ThemeToggle from '@/components/ThemeToggle'
+import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import ShareModal from '@/components/ui/ShareModal'
 import SpotifyPlayerModal from '@/components/ui/SpotifyPlayerModal'
 import TerminalModal from '@/components/ui/TerminalModal'
@@ -281,7 +281,7 @@ export default function Navbar() {
           >
             <Terminal className="h-4 w-4" />
           </button>
-          <ThemeToggle />
+          <PerformanceModeToggle />
           <Link
             href="/admin"
             onClick={playClick}
