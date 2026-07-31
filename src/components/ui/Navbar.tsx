@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot, Mic, Trophy, Code2, Sparkles, Instagram } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal, Globe, Gamepad2, Activity, FileText, MessageSquare, Bot, Mic, Trophy, Code2, Sparkles, Instagram, MoreHorizontal } from 'lucide-react'
 import PerformanceModeToggle from '@/components/PerformanceModeToggle'
 import CyberPaletteSelector from '@/components/CyberPaletteSelector'
 import ShareModal from '@/components/ui/ShareModal'
@@ -44,6 +44,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [quizOpen, setQuizOpen] = useState(false)
   const [snippetOpen, setSnippetOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
 
 
 
@@ -280,161 +281,136 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
             <Music className={`h-4 w-4 ${isAmbientPlaying || spotifyOpen ? 'animate-pulse' : ''}`} />
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setShareOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Share Portfolio & QR Code"
-            aria-label="Share portfolio"
-          >
-            <Share2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setTerminalOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Open Developer Terminal CLI"
-            aria-label="Open developer terminal"
-          >
-            <Terminal className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setRadarOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Global Visitor Radar & Live Map"
-            aria-label="Open global visitor radar"
-          >
-            <Globe className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setBugModalOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-amber-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Play Bug Smasher Arcade Game"
-            aria-label="Play Arcade Game"
-          >
-            <Gamepad2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setPerfLabOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Performance Lab & Web Vitals Telemetry"
-            aria-label="Open performance lab"
-          >
-            <Activity className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setTailoredCVOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-purple-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Live Tailored CV Builder"
-            aria-label="Open CV Builder"
-          >
-            <FileText className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setInquiryOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Direct Line to Sahad"
-            aria-label="Direct Quick Inquiry"
-          >
-            <MessageSquare className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setVoiceOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-cyan-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Voice Navigation"
-            aria-label="Open Voice Control"
-          >
-            <Mic className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setQuizOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-amber-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Dev Quiz Arena"
-            aria-label="Open Dev Quiz"
-          >
-            <Trophy className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setSnippetOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-purple-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Snippet Vault"
-            aria-label="Open Snippet Vault"
-          >
-            <Code2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playClick()
-              setShaderOpen(true)
-            }}
-            onMouseEnter={playHover}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-300 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="3D Shader Canvas Playground"
-            aria-label="Open Shader Canvas"
-          >
-            <Sparkles className="h-4 w-4" />
-          </button>
-          <a
-            href="https://www.instagram.com/sahad_____sha/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={playClick}
-            onMouseEnter={playHover}
-            className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-pink-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-            title="Instagram Profile @sahad_____sha"
-            aria-label="Open Instagram profile"
-          >
-            <Instagram className="h-4 w-4" />
-          </a>
+          {/* 3-Dot More Options Menu Trigger */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                playClick()
+                setMoreOpen((prev) => !prev)
+              }}
+              onMouseEnter={playHover}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition hover:scale-105 ${
+                moreOpen ? 'bg-cyan-500/30 text-cyan-300 border-cyan-400/50' : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+              title="More Portfolio Tools & Modals"
+              aria-label="More options"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+
+            {/* 3-Dot Popover Menu */}
+            {moreOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="absolute right-0 top-12 z-[100] w-64 rounded-2xl border border-white/20 bg-[#0d0e1b]/95 p-3 shadow-2xl backdrop-blur-2xl text-white space-y-1"
+              >
+                <div className="text-[10px] font-mono text-cyan-300 font-bold px-2 py-1 uppercase tracking-wider border-b border-white/10 mb-1">
+                  Tools & Interactive Modals
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setShareOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Share2 size={14} className="text-white/70" /> Share & QR Code
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setTerminalOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Terminal size={14} className="text-emerald-400" /> Terminal CLI
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setRadarOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Globe size={14} className="text-cyan-400" /> Visitor Radar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setBugModalOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Gamepad2 size={14} className="text-amber-400" /> Bug Smasher Arcade
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setPerfLabOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Activity size={14} className="text-emerald-400" /> Performance Lab
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setTailoredCVOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <FileText size={14} className="text-purple-400" /> Tailored CV Builder
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setInquiryOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <MessageSquare size={14} className="text-emerald-300" /> Direct Inquiry Line
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setVoiceOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Mic size={14} className="text-cyan-300" /> Voice Navigation
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setQuizOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Trophy size={14} className="text-amber-300" /> Dev Quiz Arena
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setSnippetOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Code2 size={14} className="text-purple-300" /> Snippet Vault
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setShaderOpen(true); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left"
+                >
+                  <Sparkles size={14} className="text-pink-300" /> 3D Shader Canvas
+                </button>
+
+                <a
+                  href="https://www.instagram.com/sahad_____sha/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => { playClick(); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-mono hover:bg-white/10 transition text-left text-pink-300"
+                >
+                  <Instagram size={14} className="text-pink-400" /> Instagram (@sahad_____sha)
+                </a>
+              </motion.div>
+            )}
+          </div>
           <PerformanceModeToggle />
           <CyberPaletteSelector />
           <Link

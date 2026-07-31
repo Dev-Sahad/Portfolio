@@ -85,9 +85,11 @@ export default function SpotifyPlayerModal({
     e.preventDefault()
     if (!customInput.trim()) return
     playClick()
-    setCurrentUrl(customInput.trim())
+    const nextUrl = customInput.trim()
+    setCurrentUrl(nextUrl)
     setCustomInput('')
     setLoadedMsg(true)
+    window.dispatchEvent(new CustomEvent('change-spotify-url', { detail: formatSpotifyEmbedUrl(nextUrl) }))
     setTimeout(() => setLoadedMsg(false), 2500)
   }
 
@@ -95,6 +97,7 @@ export default function SpotifyPlayerModal({
     playClick()
     setCurrentUrl(url)
     setLoadedMsg(true)
+    window.dispatchEvent(new CustomEvent('change-spotify-url', { detail: formatSpotifyEmbedUrl(url) }))
     setTimeout(() => setLoadedMsg(false), 2500)
   }
 

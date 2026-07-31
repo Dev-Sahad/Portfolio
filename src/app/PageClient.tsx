@@ -27,6 +27,8 @@ import OutroExitModal from '@/components/ui/OutroExitModal'
 import AchievementSystem from '@/components/AchievementSystem'
 import TestimonialWall from '@/components/sections/TestimonialWall'
 import PerspectiveImage3DWall from '@/components/three/PerspectiveImage3DWall'
+import InstagramPostGallery from '@/components/sections/InstagramPostGallery'
+import GlobalSpotifyAudioPlayer from '@/components/ui/GlobalSpotifyAudioPlayer'
 
 interface PageClientProps {
   projects: any[]
@@ -148,6 +150,7 @@ export default function PageClient({
         >
           <PortfolioShowcase projects={projects} technologies={technologies} />
           <PerspectiveImage3DWall />
+          <InstagramPostGallery />
         </motion.div>
 
         {settings.show_testimonials ? (
@@ -211,6 +214,7 @@ export default function PageClient({
 
       <VisitorDetailsPrompt enabled={showApp} />
       <OutroExitModal enabled={showApp} />
+      <GlobalSpotifyAudioPlayer />
     </main>
   )
 }

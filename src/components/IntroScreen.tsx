@@ -176,6 +176,19 @@ function getYouTubeId(url?: string): string | null {
     }
   }, [musicUrl, isExit, youtubeId, isIntroMuted])
 
+  const ytRef = useRef<HTMLIFrameElement | null>(null)
+
+  useEffect(() => {
+    if (ytRef.current && ytRef.current.contentWindow) {
+      try {
+        ytRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: 'command', func: isIntroMuted ? 'mute' : 'unMute', args: [] }),
+          '*'
+        )
+      } catch {}
+    }
+  }, [isIntroMuted])
+
   return (
     <div
       ref={introRef}
@@ -183,6 +196,7 @@ function getYouTubeId(url?: string): string | null {
     >
       {youtubeId && !isExit && (
         <iframe
+          ref={ytRef}
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&loop=1&playlist=${youtubeId}&enablejsapi=1&controls=0`}
           allow="autoplay"
           title="Intro Screen Music"
@@ -191,17 +205,17 @@ function getYouTubeId(url?: string): string | null {
         />
       )}
 
-      {/* Intro Screen Sound & Mute Control (Only for controllable Audio) */}
-      {!isExit && musicUrl && !youtubeId && (
+      {/* Intro Screen Sound & Mute Control */}
+      {!isExit && (
         <div className="absolute top-6 right-6 z-[10000] flex items-center gap-2">
           <button
             type="button"
             onClick={toggleIntroMute}
-            className="flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-3.5 py-2 text-xs font-mono text-cyan-300 backdrop-blur-md hover:bg-black/80 transition shadow-xl"
+            className="flex items-center gap-2 rounded-full border border-cyan-400/40 bg-black/80 px-4 py-2.5 text-xs font-mono text-cyan-300 backdrop-blur-xl hover:bg-black transition shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer"
             title={isIntroMuted ? "Unmute Intro Audio" : "Mute Intro Audio"}
           >
-            {isIntroMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-cyan-400 animate-pulse" />}
-            <span>{isIntroMuted ? "MUTED" : "50% VOL"}</span>
+            {isIntroMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} className="text-cyan-400 animate-pulse" />}
+            <span className="font-bold">{isIntroMuted ? "MUTED" : "50% SOUND"}</span>
           </button>
         </div>
       )}
