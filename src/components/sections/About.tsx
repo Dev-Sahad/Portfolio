@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { motion, Variants } from "framer-motion";
-import { Code, Award, Globe, FileText, ArrowUpRight } from "lucide-react";
+import { Code, Award, Globe, FileText, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { SiteSettings } from "@/lib/siteSettings";
 import { trackEvent } from "@/lib/analytics";
+import SkillOrbitGalaxy from "@/components/three/SkillOrbitGalaxy";
+import CertificateBadgeModal from "@/components/ui/CertificateBadgeModal";
+import { useAudio } from "@/context/AudioContext";
+
+
 
 /* ================== ANIMATION ================== */
 
@@ -68,6 +73,9 @@ export default function About({ settings }: AboutProps) {
 
   const [projectCount, setProjectCount] = useState(0);
   const [certificateCount, setCertificateCount] = useState(0);
+  const [selectedCert, setSelectedCert] = useState<any | null>(null);
+  const [certModalOpen, setCertModalOpen] = useState(false);
+  const { playClick, playHover } = useAudio();
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -79,6 +87,7 @@ export default function About({ settings }: AboutProps) {
 
     return () => window.removeEventListener("resize", check);
   }, []);
+
 
   const fetchStats = async () => {
     try {
@@ -208,6 +217,11 @@ export default function About({ settings }: AboutProps) {
               {settings.about_description}
             </motion.p>
 
+            {/* 3D SKILL GALAXY */}
+            <motion.div variants={pop}>
+              <SkillOrbitGalaxy />
+            </motion.div>
+
             {/* QUOTE */}
             <motion.div
               variants={{
@@ -235,6 +249,7 @@ export default function About({ settings }: AboutProps) {
             >
               &ldquo;{settings.about_quote}&rdquo;
             </motion.div>
+
 
             {/* BUTTONS */}
             <motion.div
@@ -466,6 +481,13 @@ export default function About({ settings }: AboutProps) {
           ))}
         </motion.div>
       </div>
+
+      <CertificateBadgeModal
+        isOpen={certModalOpen}
+        onClose={() => setCertModalOpen(false)}
+        certificate={selectedCert}
+      />
     </section>
   );
 }
+

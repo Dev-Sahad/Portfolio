@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import PageClient from "./PageClient";
 import { defaultSiteSettings } from "@/lib/siteSettings";
+import { isAdminUser } from "@/lib/adminAccess";
 
 export const dynamic = 'force-dynamic';
 
@@ -10,9 +11,13 @@ export default async function Home() {
   let testimonials: any[] = [];
   let posts: any[] = [];
   let settings: any = defaultSiteSettings;
+  let isAdmin = false;
 
   try {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    isAdmin = isAdminUser(user);
+
     const [projectsRes, techRes, settingsRes, testimonialsRes, postsRes] = await Promise.all([
       supabase.from('projects').select('*, technologies(*)').order('is_featured', { ascending: false }).order('featured_order').order('created_at', { ascending: false }),
       supabase.from('technologies').select('*'),
@@ -29,20 +34,30 @@ export default async function Home() {
     console.error('Failed to load portfolio data:', err);
   }
 
-  if (settings.maintenance_mode) {
+  if (settings.maintenance_mode && !isAdmin) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#080808] px-6 text-white">
         <div className="max-w-xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.28em] text-white/35">Maintenance mode</p>
           <h1 className="mt-5 text-4xl font-bold sm:text-6xl">A sharper portfolio is on the way.</h1>
           <p className="mt-6 leading-7 text-white/55">{settings.maintenance_message}</p>
-          <a href="/admin" className="mt-8 inline-flex rounded-full border border-white/15 px-5 py-3 text-sm text-white/60 hover:bg-white hover:text-black">
-            Admin access
+          <a href="/admin" className="mt-8 inline-flex rounded-full border border-white/15 px-5 py-3 text-sm text-white/60 hover:bg-white hover:text-black transition">
+            Admin login
           </a>
         </div>
       </main>
     )
   }
 
-  return <PageClient projects={projects} technologies={technologies} settings={settings} testimonials={testimonials} posts={posts} />;
+  return (
+    <PageClient
+      projects={projects}
+      technologies={technologies}
+      settings={settings}
+      testimonials={testimonials}
+      posts={posts}
+      isAdminPreview={settings.maintenance_mode && isAdmin}
+    />
+  );
 }
+

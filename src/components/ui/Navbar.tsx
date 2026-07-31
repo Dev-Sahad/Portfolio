@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, Share2, X, Volume2, VolumeX, Music } from 'lucide-react'
+import { Lock, Menu, Share2, X, Volume2, VolumeX, Music, Terminal } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import ShareModal from '@/components/ui/ShareModal'
+import SpotifyPlayerModal from '@/components/ui/SpotifyPlayerModal'
+import TerminalModal from '@/components/ui/TerminalModal'
 import { useAudio } from '@/context/AudioContext'
-
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -16,6 +17,10 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState('home')
   const [mounted, setMounted] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [spotifyOpen, setSpotifyOpen] = useState(false)
+  const [terminalOpen, setTerminalOpen] = useState(false)
+
+
 
   const { isMuted, isAmbientPlaying, toggleMute, toggleAmbient, playClick, playHover } = useAudio()
 
@@ -238,16 +243,16 @@ export default function Navbar() {
             type="button"
             onClick={() => {
               playClick()
-              toggleAmbient()
+              setSpotifyOpen(true)
             }}
             onMouseEnter={playHover}
             className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition hover:scale-105 ${
-              isAmbientPlaying ? 'bg-purple-500/30 text-purple-300 border-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-white/10 text-white hover:bg-white/20'
+              isAmbientPlaying || spotifyOpen ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.4)]' : 'bg-white/10 text-white hover:bg-white/20'
             }`}
-            title={isAmbientPlaying ? 'Stop Ambient Soundscape' : 'Play Ambient Soundscape'}
-            aria-label="Toggle ambient music"
+            title="Open Spotify & Portfolio Music Player"
+            aria-label="Open Spotify Music player"
           >
-            <Music className={`h-4 w-4 ${isAmbientPlaying ? 'animate-pulse' : ''}`} />
+            <Music className={`h-4 w-4 ${isAmbientPlaying || spotifyOpen ? 'animate-pulse' : ''}`} />
           </button>
 
           <button
@@ -262,6 +267,19 @@ export default function Navbar() {
             aria-label="Share portfolio"
           >
             <Share2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playClick()
+              setTerminalOpen(true)
+            }}
+            onMouseEnter={playHover}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-emerald-400 backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Open Developer Terminal CLI"
+            aria-label="Open developer terminal"
+          >
+            <Terminal className="h-4 w-4" />
           </button>
           <ThemeToggle />
           <Link
@@ -291,6 +309,10 @@ export default function Navbar() {
       </div>
 
       <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+      <SpotifyPlayerModal isOpen={spotifyOpen} onClose={() => setSpotifyOpen(false)} />
+      <TerminalModal isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
+
+
 
       {isMobile && open && (
         <motion.div

@@ -22,15 +22,25 @@ import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
 import type { BlogPost, Testimonial } from '@/lib/growthTypes'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
+import ScrollProgressBar from '@/components/ui/ScrollProgressBar'
+
 interface PageClientProps {
   projects: any[];
   technologies: any[];
   settings?: Partial<SiteSettings> | null;
   testimonials?: Testimonial[];
   posts?: BlogPost[];
+  isAdminPreview?: boolean;
 }
 
-export default function PageClient({ projects, technologies, settings: settingsInput, testimonials = [], posts = [] }: PageClientProps) {
+export default function PageClient({
+  projects,
+  technologies,
+  settings: settingsInput,
+  testimonials = [],
+  posts = [],
+  isAdminPreview = false,
+}: PageClientProps) {
   const settings = mergeSiteSettings(settingsInput)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showExit, setShowExit] = useState(false)
@@ -94,19 +104,72 @@ export default function PageClient({ projects, technologies, settings: settingsI
 
   return (
     <main id="main-content" style={{ position: 'relative', overflow: 'hidden' }}>
+      <ScrollProgressBar />
       <AnalyticsBeacon />
       <AnimatedBackground />
+
+      {isAdminPreview && (
+        <div className="sticky top-0 z-[99999] flex items-center justify-center gap-2 bg-amber-500/90 py-2 px-4 text-center font-mono text-xs font-bold text-black backdrop-blur-md shadow-lg">
+          <span>🚧 MAINTENANCE MODE ACTIVE</span>
+          <span className="opacity-75">— Logged in as Admin Preview</span>
+          <a href="/admin/settings" className="underline ml-2 hover:opacity-100">
+            Edit Settings
+          </a>
+        </div>
+      )}
 
       <CommandPalette />
 
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
         <Hero showApp={showApp} settings={settings} />
-        <About settings={settings} />
-        <PortfolioShowcase projects={projects} technologies={technologies} />
-        {settings.show_testimonials ? <TestimonialsSection testimonials={testimonials} /> : null}
-        <BlogPreviewSection posts={posts} />
-        <ContactSection settings={settings} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <About settings={settings} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <PortfolioShowcase projects={projects} technologies={technologies} />
+        </motion.div>
+
+        {settings.show_testimonials ? (
+          <motion.div
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <TestimonialsSection testimonials={testimonials} />
+          </motion.div>
+        ) : null}
+
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <BlogPreviewSection posts={posts} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <ContactSection settings={settings} />
+        </motion.div>
       </div>
 
       <MotionSettings defaultMode={settings.performance_mode} />
@@ -142,3 +205,4 @@ export default function PageClient({ projects, technologies, settings: settingsI
     </main>
   )
 }
+

@@ -2,10 +2,12 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, Layers, Search, Star, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Layers, Search, Star, X, ArrowRightLeft } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
 import { getCertificateThumbnail } from '@/lib/portfolioMedia'
 import PortfolioCard from './PortfolioCard'
+import ProjectCompareModal from '@/components/portfolio/ProjectCompareModal'
+import { useAudio } from '@/context/AudioContext'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -26,7 +28,11 @@ export default function PortfolioShowcase({
   const [query, setQuery] = useState('')
   const [technology, setTechnology] = useState('all')
   const [starredIds, setStarredIds] = useState<string[]>([])
+  const [compareIds, setCompareIds] = useState<string[]>([])
+  const [compareOpen, setCompareOpen] = useState(false)
   const deferredQuery = useDeferredValue(query)
+  const { playClick, playHover } = useAudio()
+
 
   // Load starred project IDs from localStorage on mount
   useEffect(() => {
@@ -48,8 +54,22 @@ export default function PortfolioShowcase({
     })
   }
 
+  const toggleCompare = (id: string) => {
+    playClick()
+    setCompareIds((prev) => {
+      if (prev.includes(id)) return prev.filter((i) => i !== id)
+      if (prev.length >= 3) return [...prev.slice(1), id]
+      return [...prev, id]
+    })
+  }
+
   const resolvedProjects = projects.length ? projects : initialProjects
   const resolvedTech = techStacks.length ? techStacks : initialTech
+
+  const compareProjectsList = useMemo(() => {
+    return resolvedProjects.filter((p) => compareIds.includes(String(p.id)))
+  }, [resolvedProjects, compareIds])
+
 
   const projectTechnologies = useMemo(() => {
     const values = new Set<string>()
@@ -278,7 +298,10 @@ export default function PortfolioShowcase({
                         id={item.id}
                         isStarred={starredIds.includes(String(item.id))}
                         onToggleStar={toggleStar}
+                        isCompared={compareIds.includes(String(item.id))}
+                        onToggleCompare={toggleCompare}
                       />
+
                     ))}
                   </div>
                 )}
@@ -388,10 +411,33 @@ export default function PortfolioShowcase({
             )}
           </motion.div>
         </AnimatePresence>
+
+        {compareIds.length >= 2 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90]">
+            <button
+              onClick={() => {
+                playClick()
+                setCompareOpen(true)
+              }}
+              onMouseEnter={playHover}
+              className="flex items-center gap-2 rounded-full border border-cyan-400/50 bg-[#0c0d14]/90 px-5 py-3 text-xs font-bold text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.4)] backdrop-blur-xl hover:scale-105 transition cursor-pointer"
+            >
+              <ArrowRightLeft size={14} />
+              Compare {compareIds.length} Selected Projects
+            </button>
+          </div>
+        )}
       </section>
+
+      <ProjectCompareModal
+        isOpen={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        projects={compareProjectsList}
+      />
     </>
   )
 }
+
 
 function EmptyState({ title }: { title: string }) {
   return (

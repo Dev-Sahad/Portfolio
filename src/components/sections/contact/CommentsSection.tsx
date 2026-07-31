@@ -5,7 +5,10 @@ import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Upload, Heart, Pin, Send, CheckCircle, AlertCircle, MessageSquare } from 'lucide-react'
 import useComments from '@/hooks/useComments'
 
+import DoodleCanvas from '@/components/ui/DoodleCanvas'
+
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
 
 const containerVariants: Variants = {
   hidden: {},
@@ -27,12 +30,32 @@ export default function CommentsSection() {
   const [posted,  setPosted]  = useState(false)
   const [webhookDelivered, setWebhookDelivered] = useState(true)
 
+  const handleDoodleChange = (dataUrl: string | null) => {
+    if (!dataUrl) {
+      if (!image || image.name.startsWith('doodle-')) {
+        setImage(null)
+        setPreview(null)
+      }
+      return
+    }
+
+    fetch(dataUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const file = new File([blob], `doodle-${Date.now()}.png`, { type: 'image/png' })
+        setImage(file)
+        setPreview(dataUrl)
+      })
+      .catch(() => {})
+  }
+
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setImage(file)
     setPreview(URL.createObjectURL(file))
   }
+
 
   const handleSubmit = async () => {
     if (!name.trim() || !comment.trim()) return
@@ -120,6 +143,11 @@ export default function CommentsSection() {
           placeholder="Your Comment"
           className="w-full rounded-2xl border border-white/15 bg-black/20 px-4 py-3 md:py-4 outline-none resize-none focus:border-white transition text-sm"
         />
+
+        <motion.div variants={itemVariants}>
+          <DoodleCanvas onCanvasChange={handleDoodleChange} />
+        </motion.div>
+
 
         <motion.label
           variants={itemVariants}

@@ -23,6 +23,7 @@ export type SiteSettings = {
   show_testimonials: boolean
   assistant_enabled: boolean
   performance_mode: 'auto' | 'full' | 'reduced'
+  spotify_playlist_url: string
 }
 
 export const defaultSiteSettings: SiteSettings = {
@@ -52,7 +53,9 @@ export const defaultSiteSettings: SiteSettings = {
   show_testimonials: true,
   assistant_enabled: true,
   performance_mode: 'auto',
+  spotify_playlist_url: 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
 }
+
 
 export function mergeSiteSettings(settings?: Partial<SiteSettings> | null): SiteSettings {
   const definedSettings = Object.fromEntries(

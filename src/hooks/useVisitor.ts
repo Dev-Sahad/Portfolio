@@ -34,29 +34,33 @@ export function useVisitor() {
     })
 
     const notifyVisit = (profile: VisitorProfile | null) => {
-      if (visitSent) return
+      if (visitSent && !profile) return
       visitSent = true
       sessionStorage.setItem('_visited', '1')
 
       void fetch('/api/visitors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'visit', ...visitorContext(), ...(profile || {}) }),
+        body: JSON.stringify({
+          type: profile ? 'identify' : 'visit',
+          ...visitorContext(),
+          ...(profile || {}),
+        }),
       }).catch(() => {})
     }
 
-
     const handleProfile = (event: Event) => {
       const profile = (event as CustomEvent<VisitorProfile | null>).detail
-      // One session produces one notification: detailed when shared, anonymous when skipped.
-      notifyVisit(profile)
+      if (profile) {
+        notifyVisit(profile)
+      }
     }
 
     window.addEventListener(VISITOR_PROFILE_EVENT, handleProfile)
 
-    const anonymousTimer = visitSent
-      ? null
-      : window.setTimeout(() => notifyVisit(null), 90_000)
+    // Fire initial visit notification immediately on page load
+    const initialTimer = window.setTimeout(() => notifyVisit(null), 300)
+
 
     // Heartbeat every 28s
     const heartbeat = async () => {
@@ -84,10 +88,11 @@ export function useVisitor() {
     window.addEventListener('beforeunload', leave)
     return () => {
       clearInterval(iv)
-      if (anonymousTimer) window.clearTimeout(anonymousTimer)
+      window.clearTimeout(initialTimer)
       window.removeEventListener(VISITOR_PROFILE_EVENT, handleProfile)
       window.removeEventListener('beforeunload', leave)
     }
+
   }, [])
 
   return { liveViewers }

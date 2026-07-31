@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Star,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
@@ -20,6 +21,8 @@ type Props = {
   github_url?: string
   isStarred?: boolean
   onToggleStar?: (id: string) => void
+  isCompared?: boolean
+  onToggleCompare?: (id: string) => void
 }
 
 export default function PortfolioCard({
@@ -32,7 +35,10 @@ export default function PortfolioCard({
   github_url,
   isStarred = false,
   onToggleStar,
+  isCompared = false,
+  onToggleCompare,
 }: Props) {
+
   const router = useRouter()
   const thumbnail = getProjectThumbnail({ github_url, image_url: image })
 
@@ -66,24 +72,48 @@ export default function PortfolioCard({
         ) : (
           <div className="w-full h-full bg-white/[0.03]" />
         )}
-        {id && onToggleStar && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onToggleStar(id)
-            }}
-            className={`absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 ${
-              isStarred
-                ? 'border-amber-400/50 bg-amber-400/20 text-amber-300 backdrop-blur-md shadow-[0_0_12px_rgba(251,191,36,0.3)]'
-                : 'border-white/15 bg-black/50 text-white/50 hover:bg-black/70 hover:text-white backdrop-blur-md'
-            }`}
-            title={isStarred ? 'Unstar project' : 'Star project'}
-            aria-label={isStarred ? 'Unstar project' : 'Star project'}
-          >
-            <Star size={14} className={isStarred ? 'fill-amber-300' : ''} />
-          </button>
+        {id && (
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
+            {onToggleCompare && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleCompare(id)
+                }}
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 ${
+                  isCompared
+                    ? 'border-cyan-400/50 bg-cyan-400/20 text-cyan-300 backdrop-blur-md shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+                    : 'border-white/15 bg-black/50 text-white/50 hover:bg-black/70 hover:text-white backdrop-blur-md'
+                }`}
+                title={isCompared ? 'Remove from comparison' : 'Compare project'}
+                aria-label="Compare project"
+              >
+                <ArrowRightLeft size={13} />
+              </button>
+            )}
+
+            {onToggleStar && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleStar(id)
+                }}
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 ${
+                  isStarred
+                    ? 'border-amber-400/50 bg-amber-400/20 text-amber-300 backdrop-blur-md shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                    : 'border-white/15 bg-black/50 text-white/50 hover:bg-black/70 hover:text-white backdrop-blur-md'
+                }`}
+                title={isStarred ? 'Unstar project' : 'Star project'}
+                aria-label={isStarred ? 'Unstar project' : 'Star project'}
+              >
+                <Star size={14} className={isStarred ? 'fill-amber-300' : ''} />
+              </button>
+            )}
+          </div>
         )}
+
       </div>
 
       <h3 className="text-[17px] font-semibold mb-2 leading-tight">
