@@ -124,7 +124,7 @@ export default function PageClient({
       <CommandPalette />
 
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <Navbar />
+        <Navbar playlistUrl={settings.spotify_playlist_url} />
         <Hero showApp={showApp} settings={settings} />
 
         <motion.div

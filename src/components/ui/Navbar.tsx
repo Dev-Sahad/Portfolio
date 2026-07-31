@@ -10,7 +10,11 @@ import SpotifyPlayerModal from '@/components/ui/SpotifyPlayerModal'
 import TerminalModal from '@/components/ui/TerminalModal'
 import { useAudio } from '@/context/AudioContext'
 
-export default function Navbar() {
+interface NavbarProps {
+  playlistUrl?: string
+}
+
+export default function Navbar({ playlistUrl }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [open, setOpen] = useState(false)
@@ -309,7 +313,7 @@ export default function Navbar() {
       </div>
 
       <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
-      <SpotifyPlayerModal isOpen={spotifyOpen} onClose={() => setSpotifyOpen(false)} />
+      <SpotifyPlayerModal isOpen={spotifyOpen} onClose={() => setSpotifyOpen(false)} playlistUrl={playlistUrl} />
       <TerminalModal isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
 
 
