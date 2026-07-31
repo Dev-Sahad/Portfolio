@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Menu, X } from 'lucide-react'
+import { Lock, Menu, Share2, X } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
+import ShareModal from '@/components/ui/ShareModal'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -12,6 +13,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [mounted, setMounted] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   // 🔥 navbar appears only once
   const [showNavbar, setShowNavbar] = useState(false)
@@ -210,6 +212,15 @@ export default function Navbar() {
             </div>
           )}
 
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
+            title="Share Portfolio & QR Code"
+            aria-label="Share portfolio"
+          >
+            <Share2 className="h-4 w-4" />
+          </button>
           <ThemeToggle />
           <Link
             href="/admin"
@@ -233,6 +244,8 @@ export default function Navbar() {
           ) : null}
         </div>
       </div>
+
+      <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
 
       {isMobile && open && (
         <motion.div

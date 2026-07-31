@@ -277,27 +277,108 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* QUICK ACTIONS */}
+              {/* QUICK ACTIONS COMMAND PANEL */}
               <div className="rounded-2xl border border-white/10 p-5 bg-gradient-to-b from-white/[0.03] to-transparent hover:border-white/15 transition">
-                <h2 className="text-base font-medium mb-4">Quick Actions</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-medium">Command Panel</h2>
+                  <span className="text-[10px] text-white/25 font-mono">QUICK ACTIONS</span>
+                </div>
                 <div className="space-y-2">
                   {[
-                    { label: "Add Project",         href: "/admin/projects",      icon: Folder        },
-                    { label: "Add Certificate",     href: "/admin/certificates",  icon: Award         },
-                    { label: "Manage Comments",     href: "/admin/comments",      icon: MessageSquare },
-                    { label: "Edit 3D Scene",       href: "/admin/scene3d",       icon: Sparkles      },
-                    { label: "Manage Technologies", href: "/admin/technologies",  icon: Layers        },
+                    { label: "Add Project",         href: "/admin/projects",      icon: Folder,        kbd: "P" },
+                    { label: "Add Certificate",     href: "/admin/certificates",  icon: Award,         kbd: "C" },
+                    { label: "Manage Comments",     href: "/admin/comments",      icon: MessageSquare, kbd: "M" },
+                    { label: "Edit 3D Scene",       href: "/admin/scene3d",       icon: Sparkles,      kbd: "S" },
+                    { label: "Manage Technologies", href: "/admin/technologies",  icon: Layers,        kbd: "T" },
+                    { label: "Webhook Settings",    href: "/admin/webhook",       icon: Radio,         kbd: "W" },
+                    { label: "Growth Analytics",    href: "/admin/growth",        icon: TrendingUp,    kbd: "G" },
                   ].map((item, i) => {
                     const Icon = item.icon;
                     return (
                       <Link key={i} href={item.href}
                         className="flex items-center gap-3 w-full rounded-xl border border-white/5 hover:border-white/15 px-4 py-3 hover:bg-white/[0.04] transition text-sm text-white/60 hover:text-white group">
                         <Icon size={14} />
-                        {item.label}
-                        <ArrowUpRight size={12} className="ml-auto opacity-0 group-hover:opacity-60 transition" />
+                        <span className="flex-1">{item.label}</span>
+                        <kbd className="hidden sm:inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-white/10 bg-white/[0.04] px-1.5 text-[10px] font-mono text-white/30 group-hover:text-white/50 group-hover:border-white/20 transition">
+                          {item.kbd}
+                        </kbd>
+                        <ArrowUpRight size={12} className="opacity-0 group-hover:opacity-60 transition" />
                       </Link>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* LIVE ACTIVITY TIMELINE */}
+              <div className="rounded-2xl border border-white/10 p-5 bg-gradient-to-b from-white/[0.03] to-transparent hover:border-white/15 transition">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <div className="w-2 h-2 rounded-full bg-cyan-400" />
+                      <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-40" />
+                    </div>
+                    <h2 className="text-base font-medium">Activity Timeline</h2>
+                  </div>
+                  <span className="text-[10px] text-white/25 font-mono">LIVE FEED</span>
+                </div>
+                <div className="space-y-0">
+                  {recentComments.length === 0 && recentProjects.length === 0 ? (
+                    <div className="text-sm text-white/30 py-8 text-center">No recent activity</div>
+                  ) : (
+                    (() => {
+                      const events: { type: string; text: string; detail: string; time: string; ts: number }[] = [];
+
+                      for (const c of recentComments.slice(0, 5)) {
+                        events.push({
+                          type: 'comment',
+                          text: `${c.name || 'Someone'} left a comment`,
+                          detail: c.comment?.slice(0, 60) || '',
+                          time: new Date(c.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                          ts: new Date(c.created_at).getTime(),
+                        });
+                      }
+                      for (const p of recentProjects.slice(0, 3)) {
+                        events.push({
+                          type: 'project',
+                          text: `Project "${p.title}" added`,
+                          detail: p.description?.slice(0, 60) || '',
+                          time: new Date(p.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                          ts: new Date(p.created_at).getTime(),
+                        });
+                      }
+
+                      events.sort((a, b) => b.ts - a.ts);
+
+                      return events.slice(0, 6).map((ev, i) => (
+                        <div key={i} className="relative flex gap-3 py-3">
+                          {/* Timeline line */}
+                          {i < events.length - 1 && (
+                            <div className="absolute left-[9px] top-[28px] bottom-0 w-px bg-white/8" />
+                          )}
+                          {/* Dot */}
+                          <div className={`relative z-10 mt-1 w-[18px] h-[18px] rounded-full border flex items-center justify-center shrink-0 ${
+                            ev.type === 'comment'
+                              ? 'border-emerald-500/30 bg-emerald-500/10'
+                              : 'border-blue-500/30 bg-blue-500/10'
+                          }`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${
+                              ev.type === 'comment' ? 'bg-emerald-400' : 'bg-blue-400'
+                            }`} />
+                          </div>
+                          {/* Content */}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-[12px] text-white/70 font-medium">{ev.text}</p>
+                              <span className="text-[10px] text-white/25 shrink-0 font-mono">{ev.time}</span>
+                            </div>
+                            {ev.detail && (
+                              <p className="text-[11px] text-white/35 mt-0.5 line-clamp-1">{ev.detail}</p>
+                            )}
+                          </div>
+                        </div>
+                      ));
+                    })()
+                  )}
                 </div>
               </div>
 

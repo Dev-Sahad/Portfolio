@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import {
   ArrowRight,
   ArrowUpRight,
+  Star,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
@@ -17,6 +18,8 @@ type Props = {
   image?: string
   live_url?: string
   github_url?: string
+  isStarred?: boolean
+  onToggleStar?: (id: string) => void
 }
 
 export default function PortfolioCard({
@@ -27,6 +30,8 @@ export default function PortfolioCard({
   image,
   live_url,
   github_url,
+  isStarred = false,
+  onToggleStar,
 }: Props) {
   const router = useRouter()
   const thumbnail = getProjectThumbnail({ github_url, image_url: image })
@@ -50,7 +55,7 @@ export default function PortfolioCard({
       whileHover={{ y: -4 }}
       className="group relative rounded-[26px] border border-white/10 bg-white/5 p-4 backdrop-blur-xl flex flex-col min-h-[270px]"
     >
-      <div className="w-full h-36 rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] mb-3">
+      <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] mb-3">
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -60,6 +65,24 @@ export default function PortfolioCard({
           />
         ) : (
           <div className="w-full h-full bg-white/[0.03]" />
+        )}
+        {id && onToggleStar && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleStar(id)
+            }}
+            className={`absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 ${
+              isStarred
+                ? 'border-amber-400/50 bg-amber-400/20 text-amber-300 backdrop-blur-md shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                : 'border-white/15 bg-black/50 text-white/50 hover:bg-black/70 hover:text-white backdrop-blur-md'
+            }`}
+            title={isStarred ? 'Unstar project' : 'Star project'}
+            aria-label={isStarred ? 'Unstar project' : 'Star project'}
+          >
+            <Star size={14} className={isStarred ? 'fill-amber-300' : ''} />
+          </button>
         )}
       </div>
 

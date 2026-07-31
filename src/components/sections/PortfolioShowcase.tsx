@@ -1,8 +1,8 @@
 'use client'
 
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, Layers, Search, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Layers, Search, Star, X } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
 import { getCertificateThumbnail } from '@/lib/portfolioMedia'
 import PortfolioCard from './PortfolioCard'
@@ -19,15 +19,38 @@ export default function PortfolioShowcase({
   technologies: initialTech,
 }: PortfolioShowcaseProps) {
   const { projects, certificates, techStacks, loading } = usePortfolio()
-  const [activeTab, setActiveTab] = useState<'projects' | 'certificates' | 'techstack'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'certificates' | 'techstack' | 'starred'>('projects')
   const [previewImage, setPreviewImage] = useState('')
+  const [selectedTech, setSelectedTech] = useState<any | null>(null)
   const [showAllProjects, setShowAllProjects] = useState(false)
   const [query, setQuery] = useState('')
   const [technology, setTechnology] = useState('all')
+  const [starredIds, setStarredIds] = useState<string[]>([])
   const deferredQuery = useDeferredValue(query)
+
+  // Load starred project IDs from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('starredProjects')
+      if (saved) {
+        setStarredIds(JSON.parse(saved))
+      }
+    } catch {}
+  }, [])
+
+  const toggleStar = (id: string) => {
+    setStarredIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      try {
+        localStorage.setItem('starredProjects', JSON.stringify(next))
+      } catch {}
+      return next
+    })
+  }
 
   const resolvedProjects = projects.length ? projects : initialProjects
   const resolvedTech = techStacks.length ? techStacks : initialTech
+
   const projectTechnologies = useMemo(() => {
     const values = new Set<string>()
     for (const project of resolvedProjects) {
@@ -39,6 +62,7 @@ export default function PortfolioShowcase({
     }
     return [...values].sort((a, b) => a.localeCompare(b))
   }, [resolvedProjects])
+
   const filteredProjects = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase()
     return resolvedProjects.filter((project) => {
@@ -47,16 +71,32 @@ export default function PortfolioShowcase({
       return matchesQuery && matchesTechnology
     })
   }, [deferredQuery, resolvedProjects, technology])
+
+  const starredProjectsList = useMemo(() => {
+    return resolvedProjects.filter((p) => starredIds.includes(String(p.id)))
+  }, [resolvedProjects, starredIds])
+
   const displayedProjects = showAllProjects ? filteredProjects : filteredProjects.slice(0, 3)
 
   const tabs = [
     { id: 'projects', label: 'Projects' },
     { id: 'certificates', label: 'Certificates' },
     { id: 'techstack', label: 'Tech Stack' },
+    { id: 'starred', label: `Starred ★ (${starredIds.length})` },
   ] as const
+
+  // Filter projects for selected tech modal
+  const techModalProjects = useMemo(() => {
+    if (!selectedTech) return []
+    const techName = selectedTech.name.toLowerCase()
+    return resolvedProjects.filter((project) =>
+      String(project.technologies || '').toLowerCase().includes(techName)
+    )
+  }, [resolvedProjects, selectedTech])
 
   return (
     <>
+      {/* CERTIFICATE PREVIEW MODAL */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
@@ -85,6 +125,72 @@ export default function PortfolioShowcase({
         )}
       </AnimatePresence>
 
+      {/* TECH STACK DETAIL MODAL */}
+      <AnimatePresence>
+        {selectedTech && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 bg-black/80 backdrop-blur-md" onClick={() => setSelectedTech(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ duration: 0.35, ease: smoothEase }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-2xl rounded-3xl border border-white/15 bg-[#0e0e12] p-6 sm:p-8 text-white max-h-[85vh] overflow-y-auto shadow-2xl"
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedTech(null)}
+                className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:bg-white/15 hover:text-white transition"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 p-3">
+                  {selectedTech.logo_url || selectedTech.image_url ? (
+                    <img src={selectedTech.logo_url || selectedTech.image_url} alt={selectedTech.name} className="h-full w-full object-contain" />
+                  ) : (
+                    <Layers size={28} className="text-white/40" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">{selectedTech.name}</h3>
+                  <p className="text-xs text-white/40 mt-1">
+                    {techModalProjects.length} project{techModalProjects.length !== 1 ? 's' : ''} built with this technology
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-xs font-mono uppercase tracking-wider text-white/40">Projects Using {selectedTech.name}</h4>
+                {techModalProjects.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/35">
+                    No linked projects found for this technology.
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {techModalProjects.map((p, i) => (
+                      <PortfolioCard
+                        key={p.id}
+                        index={i}
+                        title={p.title}
+                        description={p.description}
+                        image={p.image_url}
+                        live_url={p.live_url}
+                        github_url={p.github_url}
+                        id={p.id}
+                        isStarred={starredIds.includes(String(p.id))}
+                        onToggleStar={toggleStar}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <section id="portfolio" className="w-full max-w-[1450px] mx-auto px-4 sm:px-6 md:px-12 lg:px-20 pt-24 pb-24 text-white">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -105,7 +211,7 @@ export default function PortfolioShowcase({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as any)}
                   className={`relative rounded-xl px-5 py-2.5 text-xs sm:text-sm font-medium transition-colors duration-300 ${
                     isActive ? 'text-white font-semibold' : 'text-white/60 hover:text-white'
                   }`}
@@ -170,6 +276,8 @@ export default function PortfolioShowcase({
                         live_url={item.live_url}
                         github_url={item.github_url}
                         id={item.id}
+                        isStarred={starredIds.includes(String(item.id))}
+                        onToggleStar={toggleStar}
                       />
                     ))}
                   </div>
@@ -190,6 +298,31 @@ export default function PortfolioShowcase({
               </div>
             )}
 
+            {activeTab === 'starred' && (
+              <div className="space-y-6">
+                {starredProjectsList.length === 0 ? (
+                  <EmptyState title="No starred projects yet. Click the star ★ icon on any project to bookmark it!" />
+                ) : (
+                  <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {starredProjectsList.map((item, i) => (
+                      <PortfolioCard
+                        key={item.id}
+                        index={i}
+                        title={item.title}
+                        description={item.description}
+                        image={item.image_url}
+                        live_url={item.live_url}
+                        github_url={item.github_url}
+                        id={item.id}
+                        isStarred={true}
+                        onToggleStar={toggleStar}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'certificates' && (
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {certificates.length === 0 ? (
@@ -204,7 +337,6 @@ export default function PortfolioShowcase({
                         onClick={() => setPreviewImage(thumbnail)}
                         className="group flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.07]"
                       >
-                        {/* aspect-video locks thumbnail dimension symmetry cross-platform */}
                         <div className="mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-black/30 border border-white/5">
                           <img
                             src={thumbnail}
@@ -232,9 +364,11 @@ export default function PortfolioShowcase({
                   <EmptyState title={loading ? 'Loading tech stack...' : 'Tech stack is coming soon'} />
                 ) : (
                   resolvedTech.map((item) => (
-                    <div
+                    <button
                       key={item.id}
-                      className="flex min-h-[120px] sm:min-h-[130px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.06]"
+                      type="button"
+                      onClick={() => setSelectedTech(item)}
+                      className="group flex min-h-[120px] sm:min-h-[130px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.08] text-left cursor-pointer"
                     >
                       {item.logo_url || item.image_url ? (
                         <img 
@@ -244,10 +378,10 @@ export default function PortfolioShowcase({
                           loading="lazy"
                         />
                       ) : (
-                        <Layers size={28} className="text-white/35" />
+                        <Layers size={28} className="text-white/35 group-hover:text-white/60 transition" />
                       )}
-                      <p className="text-center text-xs text-white/75 font-medium">{item.name}</p>
-                    </div>
+                      <p className="text-center text-xs text-white/75 font-medium group-hover:text-white">{item.name}</p>
+                    </button>
                   ))
                 )}
               </div>
