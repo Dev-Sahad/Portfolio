@@ -53,11 +53,47 @@ export default function IntroScreen({
   const introRef = usePointerParallax<HTMLDivElement>({ smoothing: 0.08 })
 
   const [progress, setProgress] = useState(0)
+  const [volume, setVolume] = useState(100)
   const [isIntroMuted, setIsIntroMuted] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const ytRef = useRef<HTMLIFrameElement | null>(null)
+
+  const handleVolumeChange = (newVol: number) => {
+    setVolume(newVol)
+    setIsIntroMuted(newVol === 0)
+
+    if (audioRef.current) {
+      audioRef.current.volume = newVol / 100
+      audioRef.current.muted = newVol === 0
+    }
+
+    if (ytRef.current && ytRef.current.contentWindow) {
+      try {
+        ytRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: 'command', func: 'setVolume', args: [newVol] }),
+          '*'
+        )
+        if (newVol === 0) {
+          ytRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'mute', args: [] }),
+            '*'
+          )
+        } else {
+          ytRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+            '*'
+          )
+        }
+      } catch { }
+    }
+  }
 
   const toggleIntroMute = () => {
-    setIsIntroMuted((prev) => !prev)
+    if (isIntroMuted) {
+      handleVolumeChange(50)
+    } else {
+      handleVolumeChange(0)
+    }
   }
 
   // State-driven mute synchronization
@@ -91,13 +127,13 @@ export default function IntroScreen({
     return () => clearInterval(timer)
   }, [isExit])
 
-function getYouTubeId(url?: string): string | null {
-  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('portfolio_intro_music_url') : null
-  const targetUrl = localUrl || url
-  if (!targetUrl) return null
-  const match = targetUrl.trim().match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([\w-]{11})/)
-  return match ? match[1] : null
-}
+  function getYouTubeId(url?: string): string | null {
+    const localUrl = typeof window !== 'undefined' ? localStorage.getItem('portfolio_intro_music_url') : null
+    const targetUrl = localUrl || url
+    if (!targetUrl) return null
+    const match = targetUrl.trim().match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([\w-]{11})/)
+    return match ? match[1] : null
+  }
 
   const effectiveMusicUrl = (typeof window !== 'undefined' && localStorage.getItem('portfolio_intro_music_url')) || musicUrl
   const youtubeId = getYouTubeId(effectiveMusicUrl)
@@ -149,7 +185,7 @@ function getYouTubeId(url?: string): string | null {
               }
             }, STEP_INTERVAL)
           }, fadeOutDelay)
-        }).catch(() => {})
+        }).catch(() => { })
       }
 
       playAudio()
@@ -162,7 +198,7 @@ function getYouTubeId(url?: string): string | null {
       }
       window.addEventListener('touchstart', handleMobileUnlock, { once: true })
       window.addEventListener('click', handleMobileUnlock, { once: true })
-    } catch {}
+    } catch { }
 
     return () => {
       clearInterval(fadeInInterval)
@@ -178,8 +214,6 @@ function getYouTubeId(url?: string): string | null {
     }
   }, [musicUrl, isExit, youtubeId, isIntroMuted])
 
-  const ytRef = useRef<HTMLIFrameElement | null>(null)
-
   useEffect(() => {
     if (ytRef.current && ytRef.current.contentWindow) {
       try {
@@ -187,7 +221,7 @@ function getYouTubeId(url?: string): string | null {
           JSON.stringify({ event: 'command', func: isIntroMuted ? 'mute' : 'unMute', args: [] }),
           '*'
         )
-      } catch {}
+      } catch { }
     }
   }, [isIntroMuted])
 
@@ -207,18 +241,35 @@ function getYouTubeId(url?: string): string | null {
         />
       )}
 
-      {/* Intro Screen Sound & Mute Control */}
+      {/* Intro Screen Sound & Volume Slider Control */}
       {!isExit && (
-        <div className="absolute top-6 right-6 z-[10000] flex items-center gap-2">
+        <div className="absolute top-6 right-6 z-[10000] flex items-center gap-3 rounded-full border border-cyan-400/40 bg-black/80 px-4 py-2 text-xs font-mono text-cyan-300 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.4)]">
           <button
             type="button"
             onClick={toggleIntroMute}
-            className="flex items-center gap-2 rounded-full border border-cyan-400/40 bg-black/80 px-4 py-2.5 text-xs font-mono text-cyan-300 backdrop-blur-xl hover:bg-black transition shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer"
+            className="flex items-center gap-1.5 hover:text-white transition cursor-pointer"
             title={isIntroMuted ? "Unmute Intro Audio" : "Mute Intro Audio"}
           >
-            {isIntroMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} className="text-cyan-400 animate-pulse" />}
-            <span className="font-bold">{isIntroMuted ? "MUTED" : "50% SOUND"}</span>
+            {isIntroMuted || volume === 0 ? (
+              <VolumeX size={16} className="text-red-400" />
+            ) : (
+              <Volume2 size={16} className="text-cyan-400 animate-pulse" />
+            )}
+            <span className="font-bold hidden sm:inline">{isIntroMuted || volume === 0 ? "MUTED" : `${volume}%`}</span>
           </button>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={volume}
+              onChange={(e) => handleVolumeChange(Number(e.target.value))}
+              className="w-20 sm:w-28 h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+              title={`Adjust Volume: ${volume}%`}
+            />
+            <span className="text-[11px] font-bold text-cyan-300 w-8">{volume}%</span>
+          </div>
         </div>
       )}
 
