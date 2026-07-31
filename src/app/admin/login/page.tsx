@@ -52,6 +52,7 @@ export default function LoginPage() {
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (loading || oauthLoading) return
     setErrorMsg('')
     setSuccessMsg('')
     if (!email || !password) { setErrorMsg('Please enter both email and password.'); return }
@@ -82,6 +83,7 @@ export default function LoginPage() {
   }
 
   const handleOAuth = async (provider: 'google' | 'github') => {
+    if (loading || oauthLoading) return
     setErrorMsg('')
     setOauthLoading(provider)
     const nextParam = new URLSearchParams(window.location.search).get('next')
@@ -111,6 +113,8 @@ export default function LoginPage() {
     duration: Math.random() * 8 + 6,
     delay: Math.random() * 4,
   }))
+
+  const isAnyLoading = loading || Boolean(oauthLoading)
 
   return (
     <div className="min-h-screen bg-[#050505] relative overflow-hidden flex items-center justify-center px-4">
@@ -200,7 +204,8 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 required
-                className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-4 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
+                disabled={isAnyLoading}
+                className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-4 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </motion.div>
@@ -217,10 +222,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
-                className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-12 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20"
+                disabled={isAnyLoading}
+                className="w-full h-[52px] rounded-2xl bg-white/[0.05] border border-white/10 pl-11 pr-12 text-white text-sm outline-none focus:border-white/30 focus:bg-white/[0.07] transition placeholder:text-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition">
+                disabled={isAnyLoading}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition disabled:opacity-50">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -230,9 +237,9 @@ export default function LoginPage() {
           <motion.button
             type="submit"
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-            disabled={loading}
-            className="w-full h-[52px] rounded-2xl bg-white text-black font-semibold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+            whileHover={{ scale: isAnyLoading ? 1 : 1.02 }} whileTap={{ scale: isAnyLoading ? 1 : 0.98 }}
+            disabled={isAnyLoading}
+            className="w-full h-[52px] rounded-2xl bg-white text-black font-semibold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_30px_rgba(255,255,255,0.1)]"
           >
             {loading ? <><Loader2 size={17} className="animate-spin" /> Signing In...</> : 'Sign In'}
           </motion.button>

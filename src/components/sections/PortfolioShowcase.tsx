@@ -98,7 +98,7 @@ export default function PortfolioShowcase({
             <h2 className="mt-3 text-3xl font-bold md:text-5xl tracking-tight">Portfolio</h2>
           </div>
 
-          <div className="glass-tab-container relative flex flex-wrap gap-1.5 rounded-2xl p-1.5 backdrop-blur-xl border border-white/15 bg-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] self-start md:self-auto">
+          <div className="glass-tab-container relative flex flex-wrap gap-1.5 rounded-2xl p-1.5 self-start md:self-auto">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id
               return (
