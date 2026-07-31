@@ -15,7 +15,6 @@ import CommandPalette from '@/components/CommandPalette'
 import TestimonialsSection from '@/components/sections/TestimonialsSection'
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
 import MotionSettings from '@/components/MotionSettings'
-import PortfolioAssistant from '@/components/PortfolioAssistant'
 import AnalyticsBeacon from '@/components/AnalyticsBeacon'
 import { useVisitor } from '@/hooks/useVisitor'
 import { mergeSiteSettings, SiteSettings } from '@/lib/siteSettings'
@@ -181,7 +180,6 @@ export default function PageClient({
       </div>
 
       <MotionSettings defaultMode={settings.performance_mode} />
-      {settings.assistant_enabled ? <PortfolioAssistant /> : null}
 
       <AnimatePresence>
         {showWelcome && (
