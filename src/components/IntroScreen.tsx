@@ -92,43 +92,55 @@ function getYouTubeId(url?: string): string | null {
     let fadeInInterval: NodeJS.Timeout
     let fadeOutInterval: NodeJS.Timeout
     let fadeOutTimer: NodeJS.Timeout
+    let audio: HTMLAudioElement | null = null
+
+    const TARGET_VOL = 0.5
+    const FADE_IN_DURATION = 2500
+    const INTRO_TOTAL_DURATION = 30000
+    const STEP_INTERVAL = 100
+    const volumeStep = TARGET_VOL / (FADE_IN_DURATION / STEP_INTERVAL)
+
+    const startTime = Date.now()
 
     try {
-      const audio = new Audio(musicUrl)
+      audio = new Audio(musicUrl)
       audio.volume = 0
-      audio.play().catch(() => {})
-
-      // Fade In over 2.5s
-      let currentVol = 0
-      fadeInInterval = setInterval(() => {
-        if (currentVol < 0.5) {
-          currentVol += 0.05
-          audio.volume = Math.min(0.5, currentVol)
-        } else {
-          clearInterval(fadeInInterval)
-        }
-      }, 150)
-
-      // Fade Out at 27.5s
-      fadeOutTimer = setTimeout(() => {
-        fadeOutInterval = setInterval(() => {
-          if (audio.volume > 0.05) {
-            audio.volume = Math.max(0, audio.volume - 0.05)
+      audio.play().then(() => {
+        let currentVol = 0
+        fadeInInterval = setInterval(() => {
+          if (currentVol < TARGET_VOL) {
+            currentVol += volumeStep
+            if (audio) audio.volume = Math.min(TARGET_VOL, currentVol)
           } else {
-            audio.volume = 0
-            clearInterval(fadeOutInterval)
+            clearInterval(fadeInInterval)
           }
-        }, 150)
-      }, 27500)
+        }, STEP_INTERVAL)
 
-      return () => {
-        clearInterval(fadeInInterval)
-        clearInterval(fadeOutInterval)
-        clearTimeout(fadeOutTimer)
+        const elapsedTime = Date.now() - startTime
+        const fadeOutDelay = Math.max(0, INTRO_TOTAL_DURATION - FADE_IN_DURATION - elapsedTime)
+
+        fadeOutTimer = setTimeout(() => {
+          fadeOutInterval = setInterval(() => {
+            if (audio && audio.volume > volumeStep) {
+              audio.volume = Math.max(0, audio.volume - volumeStep)
+            } else {
+              if (audio) audio.volume = 0
+              clearInterval(fadeOutInterval)
+            }
+          }, STEP_INTERVAL)
+        }, fadeOutDelay)
+      }).catch(() => {})
+    } catch {}
+
+    return () => {
+      clearInterval(fadeInInterval)
+      clearInterval(fadeOutInterval)
+      clearTimeout(fadeOutTimer)
+      if (audio) {
         audio.pause()
         audio.currentTime = 0
       }
-    } catch {}
+    }
   }, [musicUrl, isExit, youtubeId])
 
   return (

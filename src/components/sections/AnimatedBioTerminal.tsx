@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Terminal, Copy, Check, Play, RefreshCw, Sparkles, Code2, GitBranch } from 'lucide-react'
+import { Terminal, Copy, Check, RefreshCw } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
 
-const TERMINAL_LINES = [
+interface TerminalLine {
+  text: string
+  color: string
+}
+
+const TERMINAL_LINES: TerminalLine[] = [
   { text: '> initiating sahad_os_kernel v2.5...', color: 'text-white/40' },
   { text: '> fetching profile from github.com/Dev-Sahad/Dev-Sahad...', color: 'text-cyan-400' },
   { text: '[SUCCESS] GitHub identity authenticated: Muhammad Sahad', color: 'text-emerald-400 font-bold' },
@@ -25,41 +30,48 @@ const TERMINAL_LINES = [
 ]
 
 export default function AnimatedBioTerminal() {
-  const [displayedLines, setDisplayedLines] = useState<typeof TERMINAL_LINES>([])
+  const [outputStream, setOutputStream] = useState<TerminalLine[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [copied, setCopied] = useState(false)
   const [inputVal, setInputVal] = useState('')
-  const [customOutputs, setCustomOutputs] = useState<string[]>([])
-  const terminalEndRef = useRef<HTMLDivElement>(null)
+  const outputContainerRef = useRef<HTMLDivElement>(null)
   const { playClick, playHover } = useAudio()
 
+  // Typewriter sequence
   useEffect(() => {
     if (currentIndex < TERMINAL_LINES.length) {
       const timer = setTimeout(() => {
-        setDisplayedLines((prev) => [...prev, TERMINAL_LINES[currentIndex]])
+        setOutputStream((prev) => [...prev, TERMINAL_LINES[currentIndex]])
         setCurrentIndex((prev) => prev + 1)
       }, 140)
       return () => clearTimeout(timer)
     }
   }, [currentIndex])
 
+  // Container-only auto scroll (Finding 3)
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [displayedLines, customOutputs])
+    if (outputContainerRef.current) {
+      outputContainerRef.current.scrollTop = outputContainerRef.current.scrollHeight
+    }
+  }, [outputStream])
 
   const handleRestart = () => {
     playClick()
-    setDisplayedLines([])
+    setOutputStream([])
     setCurrentIndex(0)
-    setCustomOutputs([])
   }
 
-  const handleCopy = () => {
+  // Safe async copy (Finding 6)
+  const handleCopy = async () => {
     playClick()
-    const textToCopy = TERMINAL_LINES.map((l) => l.text).join('\n')
-    navigator.clipboard.writeText(textToCopy)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    const textToCopy = outputStream.map((l) => l.text).join('\n')
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch {}
   }
 
   const handleCustomCommand = (e: React.FormEvent) => {
@@ -68,9 +80,16 @@ export default function AnimatedBioTerminal() {
     playClick()
     const cmd = inputVal.trim()
     setInputVal('')
-
-    let response = `Command not recognized: "${cmd}". Type "help", "skills", "contact", or "projects".`
     const lower = cmd.toLowerCase()
+
+    // Clear command handling (Finding 7)
+    if (lower === 'clear') {
+      setOutputStream([])
+      setCurrentIndex(TERMINAL_LINES.length) // Halt typewriter animation
+      return
+    }
+
+    let response = `Command not recognized: "${cmd}". Type "help", "skills", "projects", "contact", or "clear".`
     if (lower === 'help') {
       response = 'Available commands: help | skills | projects | contact | clear'
     } else if (lower === 'skills') {
@@ -79,12 +98,14 @@ export default function AnimatedBioTerminal() {
       response = 'Projects: 28 Production Builds | 3D Interactive WebGL Apps | Live CV Builder'
     } else if (lower === 'contact') {
       response = 'Email / Direct Line: Available via Navbar Direct Inquiry & AI Co-Pilot'
-    } else if (lower === 'clear') {
-      setCustomOutputs([])
-      return
     }
 
-    setCustomOutputs((prev) => [...prev, `> ${cmd}`, response])
+    // Chronological stream update (Finding 5)
+    setOutputStream((prev) => [
+      ...prev,
+      { text: `> ${cmd}`, color: 'text-cyan-300 font-bold' },
+      { text: response, color: 'text-emerald-300' },
+    ])
   }
 
   return (
@@ -123,32 +144,30 @@ export default function AnimatedBioTerminal() {
         </div>
       </div>
 
-      {/* Terminal Code Screen */}
-      <div className="h-72 overflow-y-auto space-y-1.5 pr-2 no-scrollbar">
-        {displayedLines.map((line, i) => (
+      {/* Terminal Code Screen (Finding 4: role="log" aria-live="polite") */}
+      <div
+        ref={outputContainerRef}
+        role="log"
+        aria-live="polite"
+        className="h-72 overflow-y-auto space-y-1.5 pr-2 no-scrollbar"
+      >
+        {outputStream.map((line, i) => (
           <div key={i} className={`${line.color} leading-relaxed`}>
             {line.text}
           </div>
         ))}
-
-        {customOutputs.map((out, idx) => (
-          <div key={idx} className={out.startsWith('>') ? 'text-cyan-300 font-bold' : 'text-emerald-300'}>
-            {out}
-          </div>
-        ))}
-
-        <div ref={terminalEndRef} />
       </div>
 
-      {/* Interactive Command Input */}
+      {/* Interactive Command Input (Finding 4: aria-label & accessible focus) */}
       <form onSubmit={handleCustomCommand} className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3">
         <span className="text-cyan-400 font-bold">&gt;</span>
         <input
           type="text"
           value={inputVal}
+          aria-label="Terminal command input"
           onChange={(e) => setInputVal(e.target.value)}
-          placeholder="Type terminal command (try 'skills', 'projects', 'contact', 'help')..."
-          className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/30 font-mono"
+          placeholder="Type terminal command (try 'skills', 'projects', 'contact', 'clear')..."
+          className="flex-1 bg-transparent text-xs text-white outline-none focus-visible:ring-1 focus-visible:ring-cyan-500/50 rounded px-1 placeholder:text-white/30 font-mono"
         />
         <span className="h-4 w-2 bg-cyan-400 animate-pulse" />
       </form>
