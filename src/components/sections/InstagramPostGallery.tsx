@@ -1,205 +1,119 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, Share2, Instagram, CheckCircle2, Bookmark, Grid, Sparkles, ExternalLink } from 'lucide-react'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Instagram, CheckCircle2, ExternalLink, Sparkles, Image as ImageIcon, Camera } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
-import { supabase } from '@/lib/supabase'
-
-interface InstagramPost {
-  id: string
-  image: string
-  likes: number
-  comments: number
-  caption: string
-  date: string
-}
-
-const INSTAGRAM_POSTS: InstagramPost[] = [
-  {
-    id: 'post-1',
-    image: '/hero-cyber-portrait.jpg',
-    likes: 428,
-    comments: 34,
-    caption: 'Cyberpunk Cyber Eye Spec Avatar setup ⚡ Building Next.js 15 & WebGL 3D experience apps. #frontend #developer #cyberpunk',
-    date: '2 DAYS AGO',
-  },
-  {
-    id: 'post-2',
-    image: '/hero-anime-portrait.jpg',
-    likes: 512,
-    comments: 48,
-    caption: 'Anime Visor edition 🚀 Designing high-performance interactive portfolio systems and telemetry dashboards. #react19 #threejs #webdev',
-    date: '5 DAYS AGO',
-  },
-  {
-    id: 'post-3',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    likes: 389,
-    comments: 29,
-    caption: 'Late night coding sessions & 3D particle shader experimentation 💻✨ @sahad_____sha #ui #ux #javascript',
-    date: '1 WEEK AGO',
-  },
-  {
-    id: 'post-4',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
-    likes: 640,
-    comments: 52,
-    caption: 'Full-stack Supabase RLS & Next.js edge deployment pipeline complete 🔥 #buildinpublic #fullstack',
-    date: '2 WEEKS AGO',
-  },
-]
 
 export default function InstagramPostGallery() {
-  const [posts, setPosts] = useState<InstagramPost[]>(INSTAGRAM_POSTS)
-  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
-  const [likeCounts, setLikeCounts] = useState<Record<string, number>>(() =>
-    INSTAGRAM_POSTS.reduce((acc, p) => ({ ...acc, [p.id]: p.likes }), {})
-  )
-  const { playClick, playHover, playSuccess } = useAudio()
-
-  useEffect(() => {
-    supabase
-      .from('instagram_posts')
-      .select('*')
-      .then((res: any) => {
-        const data = res.data
-        if (data && data.length > 0) {
-          const fetched = data.map((d: any) => ({
-            id: d.id,
-            image: d.image_url,
-            likes: d.likes_count || 400,
-            comments: d.comments_count || 30,
-            caption: d.caption || 'Muhammad Sahad Instagram Post',
-            date: 'RECENT POST',
-          }))
-          setPosts(fetched)
-        }
-      })
-      .catch(() => {})
-  }, [])
-
-  const handleLike = (id: string) => {
-    playClick()
-    setLikedPosts((prev) => {
-      const isLiked = !prev[id]
-      if (isLiked) playSuccess()
-      setLikeCounts((c) => ({
-        ...c,
-        [id]: isLiked ? c[id] + 1 : c[id] - 1,
-      }))
-      return { ...prev, [id]: isLiked }
-    })
-  }
+  const { playClick, playHover } = useAudio()
+  const profileUrl = 'https://www.instagram.com/sahad_____sha/'
 
   return (
     <section className="my-16 max-w-6xl mx-auto px-4">
-      {/* Instagram Header Banner */}
-      <div className="flex flex-col sm:flex-row items-center justify-between rounded-3xl border border-pink-500/30 bg-[#0e0c1a]/90 p-6 backdrop-blur-2xl shadow-[0_0_40px_rgba(236,72,153,0.15)] mb-8">
-        <div className="flex items-center gap-4 mb-4 sm:mb-0">
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-[3px] shadow-lg">
-            <img
-              src="/hero-cyber-portrait.jpg"
-              alt="Muhammad Sahad Instagram Profile"
-              className="h-full w-full rounded-full object-cover border-2 border-black"
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-extrabold text-lg text-white">sahad_____sha</h3>
-              <CheckCircle2 size={16} className="text-cyan-400 fill-cyan-400/20" />
+      {/* Official Instagram Live Profile Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative overflow-hidden rounded-3xl border border-pink-500/40 bg-gradient-to-br from-[#140c1d] via-[#0d0e1a] to-[#070914] p-6 sm:p-8 backdrop-blur-2xl shadow-[0_0_50px_rgba(236,72,153,0.2)]"
+      >
+        {/* Top Glow Halo */}
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          {/* Profile Header */}
+          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-1 shadow-2xl">
+              <img
+                src="/hero-cyber-portrait.jpg"
+                alt="Muhammad Sahad Official Instagram Profile"
+                className="h-full w-full rounded-full object-cover border-2 border-black"
+              />
             </div>
-            <p className="text-xs text-white/60 font-mono">Muhammad Sahad • Front-End Developer & UI Specialist</p>
-            <div className="flex items-center gap-4 text-xs font-mono text-pink-300 mt-1">
-              <span><strong>4</strong> posts</span>
-              <span><strong>1.2k</strong> followers</span>
-              <span><strong>340</strong> following</span>
+
+            <div>
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                <h3 className="font-extrabold text-2xl text-white tracking-tight">sahad_____sha</h3>
+                <CheckCircle2 size={20} className="text-pink-400 fill-pink-400/20" />
+              </div>
+              <p className="text-xs text-white/70 font-mono mb-2">Muhammad Sahad • Front-End Developer & UI Specialist</p>
+              <p className="text-xs text-white/50 max-w-md">
+                Official Instagram feed & creative design updates. Follow for Next.js 15, WebGL 3D experience reels, and UI showcases.
+              </p>
             </div>
           </div>
+
+          {/* Action Button */}
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            onMouseEnter={playHover}
+            className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 px-6 py-3.5 text-xs font-extrabold text-white shadow-xl hover:brightness-110 hover:scale-105 transition duration-300 shrink-0"
+          >
+            <Instagram size={18} /> View @sahad_____sha on Instagram <ExternalLink size={14} />
+          </a>
         </div>
 
-        <a
-          href="https://www.instagram.com/sahad_____sha/"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={playClick}
-          onMouseEnter={playHover}
-          className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg hover:brightness-110 transition"
-        >
-          <Instagram size={16} /> Follow on Instagram
-        </a>
-      </div>
-
-      {/* Title */}
-      <div className="flex items-center gap-2 font-mono text-xs text-pink-400 uppercase tracking-widest mb-4">
-        <Grid size={14} /> Official Instagram Posts Feed (@sahad_____sha)
-      </div>
-
-      {/* 4-Post Interactive Photo Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {posts.map((post) => {
-          const isLiked = likedPosts[post.id]
-          const currentLikes = likeCounts[post.id] ?? post.likes
-
-          return (
-            <motion.div
-              key={post.id}
-              whileHover={{ y: -6 }}
-              className="rounded-3xl border border-white/15 bg-[#0b0c16]/95 overflow-hidden shadow-2xl backdrop-blur-xl flex flex-col group"
-            >
-              {/* Card Header */}
-              <div className="flex items-center justify-between p-3 border-b border-white/10 text-xs font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
-                  <span className="font-bold text-white">sahad_____sha</span>
-                </div>
-                <span className="text-[10px] text-white/40">{post.date}</span>
+        {/* Live Instagram Post Cards Showcase */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 pt-6 border-t border-white/10">
+          {/* Post 1 */}
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            onMouseEnter={playHover}
+            className="group relative flex flex-col rounded-2xl border border-white/15 bg-black/40 overflow-hidden hover:border-pink-500/50 transition duration-300"
+          >
+            <div className="aspect-video overflow-hidden relative">
+              <img
+                src="/hero-cyber-portrait.jpg"
+                alt="Sahad Cyberpunk Avatar Post"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex items-end">
+                <span className="text-xs font-mono text-pink-300 flex items-center gap-1.5">
+                  <Camera size={14} /> View Latest Cyberpunk Portrait Post
+                </span>
               </div>
+            </div>
+            <div className="p-4 flex items-center justify-between text-xs font-mono text-white/80 bg-[#0a0c16]">
+              <span>@sahad_____sha</span>
+              <span className="text-pink-400 font-bold flex items-center gap-1">Open Post <ExternalLink size={12} /></span>
+            </div>
+          </a>
 
-              {/* Photo Area */}
-              <div className="relative aspect-square overflow-hidden bg-black/60">
-                <img
-                  src={post.image}
-                  alt={post.caption}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end">
-                  <p className="text-[11px] text-white/90 font-sans line-clamp-3 leading-snug">
-                    {post.caption}
-                  </p>
-                </div>
+          {/* Post 2 */}
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={playClick}
+            onMouseEnter={playHover}
+            className="group relative flex flex-col rounded-2xl border border-white/15 bg-black/40 overflow-hidden hover:border-pink-500/50 transition duration-300"
+          >
+            <div className="aspect-video overflow-hidden relative">
+              <img
+                src="/hero-anime-portrait.jpg"
+                alt="Sahad Anime Visor Edition Post"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex items-end">
+                <span className="text-xs font-mono text-pink-300 flex items-center gap-1.5">
+                  <Sparkles size={14} /> View Anime Visor Edition Post
+                </span>
               </div>
-
-              {/* Actions Footer */}
-              <div className="p-3 bg-[#0c0d18] border-t border-white/10 space-y-2">
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleLike(post.id)}
-                      className="hover:scale-110 transition"
-                      title="Like Post"
-                    >
-                      <Heart
-                        size={18}
-                        className={isLiked ? 'fill-pink-500 text-pink-500' : 'text-white/70 hover:text-pink-400'}
-                      />
-                    </button>
-                    <span className="flex items-center gap-1 text-xs text-white/70 font-mono">
-                      <MessageCircle size={16} /> {post.comments}
-                    </span>
-                  </div>
-                  <Bookmark size={16} className="text-white/40 hover:text-white" />
-                </div>
-
-                <div className="text-xs font-mono text-white/80 font-bold">
-                  {currentLikes} likes
-                </div>
-              </div>
-            </motion.div>
-          )
-        })}
-      </div>
+            </div>
+            <div className="p-4 flex items-center justify-between text-xs font-mono text-white/80 bg-[#0a0c16]">
+              <span>@sahad_____sha</span>
+              <span className="text-pink-400 font-bold flex items-center gap-1">Open Post <ExternalLink size={12} /></span>
+            </div>
+          </a>
+        </div>
+      </motion.div>
     </section>
   )
 }
