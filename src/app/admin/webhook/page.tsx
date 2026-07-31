@@ -177,6 +177,11 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
     }
   }
 
+  const [testingContact, setTestingContact] = useState(false)
+  const [contactTestResult, setContactTestResult] = useState<'ok'|'err'|null>(null)
+  const [testingComments, setTestingComments] = useState(false)
+  const [commentsTestResult, setCommentsTestResult] = useState<'ok'|'err'|null>(null)
+
   // ── Test webhook ─────────────────────────────────────────────────
   const testWebhook = async () => {
     setTesting(true)
@@ -187,14 +192,14 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           embeds: [{
-            title: '🧪 Webhook Test',
-            description: '<@853166408212807701> Your Discord webhook is connected to your portfolio! ✅',
+            title: '🧪 Visitor Analytics Webhook Test',
+            description: '<@853166408212807701> Your Visitor Analytics Discord channel is connected! ✅',
             color: 0x00ff88,
             fields: [
               { name: '⏰ Time', value: new Date().toLocaleString(), inline: true },
               { name: '📍 From', value: 'Admin Panel Test', inline: true },
             ],
-            footer: { text: 'portfolio · Webhook Test' },
+            footer: { text: 'portfolio · Visitor Channel' },
             timestamp: new Date().toISOString(),
           }],
         }),
@@ -206,6 +211,50 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
     setTesting(false)
     setTimeout(() => setTestResult(null), 4000)
   }
+
+  const testContactWebhook = async () => {
+    setTestingContact(true)
+    setContactTestResult(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Discord Webhook Tester',
+          email: 'test@portfolio.dev',
+          message: '🧪 Testing your Contact Me Discord channel integration! If you see this, your separate contact webhook works perfectly. ✅',
+          page: '/admin/webhook',
+          userAgent: 'Admin Dashboard Test',
+        }),
+      })
+      setContactTestResult(res.ok ? 'ok' : 'err')
+    } catch {
+      setContactTestResult('err')
+    }
+    setTestingContact(false)
+    setTimeout(() => setContactTestResult(null), 4000)
+  }
+
+  const testCommentsWebhook = async () => {
+    setTestingComments(true)
+    setCommentsTestResult(null)
+    try {
+      const res = await fetch('/api/notify-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Discord Webhook Tester',
+          comment: '💬 Testing your Comments Discord channel integration! If you see this, your separate comments webhook works perfectly. ✅',
+        }),
+      })
+      setCommentsTestResult(res.ok ? 'ok' : 'err')
+    } catch {
+      setCommentsTestResult('err')
+    }
+    setTestingComments(false)
+    setTimeout(() => setCommentsTestResult(null), 4000)
+  }
+
 
   // ── Toggle helper ────────────────────────────────────────────────
   const Toggle = ({ label, desc, field, icon: Icon }: { label: string; desc?: string; field: keyof Settings; icon?: any }) => (
@@ -367,6 +416,15 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                   placeholder="https://discord.com/api/webhooks/..."
                   className="w-full px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition font-mono text-xs"
                 />
+                <div className="flex items-center gap-2 mt-3">
+                  <button onClick={testContactWebhook} disabled={testingContact}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition text-xs">
+                    {testingContact ? <Loader2 size={12} className="animate-spin" /> : <TestTube size={12} />}
+                    Send Contact Test
+                  </button>
+                  {contactTestResult === 'ok'  && <span className="flex items-center gap-1 text-xs text-emerald-400"><Check size={12} /> Contact Webhook works!</span>}
+                  {contactTestResult === 'err' && <span className="flex items-center gap-1 text-xs text-red-400"><X size={12} /> Failed — check URL or env</span>}
+                </div>
                 <label className="text-xs text-white/40 mb-1.5 mt-4 block">Custom message</label>
                 <textarea
                   value={s.contact_custom_message}
@@ -391,6 +449,15 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                   placeholder="https://discord.com/api/webhooks/..."
                   className="w-full px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition font-mono text-xs"
                 />
+                <div className="flex items-center gap-2 mt-3">
+                  <button onClick={testCommentsWebhook} disabled={testingComments}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition text-xs">
+                    {testingComments ? <Loader2 size={12} className="animate-spin" /> : <TestTube size={12} />}
+                    Send Comment Test
+                  </button>
+                  {commentsTestResult === 'ok'  && <span className="flex items-center gap-1 text-xs text-emerald-400"><Check size={12} /> Comments Webhook works!</span>}
+                  {commentsTestResult === 'err' && <span className="flex items-center gap-1 text-xs text-red-400"><X size={12} /> Failed — check URL or env</span>}
+                </div>
                 <label className="text-xs text-white/40 mb-1.5 mt-4 block">Custom message</label>
                 <textarea
                   value={s.comments_custom_message}
@@ -401,6 +468,7 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                 />
                 <p className="mt-2 text-[11px] text-white/25">{'Available variables: {{name}}, {{comment}}.'}</p>
               </div>
+
 
               {/* MASTER SWITCHES */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">

@@ -15,8 +15,9 @@ const clean = (value: unknown) => typeof value === 'string' ? value.trim().slice
 
 export async function getWebhookDelivery(kind: DeliveryKind) {
   const fallbackUrl = kind === 'contact'
-    ? process.env.CONTACT_DISCORD_WEBHOOK_URL
-    : process.env.COMMENTS_DISCORD_WEBHOOK_URL
+    ? (process.env.CONTACT_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL)
+    : (process.env.COMMENTS_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL)
+
   const database = getServiceDatabase()
   if (!database) return { url: clean(fallbackUrl), message: '' }
 
