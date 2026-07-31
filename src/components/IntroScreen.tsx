@@ -101,9 +101,9 @@ function getYouTubeId(url?: string): string | null {
       // Fade In over 2.5s
       let currentVol = 0
       fadeInInterval = setInterval(() => {
-        if (currentVol < 0.7) {
+        if (currentVol < 0.5) {
           currentVol += 0.05
-          audio.volume = Math.min(0.7, currentVol)
+          audio.volume = Math.min(0.5, currentVol)
         } else {
           clearInterval(fadeInInterval)
         }
