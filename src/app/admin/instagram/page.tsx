@@ -318,21 +318,33 @@ export default function AdminInstagramPage() {
         </div>
 
         {showSetupGuide && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-3 text-xs text-amber-200 font-mono">
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-4 text-xs text-amber-200 font-mono">
             <div className="flex items-center gap-2 font-bold text-amber-300">
-              <HelpCircle size={16} /> Understanding Meta OAuth & &quot;Invalid platform app&quot; Fix:
+              <HelpCircle size={16} /> Meta Developer Settings &amp; Whitelist Guide:
             </div>
             <p className="text-white/80 leading-relaxed">
-              If Meta displays &quot;Invalid platform app&quot;, it means your Meta Developer App ID is registered as a <strong>Meta Business / Graph API App</strong> instead of Basic Display. Switch OAuth Method above to <strong>Meta Business API</strong> or paste your Access Token directly below.
+              If Meta displays &quot;redirect URI is not white-listed&quot;, you need to add your domain to <strong>Facebook Login &gt; Settings &gt; Valid OAuth Redirect URIs</strong> in Meta Developers Portal.
             </p>
+
+            <div className="rounded-xl border border-cyan-500/30 bg-black/60 p-4 space-y-2">
+              <div className="font-bold text-cyan-300 flex items-center gap-1.5">
+                <CheckCircle2 size={15} /> Copy &amp; Paste these into Meta Developers &gt; Valid OAuth Redirect URIs:
+              </div>
+              <div className="space-y-1 font-mono text-[11px] text-cyan-200 bg-zinc-950 p-3 rounded-lg border border-white/10 select-all">
+                <div>https://sahad.is-a.dev/api/instagram-callback</div>
+                <div>https://sahad.is-a.dev/admin/instagram</div>
+                <div>http://localhost:3000/api/instagram-callback</div>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-3 pt-1">
               <a
                 href="https://developers.facebook.com/tools/explorer/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 border border-amber-500/40"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/30 border border-amber-500/40"
               >
-                <Link2 size={13} /> Open Meta Graph Explorer Token Generator
+                <Link2 size={13} /> Open Meta Graph Explorer (Instant 60-Day Token)
               </a>
             </div>
           </div>
