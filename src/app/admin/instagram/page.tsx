@@ -15,13 +15,8 @@ interface InstagramPost {
 }
 
 const META_GRAPH_VERSION = 'v26.0'
-const META_INSTAGRAM_SCOPES = [
-  'public_profile',
-  'email',
-  'pages_show_list',
-  'pages_read_engagement',
-  'instagram_basic',
-].join(',')
+const FACEBOOK_LOGIN_SCOPES = 'public_profile,email'
+const INSTAGRAM_LOGIN_SCOPES = 'instagram_business_basic'
 
 export default function AdminInstagramPage() {
   const [posts, setPosts] = useState<InstagramPost[]>([])
@@ -29,12 +24,12 @@ export default function AdminInstagramPage() {
   const [syncing, setSyncing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-  const [isConnected, setIsConnected] = useState(true)
+  const [isConnected, setIsConnected] = useState(false)
 
   // Instagram Graph API & Meta MCP Server Credentials
   const [instagramAccount, setInstagramAccount] = useState('sahad_____sha')
   const [appId, setAppId] = useState('1679398459977278')
-  const [authType, setAuthType] = useState<'meta_business' | 'instagram_basic' | 'direct_token'>('meta_business')
+  const [authType, setAuthType] = useState<'instagram_login' | 'direct_token'>('instagram_login')
   const [accessToken, setAccessToken] = useState('')
   const [syncInterval, setSyncInterval] = useState('6h')
   const [showSetupGuide, setShowSetupGuide] = useState(false)
@@ -130,7 +125,8 @@ export default function AdminInstagramPage() {
     }
   }, [appId])
 
-  // Official Facebook SDK Login Popup & Token Receiver
+  // Facebook Login verifies the Meta identity only. Instagram professional
+  // account access is authorized separately through Instagram Login.
   const handleFacebookSDKLogin = () => {
     // @ts-ignore
     if (typeof window !== 'undefined' && window.FB) {
@@ -138,23 +134,12 @@ export default function AdminInstagramPage() {
       window.FB.login(
         (response: any) => {
           if (response.authResponse?.accessToken) {
-            const token = response.authResponse.accessToken
-            setAccessToken(token)
-            setIsConnected(true)
-            setMessage('✅ Official Facebook SDK Login Successful! Auto-syncing Instagram Posts...')
-            fetch(`/api/instagram-feed?token=${encodeURIComponent(token)}`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.success) {
-                  setMessage(`⚡ Facebook SDK Auto-Synced ${data.count} Instagram posts from @${data.username}!`)
-                  fetchPosts()
-                }
-              })
+            setMessage('✅ Facebook identity verified. Use Authenticate Instagram to grant Instagram feed access.')
           } else {
             setMessage('⚠️ Facebook SDK Login cancelled or not authorized.')
           }
         },
-        { scope: META_INSTAGRAM_SCOPES, return_scopes: true }
+        { scope: FACEBOOK_LOGIN_SCOPES, return_scopes: true }
       )
     } else {
       handleConnectAccount()
@@ -163,22 +148,6 @@ export default function AdminInstagramPage() {
 
   // Handle OAuth Connect Account with Vercel Connect & Real Callback
   const handleConnectAccount = async () => {
-    try {
-      // @ts-ignore
-      const vercelConnect = await import('@vercel/connect').catch(() => null)
-      if (vercelConnect?.startAuthorization) {
-        await vercelConnect.startAuthorization('instagram.com/instagram', {
-          subject: { type: 'user', id: instagramAccount },
-          scopes: ['user_profile', 'user_media'],
-        })
-        setIsConnected(true)
-        setMessage('🔗 Initiated Instagram Vercel Connect Authorization!')
-        return
-      }
-    } catch {
-      // Vercel Connect fallback to direct Instagram OAuth
-    }
-
     const cleanAppId = appId.trim()
 
     if (!cleanAppId) {
@@ -187,16 +156,19 @@ export default function AdminInstagramPage() {
       return
     }
 
-    const redirectUri = window.location.origin + '/api/instagram-callback'
-    let authUrl = ''
-
-    if (authType === 'meta_business') {
-      authUrl = `https://www.facebook.com/${META_GRAPH_VERSION}/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(META_INSTAGRAM_SCOPES)}&response_type=code&state=facebook`
-    } else {
-      authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
+    if (authType === 'direct_token') {
+      if (!accessToken.trim()) {
+        setMessage('⚠️ Paste an Instagram access token before connecting.')
+        return
+      }
+      await handleAutoSync()
+      return
     }
 
-    // Direct Full Page Redirect to avoid browser popup blockers
+    const redirectUri = window.location.origin + '/api/instagram-callback'
+    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(INSTAGRAM_LOGIN_SCOPES)}&response_type=code`
+
+    // Instagram Login is a separate use case from Facebook Login.
     window.location.href = authUrl
   }
 
@@ -314,7 +286,7 @@ export default function AdminInstagramPage() {
               onClick={handleFacebookSDKLogin}
               className="flex items-center gap-2 rounded-xl bg-blue-600 border border-blue-400/40 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-blue-500 transition"
             >
-              <Facebook size={15} /> Login via Facebook SDK
+              <Facebook size={15} /> Verify Facebook Login
             </button>
 
             <button
@@ -344,8 +316,7 @@ export default function AdminInstagramPage() {
               onChange={(e: any) => setAuthType(e.target.value)}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs text-white focus:outline-none"
             >
-              <option value="meta_business">Meta Business API (Recommended)</option>
-              <option value="instagram_basic">Instagram Basic Display API</option>
+              <option value="instagram_login">Instagram API with Instagram Login (Recommended)</option>
               <option value="direct_token">Direct Access Token Paste</option>
             </select>
           </div>
@@ -395,16 +366,15 @@ export default function AdminInstagramPage() {
               <HelpCircle size={16} /> Meta Developer Settings &amp; Whitelist Guide:
             </div>
             <p className="text-white/80 leading-relaxed">
-              If Meta displays &quot;redirect URI is not white-listed&quot;, you need to add your domain to <strong>Facebook Login &gt; Settings &gt; Valid OAuth Redirect URIs</strong> in Meta Developers Portal.
+              Add the <strong>Instagram API</strong> use case in Meta Developers, enable <strong>instagram_business_basic</strong>, and add the callback below to its valid OAuth redirect URIs. Facebook Login permissions do not grant Instagram feed access.
             </p>
 
             <div className="rounded-xl border border-cyan-500/30 bg-black/60 p-4 space-y-2">
               <div className="font-bold text-cyan-300 flex items-center gap-1.5">
-                <CheckCircle2 size={15} /> Copy &amp; Paste these into Meta Developers &gt; Valid OAuth Redirect URIs:
+                <CheckCircle2 size={15} /> Instagram API &gt; Settings &gt; Valid OAuth Redirect URIs:
               </div>
               <div className="space-y-1 font-mono text-[11px] text-cyan-200 bg-zinc-950 p-3 rounded-lg border border-white/10 select-all">
                 <div>https://sahad.is-a.dev/api/instagram-callback</div>
-                <div>https://sahad.is-a.dev/admin/instagram</div>
                 <div>http://localhost:3000/api/instagram-callback</div>
               </div>
             </div>
@@ -472,9 +442,8 @@ export default function AdminInstagramPage() {
             <label className="text-white/70">Discovered MCP Tools &amp; Scopes</label>
             <div className="rounded-xl border border-white/15 bg-black/60 p-2.5 flex flex-wrap gap-2">
               <span className="rounded-md bg-blue-500/20 px-2 py-1 text-[10px] text-blue-300 border border-blue-500/30">public_profile</span>
-              <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">pages_show_list</span>
-              <span className="rounded-md bg-pink-500/20 px-2 py-1 text-[10px] text-pink-300 border border-pink-500/30">pages_read_engagement</span>
-              <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">instagram_basic</span>
+              <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">email</span>
+              <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">instagram_business_basic</span>
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       try {
         const vercelToken = await getToken('instagram.com/instagram', {
           subject: { type: 'user', id: targetUsername },
-          scopes: ['user_profile', 'user_media'],
+          scopes: ['instagram_business_basic'],
         })
         if (vercelToken) {
           token = vercelToken
