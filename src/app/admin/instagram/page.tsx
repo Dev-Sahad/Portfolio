@@ -2,33 +2,51 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle, Facebook, Link2, Cpu, Terminal, Shield, FileText } from 'lucide-react'
+import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle, Facebook, Link2, Cpu, Terminal, Shield, FileText, Play } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface InstagramPost {
   id: string
-  image_url: string
-  caption: string
-  likes_count: number
+  account_id: string
+  instagram_media_id: string
+  media_type: string
+  media_product_type: string
+  media_url: string | null
+  thumbnail_url: string | null
+  permalink: string
+  caption: string | null
+  like_count: number
   comments_count: number
-  post_url: string
+  posted_at: string | null
+}
+
+interface InstagramAccount {
+  id: string
+  username: string
+  name: string | null
+  profile_picture_url: string | null
+  followers_count: number
+  follows_count: number
+  media_count: number
+  last_synced_at: string | null
 }
 
 const META_GRAPH_VERSION = 'v26.0'
 const FACEBOOK_LOGIN_SCOPES = 'public_profile,email'
-const INSTAGRAM_LOGIN_SCOPES = 'instagram_business_basic'
 
 export default function AdminInstagramPage() {
   const [posts, setPosts] = useState<InstagramPost[]>([])
+  const [account, setAccount] = useState<InstagramAccount | null>(null)
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [isConnected, setIsConnected] = useState(false)
 
-  // Instagram Graph API & Meta MCP Server Credentials
+  // Facebook Login is a separate identity check. Instagram OAuth credentials
+  // are server-only and come from INSTAGRAM_CLIENT_ID / INSTAGRAM_CLIENT_SECRET.
   const [instagramAccount, setInstagramAccount] = useState('sahad_____sha')
-  const [appId, setAppId] = useState('1679398459977278')
+  const [facebookAppId, setFacebookAppId] = useState('1679398459977278')
   const [authType, setAuthType] = useState<'instagram_login' | 'direct_token'>('instagram_login')
   const [accessToken, setAccessToken] = useState('')
   const [syncInterval, setSyncInterval] = useState('6h')
@@ -48,10 +66,18 @@ export default function AdminInstagramPage() {
   const fetchPosts = async () => {
     setLoading(true)
     try {
-      const { data, error } = await supabase.from('instagram_posts').select('*').order('created_at', { ascending: false })
-      if (!error && data) {
-        setPosts(data)
+      const [{ data: accountData }, { data: mediaData, error }] = await Promise.all([
+        supabase.from('instagram_accounts').select('*').eq('is_active', true).order('updated_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('instagram_media').select('*').eq('is_visible', true).order('posted_at', { ascending: false }),
+      ])
+      if (accountData) {
+        setAccount(accountData as InstagramAccount)
+        setIsConnected(true)
+      } else {
+        setAccount(null)
+        setIsConnected(false)
       }
+      if (!error && mediaData) setPosts(mediaData as InstagramPost[])
     } catch (e) {
       console.error(e)
     } finally {
@@ -67,7 +93,7 @@ export default function AdminInstagramPage() {
       const params = new URLSearchParams(window.location.search)
       if (params.get('status') === 'connected') {
         setIsConnected(true)
-        setMessage('✅ Real-Time Instagram OAuth Connected! Live posts synced to database.')
+        setMessage(`✅ @${params.get('account') || 'Instagram'} connected. Synced ${params.get('posts') || 0} posts and ${params.get('reels') || 0} Reels.`)
       } else if (params.get('code')) {
         setMessage('⚡ Received Instagram Authorization Code! Auto-exchanging access token...')
       } else if (params.get('error')) {
@@ -82,12 +108,16 @@ export default function AdminInstagramPage() {
     setMessage('')
 
     try {
-      const res = await fetch(`/api/instagram-feed?username=${encodeURIComponent(instagramAccount)}&token=${encodeURIComponent(accessToken)}`)
+      const res = await fetch('/api/instagram-feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(accessToken.trim() ? { token: accessToken.trim() } : {}),
+      })
       const data = await res.json()
 
       if (data.success) {
         setIsConnected(true)
-        setMessage(`⚡ Live Instagram Feed Reader successfully fetched & synced ${data.count} posts from @${data.username} via ${data.source}!`)
+        setMessage(`⚡ Synced ${data.posts} posts and ${data.reels} Reels from @${data.username} through the permissioned Instagram Graph API.`)
         fetchPosts()
       } else {
         setMessage(`Sync error: ${data.message || 'Failed to read Instagram feed'}`)
@@ -109,7 +139,7 @@ export default function AdminInstagramPage() {
       if (window.FB) {
         // @ts-ignore
         window.FB.init({
-          appId: appId || '1679398459977278',
+          appId: facebookAppId || '1679398459977278',
           cookie: true,
           xfbml: true,
           version: META_GRAPH_VERSION,
@@ -123,7 +153,7 @@ export default function AdminInstagramPage() {
       js.src = 'https://connect.facebook.net/en_US/sdk.js'
       document.body.appendChild(js)
     }
-  }, [appId])
+  }, [facebookAppId])
 
   // Facebook Login verifies the Meta identity only. Instagram professional
   // account access is authorized separately through Instagram Login.
@@ -148,14 +178,6 @@ export default function AdminInstagramPage() {
 
   // Handle OAuth Connect Account with Vercel Connect & Real Callback
   const handleConnectAccount = async () => {
-    const cleanAppId = appId.trim()
-
-    if (!cleanAppId) {
-      setShowSetupGuide(true)
-      setMessage('⚠️ Please enter your Meta/Instagram App ID below to authorize OAuth, or paste your User Access Token directly.')
-      return
-    }
-
     if (authType === 'direct_token') {
       if (!accessToken.trim()) {
         setMessage('⚠️ Paste an Instagram access token before connecting.')
@@ -165,11 +187,7 @@ export default function AdminInstagramPage() {
       return
     }
 
-    const redirectUri = window.location.origin + '/api/instagram-callback'
-    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(INSTAGRAM_LOGIN_SCOPES)}&response_type=code`
-
-    // Instagram Login is a separate use case from Facebook Login.
-    window.location.href = authUrl
+    window.location.href = '/api/instagram-auth'
   }
 
   const handleAddPost = async (e: React.FormEvent) => {
@@ -179,13 +197,24 @@ export default function AdminInstagramPage() {
     setMessage('')
 
     try {
-      const { data, error } = await supabase.from('instagram_posts').insert([
+      if (!account) {
+        setMessage('Connect an Instagram account before adding custom media.')
+        return
+      }
+      const { data, error } = await supabase.from('instagram_media').insert([
         {
-          image_url: imageUrl.trim(),
+          account_id: account.id,
+          instagram_media_id: `manual-${crypto.randomUUID()}`,
+          media_type: 'IMAGE',
+          media_product_type: 'FEED',
+          media_url: imageUrl.trim(),
           caption: caption.trim() || 'Official Instagram Post @sahad_____sha',
-          likes_count: Number(likes),
+          like_count: Number(likes),
           comments_count: Number(comments),
-          post_url: postUrl.trim(),
+          permalink: postUrl.trim(),
+          username: account.username,
+          posted_at: new Date().toISOString(),
+          is_visible: true,
         },
       ]).select()
 
@@ -207,7 +236,7 @@ export default function AdminInstagramPage() {
   const handleDeletePost = async (id: string) => {
     if (!confirm('Are you sure you want to delete this Instagram post entry?')) return
     try {
-      const { error } = await supabase.from('instagram_posts').delete().eq('id', id)
+      const { error } = await supabase.from('instagram_media').delete().eq('id', id)
       if (!error) {
         setPosts(posts.filter((p) => p.id !== id))
         setMessage('🗑️ Post deleted.')
@@ -259,13 +288,13 @@ export default function AdminInstagramPage() {
 
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold">Account: @{instagramAccount}</h2>
-                <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-mono font-bold text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                  <ShieldCheck size={12} /> CONNECTED
+                <h2 className="text-xl font-bold">Account: @{account?.username || instagramAccount}</h2>
+                <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-mono font-bold border flex items-center gap-1 ${account || isConnected ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'}`}>
+                  <ShieldCheck size={12} /> {account || isConnected ? 'CONNECTED' : 'NOT CONNECTED'}
                 </span>
               </div>
               <p className="text-xs text-white/60 font-mono mt-0.5">
-                Instagram Graph API {META_GRAPH_VERSION} • Followers: <strong className="text-white">11,355</strong> • Following: <strong className="text-white">459</strong>
+                Instagram Graph API {META_GRAPH_VERSION} • Followers: <strong className="text-white">{account?.followers_count ?? 0}</strong> • Following: <strong className="text-white">{account?.follows_count ?? 0}</strong>
               </p>
             </div>
           </div>
@@ -278,7 +307,7 @@ export default function AdminInstagramPage() {
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg hover:brightness-110 transition"
             >
               <Zap size={15} className={syncing ? 'animate-bounce' : ''} />
-              {syncing ? 'Auto Syncing Posts...' : 'Auto Sync Profile & Posts'}
+              {syncing ? 'Syncing Posts & Reels...' : 'Auto Sync Profile, Posts & Reels'}
             </button>
 
             <button
@@ -322,13 +351,16 @@ export default function AdminInstagramPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-white/70">Meta / Instagram App ID</label>
+            <label className="text-white/70">Facebook Login App ID</label>
             <input
               type="text"
-              value={appId}
-              onChange={(e) => setAppId(e.target.value)}
+              value={facebookAppId}
+              onChange={(e) => setFacebookAppId(e.target.value)}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs text-white focus:outline-none"
             />
+            <p className="text-[10px] leading-relaxed text-amber-300/80">
+              Used only by Verify Facebook Login. It cannot authenticate Instagram.
+            </p>
           </div>
 
           <div className="space-y-1">
@@ -366,8 +398,19 @@ export default function AdminInstagramPage() {
               <HelpCircle size={16} /> Meta Developer Settings &amp; Whitelist Guide:
             </div>
             <p className="text-white/80 leading-relaxed">
-              Add the <strong>Instagram API</strong> use case in Meta Developers, enable <strong>instagram_business_basic</strong>, and add the callback below to its valid OAuth redirect URIs. Facebook Login permissions do not grant Instagram feed access.
+              Add the <strong>Instagram API</strong> use case in Meta Developers, enable <strong>instagram_business_basic</strong>, and add the callback below to its valid OAuth redirect URIs. Copy the dedicated <strong>Instagram App ID</strong> and <strong>Instagram App Secret</strong> from that use case. The Facebook Login App ID above is a different platform credential and will cause an &quot;Invalid platform app&quot; error.
             </p>
+
+            <div className="rounded-xl border border-pink-500/30 bg-black/60 p-4 space-y-2">
+              <div className="font-bold text-pink-300 flex items-center gap-1.5">
+                <Key size={15} /> Required Vercel environment variables:
+              </div>
+              <div className="space-y-1 font-mono text-[11px] text-pink-200 bg-zinc-950 p-3 rounded-lg border border-white/10 select-all">
+                <div>INSTAGRAM_CLIENT_ID=&lt;Instagram App ID&gt;</div>
+                <div>INSTAGRAM_CLIENT_SECRET=&lt;Instagram App Secret&gt;</div>
+              </div>
+              <p className="text-[10px] text-white/60">Apply them to Production, Preview, and Development, then redeploy.</p>
+            </div>
 
             <div className="rounded-xl border border-cyan-500/30 bg-black/60 p-4 space-y-2">
               <div className="font-bold text-cyan-300 flex items-center gap-1.5">
@@ -444,6 +487,7 @@ export default function AdminInstagramPage() {
               <span className="rounded-md bg-blue-500/20 px-2 py-1 text-[10px] text-blue-300 border border-blue-500/30">public_profile</span>
               <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">email</span>
               <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">instagram_business_basic</span>
+              <span className="rounded-md bg-pink-500/20 px-2 py-1 text-[10px] text-pink-300 border border-pink-500/30">posts + Reels</span>
             </div>
           </div>
         </div>
@@ -529,14 +573,14 @@ export default function AdminInstagramPage() {
       {/* Grid of Existing Posts */}
       <div className="space-y-4">
         <h2 className="text-lg font-bold flex items-center gap-2">
-          <Sparkles className="text-cyan-400" size={18} /> Active Supabase Instagram Feed Entries ({posts.length})
+          <Sparkles className="text-cyan-400" size={18} /> Permissioned Supabase Media ({posts.length})
         </h2>
 
         {loading ? (
           <div className="p-8 text-center text-xs font-mono text-white/50">Loading Instagram database entries...</div>
         ) : posts.length === 0 ? (
           <div className="p-8 text-center text-xs font-mono text-white/50 border border-dashed border-white/15 rounded-2xl">
-            No posts found in database. Add a post above or click Auto Sync Profile & Posts.
+            No permissioned media found. Authenticate Instagram, then sync the connected account.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -544,13 +588,14 @@ export default function AdminInstagramPage() {
               <div key={post.id} className="rounded-2xl border border-white/15 bg-black/40 overflow-hidden flex flex-col justify-between">
                 <div className="aspect-square overflow-hidden relative">
                   <img
-                    src={post.image_url}
+                    src={post.thumbnail_url || post.media_url || '/hero-cyber-portrait.jpg'}
                     onError={(e: any) => { e.currentTarget.src = '/hero-cyber-portrait.jpg' }}
-                    alt={post.caption}
+                    alt={post.caption || 'Instagram media'}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2 right-2 flex items-center gap-2 bg-black/80 px-2.5 py-1 rounded-full text-[10px] font-mono">
-                    <Heart size={12} className="text-pink-400 fill-pink-400" /> {post.likes_count}
+                    {post.media_product_type === 'REELS' && <><Play size={12} className="text-white fill-white" /> Reel</>}
+                    <Heart size={12} className="text-pink-400 fill-pink-400" /> {post.like_count}
                     <MessageCircle size={12} className="text-cyan-400 fill-cyan-400" /> {post.comments_count}
                   </div>
                 </div>
@@ -558,7 +603,7 @@ export default function AdminInstagramPage() {
                 <div className="p-4 space-y-2">
                   <p className="text-xs text-white/80 line-clamp-2 font-mono">{post.caption}</p>
                   <a
-                    href={post.post_url}
+                    href={post.permalink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] text-pink-400 hover:underline flex items-center gap-1 font-mono"
