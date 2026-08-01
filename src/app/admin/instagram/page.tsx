@@ -55,30 +55,22 @@ export default function AdminInstagramPage() {
     fetchPosts()
   }, [])
 
-  // Auto Sync Instagram Profile & Feed
+  // Auto Sync Instagram Profile & Feed via Live Reader API
   const handleAutoSync = async () => {
     setSyncing(true)
     setMessage('')
 
     try {
-      if (accessToken.trim()) {
-        try {
-          const res = await fetch(`https://graph.instagram.com/me?fields=id,username,media_count&access_token=${accessToken.trim()}`)
-          const data = await res.json()
-          if (data.username) {
-            setInstagramAccount(data.username)
-            setIsConnected(true)
-            setMessage(`✅ Successfully synced directly with Instagram Graph API for @${data.username}! Media count: ${data.media_count || 11}`)
-            fetchPosts()
-            return
-          }
-        } catch {}
-      }
+      const res = await fetch(`/api/instagram-feed?username=${encodeURIComponent(instagramAccount)}&token=${encodeURIComponent(accessToken)}`)
+      const data = await res.json()
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setIsConnected(true)
-      setMessage('⚡ Auto-Synced 11 posts, 11,355 followers, and profile details for @sahad_____sha into Supabase!')
-      fetchPosts()
+      if (data.success) {
+        setIsConnected(true)
+        setMessage(`⚡ Live Instagram Feed Reader successfully fetched & synced ${data.count} posts from @${data.username} via ${data.source}!`)
+        fetchPosts()
+      } else {
+        setMessage(`Sync error: ${data.message || 'Failed to read Instagram feed'}`)
+      }
     } catch (e: any) {
       setMessage(`Sync error: ${e.message}`)
     } finally {
