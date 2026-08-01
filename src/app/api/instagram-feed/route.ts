@@ -4,6 +4,8 @@ import { getToken, UserAuthorizationRequiredError } from '@vercel/connect'
 
 export const revalidate = 0
 
+const META_GRAPH_VERSION = 'v26.0'
+
 // Official Instagram API with Facebook Login & Graph API Reader
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -53,12 +55,12 @@ export async function GET(request: Request) {
       } catch {}
     }
 
-    // 3. Try Facebook Graph API for Instagram Professional Accounts (/v19.0/me/accounts & /v19.0/{ig-user-id}/media)
+    // 3. Try Facebook Graph API for Instagram Professional Accounts.
     if (token.trim()) {
       try {
         // Step A: Check if Token is a Facebook Professional User Token
         const fbRes = await fetch(
-          `https://graph.facebook.com/v19.0/me/accounts?fields=instagram_business_account{id,username,media_count},name&access_token=${token.trim()}`
+          `https://graph.facebook.com/${META_GRAPH_VERSION}/me/accounts?fields=instagram_business_account{id,username,media_count},name&access_token=${token.trim()}`
         )
         const fbData = await fbRes.json()
 
@@ -72,7 +74,7 @@ export async function GET(request: Request) {
 
         // Step B: Query Instagram Business Account Media
         const mediaEndpoint = igUserId
-          ? `https://graph.facebook.com/v19.0/${igUserId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
+          ? `https://graph.facebook.com/${META_GRAPH_VERSION}/${igUserId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
           : `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
 
         const graphRes = await fetch(mediaEndpoint)
@@ -86,7 +88,7 @@ export async function GET(request: Request) {
             comments_count: item.comments_count || Math.floor(Math.random() * 30 + 10),
             post_url: item.permalink || `https://www.instagram.com/${targetUsername}/`,
           }))
-          apiSource = igUserId ? 'FACEBOOK_LOGIN_GRAPH_API_V19' : 'INSTAGRAM_BASIC_DISPLAY_API'
+          apiSource = igUserId ? 'FACEBOOK_LOGIN_GRAPH_API_V26' : 'INSTAGRAM_BASIC_DISPLAY_API'
         }
       } catch (e) {
         console.error('Facebook / Instagram API Exception:', e)

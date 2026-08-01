@@ -14,6 +14,15 @@ interface InstagramPost {
   post_url: string
 }
 
+const META_GRAPH_VERSION = 'v26.0'
+const META_INSTAGRAM_SCOPES = [
+  'public_profile',
+  'email',
+  'pages_show_list',
+  'pages_read_engagement',
+  'instagram_basic',
+].join(',')
+
 export default function AdminInstagramPage() {
   const [posts, setPosts] = useState<InstagramPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,7 +40,7 @@ export default function AdminInstagramPage() {
   const [showSetupGuide, setShowSetupGuide] = useState(false)
 
   // Meta Devtools MCP Remote Server Config
-  const [mcpServerUrl, setMcpServerUrl] = useState('https://graph.facebook.com/v19.0/mcp')
+  const [mcpServerUrl, setMcpServerUrl] = useState(`https://graph.facebook.com/${META_GRAPH_VERSION}/mcp`)
   const [mcpStatus, setMcpStatus] = useState<'DISCOVERED' | 'AUTHENTICATING' | 'OFFLINE'>('DISCOVERED')
 
   // Manual New Post Form
@@ -108,7 +117,7 @@ export default function AdminInstagramPage() {
           appId: appId || '1679398459977278',
           cookie: true,
           xfbml: true,
-          version: 'v19.0',
+          version: META_GRAPH_VERSION,
         })
       }
     }
@@ -145,7 +154,7 @@ export default function AdminInstagramPage() {
             setMessage('⚠️ Facebook SDK Login cancelled or not authorized.')
           }
         },
-        { scope: 'public_profile,email,user_profile,user_media' }
+        { scope: META_INSTAGRAM_SCOPES, return_scopes: true }
       )
     } else {
       handleConnectAccount()
@@ -182,7 +191,7 @@ export default function AdminInstagramPage() {
     let authUrl = ''
 
     if (authType === 'meta_business') {
-      authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=public_profile,email,user_profile,user_media&response_type=code`
+      authUrl = `https://www.facebook.com/${META_GRAPH_VERSION}/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(META_INSTAGRAM_SCOPES)}&response_type=code&state=facebook`
     } else {
       authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
     }
@@ -284,7 +293,7 @@ export default function AdminInstagramPage() {
                 </span>
               </div>
               <p className="text-xs text-white/60 font-mono mt-0.5">
-                Instagram Graph API v19.0 • Followers: <strong className="text-white">11,355</strong> • Following: <strong className="text-white">459</strong>
+                Instagram Graph API {META_GRAPH_VERSION} • Followers: <strong className="text-white">11,355</strong> • Following: <strong className="text-white">459</strong>
               </p>
             </div>
           </div>
@@ -462,10 +471,10 @@ export default function AdminInstagramPage() {
           <div className="space-y-1">
             <label className="text-white/70">Discovered MCP Tools &amp; Scopes</label>
             <div className="rounded-xl border border-white/15 bg-black/60 p-2.5 flex flex-wrap gap-2">
-              <span className="rounded-md bg-blue-500/20 px-2 py-1 text-[10px] text-blue-300 border border-blue-500/30">user_profile</span>
-              <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">user_media</span>
-              <span className="rounded-md bg-pink-500/20 px-2 py-1 text-[10px] text-pink-300 border border-pink-500/30">instagram_basic</span>
-              <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">pages_show_list</span>
+              <span className="rounded-md bg-blue-500/20 px-2 py-1 text-[10px] text-blue-300 border border-blue-500/30">public_profile</span>
+              <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">pages_show_list</span>
+              <span className="rounded-md bg-pink-500/20 px-2 py-1 text-[10px] text-pink-300 border border-pink-500/30">pages_read_engagement</span>
+              <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">instagram_basic</span>
             </div>
           </div>
         </div>
