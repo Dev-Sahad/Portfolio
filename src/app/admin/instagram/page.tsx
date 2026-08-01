@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle, Facebook, Link2 } from 'lucide-react'
+import { Instagram, Plus, Trash2, Edit3, Heart, MessageCircle, ExternalLink, CheckCircle2, Sparkles, RefreshCw, Save, LogIn, Key, ShieldCheck, Zap, AlertCircle, HelpCircle, Facebook, Link2, Cpu, Terminal, Shield, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface InstagramPost {
@@ -22,13 +22,17 @@ export default function AdminInstagramPage() {
   const [message, setMessage] = useState('')
   const [isConnected, setIsConnected] = useState(true)
 
-  // Instagram Graph API Credentials
+  // Instagram Graph API & Meta MCP Server Credentials
   const [instagramAccount, setInstagramAccount] = useState('sahad_____sha')
   const [appId, setAppId] = useState('1679398459977278')
   const [authType, setAuthType] = useState<'meta_business' | 'instagram_basic' | 'direct_token'>('meta_business')
   const [accessToken, setAccessToken] = useState('')
   const [syncInterval, setSyncInterval] = useState('6h')
   const [showSetupGuide, setShowSetupGuide] = useState(false)
+
+  // Meta Devtools MCP Remote Server Config
+  const [mcpServerUrl, setMcpServerUrl] = useState('https://graph.facebook.com/v19.0/mcp')
+  const [mcpStatus, setMcpStatus] = useState<'DISCOVERED' | 'AUTHENTICATING' | 'OFFLINE'>('DISCOVERED')
 
   // Manual New Post Form
   const [imageUrl, setImageUrl] = useState('')
@@ -98,8 +102,8 @@ export default function AdminInstagramPage() {
       const vercelConnect = await import('@vercel/connect').catch(() => null)
       if (vercelConnect?.startAuthorization) {
         await vercelConnect.startAuthorization('instagram.com/instagram', {
-          subject: { type: "user", id: instagramAccount },
-          scopes: ["user_profile", "user_media"],
+          subject: { type: 'user', id: instagramAccount },
+          scopes: ['user_profile', 'user_media'],
         })
         setIsConnected(true)
         setMessage('🔗 Initiated Instagram Vercel Connect Authorization!')
@@ -349,6 +353,63 @@ export default function AdminInstagramPage() {
             </div>
           </div>
         )}
+      </motion.div>
+
+      {/* Meta Devtools Remote MCP Server & Agent Workflows Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-6 backdrop-blur-xl space-y-5 font-mono"
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400">
+              <Cpu size={22} />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Meta Devtools MCP Remote Server Connector
+                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                  {mcpStatus}
+                </span>
+              </h2>
+              <p className="text-xs text-white/60 mt-0.5">
+                Model Context Protocol (MCP) server for integrating Facebook, Instagram, WhatsApp, &amp; Meta Ads agentic workflows.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://developers.facebook.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-blue-400 hover:underline"
+          >
+            <Shield size={14} /> Meta Platform Terms
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="space-y-1">
+            <label className="text-white/70">Remote MCP Server Endpoint URL</label>
+            <input
+              type="text"
+              value={mcpServerUrl}
+              onChange={(e) => setMcpServerUrl(e.target.value)}
+              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs text-white focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-white/70">Discovered MCP Tools &amp; Scopes</label>
+            <div className="rounded-xl border border-white/15 bg-black/60 p-2.5 flex flex-wrap gap-2">
+              <span className="rounded-md bg-blue-500/20 px-2 py-1 text-[10px] text-blue-300 border border-blue-500/30">user_profile</span>
+              <span className="rounded-md bg-purple-500/20 px-2 py-1 text-[10px] text-purple-300 border border-purple-500/30">user_media</span>
+              <span className="rounded-md bg-pink-500/20 px-2 py-1 text-[10px] text-pink-300 border border-pink-500/30">instagram_basic</span>
+              <span className="rounded-md bg-emerald-500/20 px-2 py-1 text-[10px] text-emerald-300 border border-emerald-500/30">pages_show_list</span>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Manual Post Form */}
