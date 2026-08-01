@@ -76,12 +76,7 @@ export default function PageClient({
 
     if (!hasPlayedIntro()) {
       setShowWelcome(true)
-      const timer = setTimeout(() => {
-        setShowWelcome(false)
-        setShowApp(true)
-        setIntroPlayed()
-      }, 30600)
-      return () => clearTimeout(timer)
+      return
     }
 
     setShowApp(true)
@@ -195,7 +190,17 @@ export default function PageClient({
             transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            <IntroScreen mode="loading" ownerName={settings.owner_name} githubUrl={settings.github_url} musicUrl={settings.intro_music_url} />
+            <IntroScreen
+              mode="loading"
+              ownerName={settings.owner_name}
+              githubUrl={settings.github_url}
+              musicUrl={settings.intro_music_url}
+              onEnter={() => {
+                setShowWelcome(false)
+                setShowApp(true)
+                setIntroPlayed()
+              }}
+            />
           </motion.div>
         )}
 
