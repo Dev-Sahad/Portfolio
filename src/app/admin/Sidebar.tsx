@@ -60,6 +60,20 @@ function isActive(menuPath: string, currentPath: string): boolean {
   return currentPath.startsWith(menuPath);
 }
 
+function AdminBrand({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`admin-brand-lockup ${compact ? 'admin-brand-lockup--compact' : ''}`}>
+      <div className="admin-brand-mark" aria-hidden="true">
+        <span>DS</span>
+      </div>
+      <div className="min-w-0">
+        <div className="admin-brand-wordmark">DEV SAHAD</div>
+        <div className="admin-brand-caption">PORTFOLIO CONTROL OS</div>
+      </div>
+    </div>
+  )
+}
+
 function SidebarContent({
   hideTitle = false,
   onLinkClick,
@@ -79,24 +93,21 @@ function SidebarContent({
   return (
     <>
       <div>
-        <div className="mb-6 space-y-3">
+        <div className="mb-7 space-y-4">
+          {!hideTitle && <AdminBrand />}
           <Link
             href="/"
             onClick={onLinkClick}
-            className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-xs font-semibold text-white backdrop-blur-md shadow-lg transition hover:bg-white hover:text-black hover:scale-[1.02]"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3.5 py-2.5 text-[11px] font-medium tracking-[0.08em] text-white/55 transition hover:border-cyan-300/25 hover:bg-cyan-300/[0.06] hover:text-cyan-100"
           >
             <Globe size={14} className="text-cyan-400" />
-            ⬅ Back to Portfolio
+            VIEW PUBLIC PORTFOLIO
           </Link>
-          {!hideTitle && (
-            <h1 className="text-lg font-semibold tracking-wide text-white">
-              Admin Panel
-            </h1>
-          )}
         </div>
 
 
-        <nav className="space-y-2" aria-label="Admin navigation">
+        <div className="mb-2 px-3 text-[9px] font-mono tracking-[0.28em] text-white/25">WORKSPACE</div>
+        <nav className="space-y-1" aria-label="Admin navigation">
           {menus.map((menu) => {
             const Icon = menu.icon;
             const active = isActive(menu.path, pathname);
@@ -109,13 +120,13 @@ function SidebarContent({
                 onClick={onLinkClick}
               >
                 <motion.div
-                  whileHover={{ x: 6, scale: 1.02 }}
+                  whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                  className={`relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                  className={`relative overflow-hidden flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 group ${
                     active
-                      ? "bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.12)]"
-                      : "text-white/60 hover:text-white"
+                      ? "border border-cyan-300/20 bg-gradient-to-r from-cyan-400/15 via-violet-400/10 to-transparent text-white shadow-[0_10px_30px_rgba(6,182,212,0.08)]"
+                      : "border border-transparent text-white/48 hover:border-white/[0.06] hover:text-white"
                   }`}
                 >
                   {!active && (
@@ -124,12 +135,12 @@ function SidebarContent({
                   {active && (
                     <motion.div
                       layoutId="activeSidebar"
-                      className="absolute left-0 top-2 bottom-2 w-[4px] rounded-full bg-black"
+                      className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-gradient-to-b from-cyan-300 to-violet-400 shadow-[0_0_12px_rgba(103,232,249,0.65)]"
                       transition={{ type: "spring", stiffness: 350, damping: 30 }}
                     />
                   )}
                   <Icon size={17} className="relative z-10" />
-                  <span className="relative z-10 text-sm font-medium tracking-wide">
+                  <span className="relative z-10 text-[13px] font-medium tracking-[0.01em]">
                     {menu.name}
                   </span>
                 </motion.div>
@@ -143,12 +154,14 @@ function SidebarContent({
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition text-sm"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-white/35 hover:border-red-400/15 hover:bg-red-400/5 hover:text-red-200 transition text-sm"
         >
           <LogOut size={16} />
           <span>Sign Out</span>
         </button>
-        <div className="text-xs text-white/35 tracking-wide px-1">© 2026 Admin</div>
+        <div className="flex items-center justify-between px-1 font-mono text-[9px] tracking-[0.16em] text-white/20">
+          <span>DS CONTROL</span><span>v2.0</span>
+        </div>
       </div>
     </>
   );
@@ -171,23 +184,16 @@ export default function Sidebar() {
   return (
     <>
       {!isMobile && (
-        <aside className="fixed left-0 top-0 h-screen w-[250px] bg-black border-r border-white/10 p-6 flex flex-col justify-between overflow-y-auto z-50">
+        <aside className="admin-sidebar fixed left-0 top-0 h-screen w-[280px] p-5 flex flex-col justify-between overflow-y-auto z-50">
           <SidebarContent />
         </aside>
       )}
 
       {isMobile && (
         <>
-          <div className="fixed top-0 left-0 right-0 h-[70px] bg-black/95 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-5 z-[60]">
+          <div className="admin-mobile-bar fixed top-0 left-0 right-0 h-[76px] flex items-center justify-between px-4 z-[60]">
             <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md"
-              >
-                <Globe size={13} className="text-cyan-400" />
-                Portfolio
-              </Link>
-              <h1 className="text-white font-semibold text-sm">Admin</h1>
+              <AdminBrand compact />
             </div>
             <button
               type="button"
@@ -215,10 +221,10 @@ export default function Sidebar() {
                   animate={{ x: 0 }}
                   exit={{ x: -280 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
-                  className="fixed left-0 top-0 h-screen w-[280px] bg-black border-r border-white/10 p-6 flex flex-col justify-between z-[80] overflow-y-auto"
+                  className="admin-sidebar fixed left-0 top-0 h-screen w-[300px] p-5 flex flex-col justify-between z-[80] overflow-y-auto"
                 >
                   <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-lg font-semibold text-white">Admin Panel</h1>
+                    <AdminBrand compact />
                     <button
                       type="button"
                       onClick={() => setOpen(false)}

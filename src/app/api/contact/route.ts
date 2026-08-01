@@ -115,7 +115,8 @@ export async function POST(request: Request) {
   // Admin settings override the server environment value after the migration is applied.
   const { url: webhookUrl, message: customMessage } = await getWebhookDelivery('contact')
   const webhookPayload = {
-    username: 'Portfolio Contact',
+    username: 'Dev Sahad · Contact Desk',
+    avatar_url: 'https://sahad.is-a.dev/assets/PP.png',
     content: renderWebhookMessage(
       customMessage,
       { name, email, message },
@@ -124,16 +125,23 @@ export async function POST(request: Request) {
     allowed_mentions: { parse: [] },
     embeds: [
       {
-        title: 'New Portfolio Message',
-        color: 0xffffff,
+        title: '📨 New Contact Enquiry',
+        url: 'https://sahad.is-a.dev/#contact',
+        color: 0x22d3ee,
         author: {
-          name: name.slice(0, 256),
+          name: 'Dev Sahad Portfolio · Contact Desk',
+          url: 'https://sahad.is-a.dev',
         },
-        description: message.slice(0, 3900),
+        description: `> ${message.replace(/\n/g, '\n> ').slice(0, 3800)}`,
         fields: [
           {
             name: 'Viewer Name',
             value: name.slice(0, 1024),
+            inline: true,
+          },
+          {
+            name: 'Reply',
+            value: `[Open email](mailto:${encodeURIComponent(email)})`,
             inline: true,
           },
           {
@@ -153,7 +161,7 @@ export async function POST(request: Request) {
           },
         ],
         footer: {
-          text: 'Sent from the portfolio contact form',
+          text: 'sahad.is-a.dev · Secure contact delivery',
         },
         timestamp: new Date().toISOString(),
       },

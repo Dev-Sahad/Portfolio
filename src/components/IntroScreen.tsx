@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Globe, LogOut, Code2, Zap, Volume2, VolumeX, ArrowRight, Github } from 'lucide-react'
 import { usePointerParallax } from '@/hooks/usePointerParallax'
@@ -55,45 +55,107 @@ export default function IntroScreen({
 
   const [volume, setVolume] = useState(60)
   const [isIntroMuted, setIsIntroMuted] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const ytRef = useRef<HTMLIFrameElement | null>(null)
+  const fadeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const volumeRef = useRef(60)
+  const mutedRef = useRef(false)
 
-  const handleEnterPortfolio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause()
+  const clearFade = useCallback(() => {
+    if (fadeTimerRef.current) {
+      clearInterval(fadeTimerRef.current)
+      fadeTimerRef.current = null
     }
-    if (onEnter) {
-      onEnter()
-    }
+  }, [])
+
+  const sendYouTubeCommand = useCallback((func: string, args: unknown[] = []) => {
+    ytRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func, args }),
+      '*',
+    )
+  }, [])
+
+  const fadeDirectAudio = useCallback((audio: HTMLAudioElement, target: number, duration: number) => {
+    clearFade()
+    const start = audio.volume
+    const startedAt = performance.now()
+    fadeTimerRef.current = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1)
+      const eased = progress * progress * (3 - 2 * progress)
+      audio.volume = Math.max(0, Math.min(1, start + (target - start) * eased))
+      if (progress >= 1) clearFade()
+    }, 40)
+  }, [clearFade])
+
+  const fadeYouTube = useCallback((target: number, duration: number, startOverride?: number) => {
+    clearFade()
+    const start = startOverride ?? (mutedRef.current ? 0 : volumeRef.current)
+    const startedAt = performance.now()
+    fadeTimerRef.current = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1)
+      const eased = progress * progress * (3 - 2 * progress)
+      sendYouTubeCommand('setVolume', [Math.round(start + (target - start) * eased)])
+      if (progress >= 1) clearFade()
+    }, 50)
+  }, [clearFade, sendYouTubeCommand])
+
+  const fadeOutIntro = useCallback(async () => {
+    const duration = 650
+    const audio = audioRef.current
+    if (audio) fadeDirectAudio(audio, 0, duration)
+    if (ytRef.current) fadeYouTube(0, duration)
+    await new Promise((resolve) => setTimeout(resolve, duration))
+    if (audio) audio.pause()
+    sendYouTubeCommand('stopVideo')
+  }, [fadeDirectAudio, fadeYouTube, sendYouTubeCommand])
+
+  const handleEnterPortfolio = async () => {
+    if (isLeaving) return
+    setIsLeaving(true)
+    await fadeOutIntro()
+    if (onEnter) onEnter()
   }
 
+  const handleYouTubeReady = () => {
+    sendYouTubeCommand('setVolume', [0])
+    sendYouTubeCommand('mute')
+    sendYouTubeCommand('playVideo')
+    window.setTimeout(() => {
+      if (!mutedRef.current && volumeRef.current > 0) {
+        sendYouTubeCommand('unMute')
+        fadeYouTube(volumeRef.current, 1600, 0)
+      }
+    }, 180)
+  }
+
+  useEffect(() => {
+    volumeRef.current = volume
+    mutedRef.current = isIntroMuted
+  }, [volume, isIntroMuted])
+
+  useEffect(() => () => {
+    clearFade()
+  }, [clearFade])
+
   const handleVolumeChange = (newVol: number) => {
+    const previousVolume = mutedRef.current ? 0 : volumeRef.current
+    volumeRef.current = newVol
+    mutedRef.current = newVol === 0
     setVolume(newVol)
     setIsIntroMuted(newVol === 0)
 
     if (audioRef.current) {
-      audioRef.current.volume = newVol / 100
-      audioRef.current.muted = newVol === 0
+      audioRef.current.muted = false
+      fadeDirectAudio(audioRef.current, newVol / 100, 280)
     }
 
-    if (ytRef.current && ytRef.current.contentWindow) {
-      try {
-        ytRef.current.contentWindow.postMessage(
-          JSON.stringify({ event: 'command', func: 'setVolume', args: [newVol] }),
-          '*'
-        )
-        if (newVol === 0) {
-          ytRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: 'command', func: 'mute', args: [] }),
-            '*'
-          )
-        } else {
-          ytRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
-            '*'
-          )
-        }
-      } catch { }
+    if (newVol === 0) {
+      sendYouTubeCommand('setVolume', [0])
+      sendYouTubeCommand('mute')
+    } else {
+      sendYouTubeCommand('unMute')
+      fadeYouTube(newVol, 280, previousVolume)
     }
   }
 
@@ -116,20 +178,23 @@ export default function IntroScreen({
   const effectiveMusicUrl = (typeof window !== 'undefined' && localStorage.getItem('portfolio_intro_music_url')) || musicUrl
   const youtubeId = getYouTubeId(effectiveMusicUrl)
 
-  // Fast Instant Music Audio Player (0ms Delay)
+  // Direct audio starts silently and eases to the chosen level.
   useEffect(() => {
     if (!effectiveMusicUrl || isExit || youtubeId) return
     let audio: HTMLAudioElement | null = null
 
     try {
       audio = new Audio(effectiveMusicUrl)
-      audio.muted = isIntroMuted
-      audio.volume = isIntroMuted ? 0 : volume / 100
+      audio.loop = true
+      audio.preload = 'auto'
+      audio.volume = 0
       audioRef.current = audio
 
       const playAudio = () => {
         if (!audio) return
-        audio.play().catch(() => { })
+        audio.play().then(() => {
+          if (!mutedRef.current) fadeDirectAudio(audio!, volumeRef.current / 100, 1600)
+        }).catch(() => { })
       }
 
       playAudio()
@@ -153,7 +218,7 @@ export default function IntroScreen({
         audioRef.current = null
       }
     }
-  }, [effectiveMusicUrl, isExit, youtubeId, isIntroMuted, volume])
+  }, [effectiveMusicUrl, fadeDirectAudio, isExit, youtubeId])
 
   return (
     <div
@@ -163,7 +228,8 @@ export default function IntroScreen({
       {youtubeId && !isExit && (
         <iframe
           ref={ytRef}
-          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&loop=1&playlist=${youtubeId}&enablejsapi=1&controls=0`}
+          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&enablejsapi=1&controls=0`}
+          onLoad={handleYouTubeReady}
           allow="autoplay"
           title="Intro Screen Music"
           aria-hidden="true"
@@ -323,9 +389,10 @@ export default function IntroScreen({
               <button
                 type="button"
                 onClick={handleEnterPortfolio}
+                disabled={isLeaving}
                 className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 py-3.5 px-6 font-mono text-xs font-bold text-white shadow-[0_0_30px_rgba(6,182,212,0.5)] hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] transition cursor-pointer"
               >
-                <span>ENTER PORTFOLIO</span>
+                <span>{isLeaving ? 'ENTERING…' : 'ENTER PORTFOLIO'}</span>
                 <ArrowRight size={16} />
               </button>
 

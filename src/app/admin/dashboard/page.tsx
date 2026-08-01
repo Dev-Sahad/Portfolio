@@ -101,14 +101,14 @@ export default function DashboardPage() {
   return (
     <>
       {/* HEADER */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-7">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Activity size={16} className="text-white/40" />
-                <span className="text-xs text-white/40 uppercase tracking-widest">Overview</span>
+              <div className="flex items-center gap-2 mb-3">
+                <Activity size={14} className="text-cyan-300" />
+                <span className="font-mono text-[10px] text-cyan-200/70 uppercase tracking-[0.28em]">DEV SAHAD / COMMAND CENTER</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-semibold">Dashboard</h1>
-              <p className="text-sm text-white/40 mt-1">Welcome back, Admin</p>
+              <h1 className="admin-display-title">Portfolio<br className="hidden sm:block" /> Intelligence</h1>
+              <p className="text-sm text-white/38 mt-3 max-w-xl">A focused operating view for your content, audience, integrations, and creative system.</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">

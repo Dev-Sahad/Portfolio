@@ -1,6 +1,10 @@
 import 'server-only'
 
 import { getServiceDatabase } from '@/lib/supabaseAdmin'
+import {
+  DEFAULT_COMMENTS_WEBHOOK_MESSAGE,
+  DEFAULT_CONTACT_WEBHOOK_MESSAGE,
+} from '@/lib/webhookDefaults'
 
 type DeliveryKind = 'contact' | 'comments'
 
@@ -19,7 +23,11 @@ export async function getWebhookDelivery(kind: DeliveryKind) {
     : (process.env.COMMENTS_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL)
 
   const database = getServiceDatabase()
-  if (!database) return { url: clean(fallbackUrl), message: '' }
+  const defaultMessage = kind === 'contact'
+    ? DEFAULT_CONTACT_WEBHOOK_MESSAGE
+    : DEFAULT_COMMENTS_WEBHOOK_MESSAGE
+
+  if (!database) return { url: clean(fallbackUrl), message: defaultMessage }
 
   try {
     const { data, error } = await database
@@ -31,11 +39,11 @@ export async function getWebhookDelivery(kind: DeliveryKind) {
     if (error) throw error
 
     return kind === 'contact'
-      ? { url: clean(data?.contact_webhook_url) || clean(fallbackUrl), message: clean(data?.contact_custom_message) }
-      : { url: clean(data?.comments_webhook_url) || clean(fallbackUrl), message: clean(data?.comments_custom_message) }
+      ? { url: clean(data?.contact_webhook_url) || clean(fallbackUrl), message: clean(data?.contact_custom_message) || defaultMessage }
+      : { url: clean(data?.comments_webhook_url) || clean(fallbackUrl), message: clean(data?.comments_custom_message) || defaultMessage }
   } catch {
     // The environment variables keep delivery working until the migration is applied.
-    return { url: clean(fallbackUrl), message: '' }
+    return { url: clean(fallbackUrl), message: defaultMessage }
   }
 }
 

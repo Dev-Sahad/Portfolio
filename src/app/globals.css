@@ -15,6 +15,150 @@
   --accent: #d4d4d4;
 }
 
+/* Admin control system */
+.admin-shell {
+  background:
+    radial-gradient(circle at 72% -12%, rgba(34, 211, 238, 0.095), transparent 31rem),
+    radial-gradient(circle at 98% 42%, rgba(139, 92, 246, 0.075), transparent 34rem),
+    #07090d;
+  font-family: 'Syne', sans-serif;
+  isolation: isolate;
+}
+
+.admin-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: '';
+  opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.admin-sidebar,
+.admin-mobile-bar {
+  border-right: 1px solid rgba(255,255,255,.075);
+  background: linear-gradient(180deg, rgba(9,12,18,.97), rgba(5,7,11,.97));
+  box-shadow: 24px 0 70px rgba(0,0,0,.28);
+  backdrop-filter: blur(24px);
+}
+
+.admin-mobile-bar {
+  border-right: 0;
+  border-bottom: 1px solid rgba(255,255,255,.075);
+}
+
+.admin-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  min-width: 0;
+}
+
+.admin-brand-mark {
+  position: relative;
+  display: grid;
+  width: 2.65rem;
+  height: 2.65rem;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(103,232,249,.3);
+  border-radius: .85rem;
+  background: linear-gradient(145deg, rgba(34,211,238,.18), rgba(139,92,246,.12));
+  box-shadow: inset 0 1px rgba(255,255,255,.15), 0 12px 32px rgba(6,182,212,.12);
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: -.08em;
+  color: #cffafe;
+}
+
+.admin-brand-mark::after {
+  position: absolute;
+  right: .35rem;
+  bottom: .35rem;
+  width: .28rem;
+  height: .28rem;
+  border-radius: 999px;
+  background: #67e8f9;
+  box-shadow: 0 0 10px #22d3ee;
+  content: '';
+}
+
+.admin-brand-wordmark {
+  width: max-content;
+  background: linear-gradient(90deg, #fff 5%, #a5f3fc 52%, #c4b5fd 100%);
+  background-clip: text;
+  color: transparent;
+  font-size: .93rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  line-height: 1;
+}
+
+.admin-brand-caption {
+  margin-top: .42rem;
+  color: rgba(255,255,255,.28);
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: .17em;
+  white-space: nowrap;
+}
+
+.admin-brand-lockup--compact .admin-brand-mark {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.admin-brand-lockup--compact .admin-brand-wordmark { font-size: .78rem; }
+.admin-brand-lockup--compact .admin-brand-caption { font-size: .42rem; }
+
+.admin-display-title {
+  max-width: 12ch;
+  background: linear-gradient(120deg, #fff 12%, #d8f8ff 58%, #b9adff 100%);
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(2.25rem, 5vw, 4.7rem);
+  font-weight: 800;
+  letter-spacing: -.075em;
+  line-height: .88;
+  text-wrap: balance;
+}
+
+.admin-content input,
+.admin-content textarea,
+.admin-content select,
+.admin-content button,
+.admin-content a {
+  outline-offset: 3px;
+}
+
+.admin-content :focus-visible {
+  outline: 2px solid rgba(103,232,249,.72);
+}
+
+/* Legacy admin pages used to mount their own shell. The shared layout is now authoritative. */
+.admin-content .admin-sidebar,
+.admin-content .admin-mobile-bar {
+  display: none !important;
+}
+
+.admin-content main {
+  min-height: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+}
+
+.admin-content > div > [class*='min-h-screen'] {
+  min-height: 0 !important;
+  background: transparent !important;
+}
+
 /* Glassmorphism Tabs Design System */
 .glass-tab-container {
   background: rgba(255, 255, 255, 0.04);

@@ -179,16 +179,6 @@ const INSTAGRAM_GRID: GridPost[] = [
   },
 ]
 
-const HIGHLIGHTS = [
-  { name: 'SxHD', label: 'SxHD', color: 'bg-red-950 text-red-500 border-red-500/40' },
-  { name: 'Music', label: '🎧', color: 'bg-zinc-900 text-white border-white/20' },
-  { name: 'Glow', label: '✨', color: 'bg-pink-950 text-pink-400 border-pink-500/40' },
-  { name: 'Mx', label: 'Mx', color: 'bg-slate-900 text-cyan-300 border-cyan-500/40' },
-  { name: 'K', label: 'K...', color: 'bg-zinc-900 text-amber-300 border-amber-500/40' },
-  { name: 'MINNAL', label: 'MINNAL', color: 'bg-rose-950 text-rose-400 border-rose-500/40' },
-  { name: 'Cyber', label: '🔥', color: 'bg-cyan-950 text-cyan-400 border-cyan-500/40' },
-]
-
 export default function InstagramPostGallery({ initialAccount = null, initialMedia = [] }: InstagramPostGalleryProps) {
   const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'saved'>('posts')
   const [livePosts, setLivePosts] = useState<GridPost[]>(() => mapLiveMedia(initialMedia))
@@ -312,18 +302,6 @@ export default function InstagramPostGallery({ initialAccount = null, initialMed
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Highlights Bar */}
-        <div className="flex gap-4 overflow-x-auto py-5 no-scrollbar border-b border-white/10">
-          {HIGHLIGHTS.map((hl) => (
-            <div key={hl.name} className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group">
-              <div className={`flex h-14 w-14 items-center justify-center rounded-full border-2 p-1 font-bold text-xs shadow-lg transition-transform group-hover:scale-105 ${hl.color}`}>
-                {hl.label}
-              </div>
-              <span className="text-[11px] font-mono text-white/60">{hl.name}</span>
-            </div>
-          ))}
         </div>
 
         {/* Tab Switcher (Posts / Reels / Saved) */}

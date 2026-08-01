@@ -23,17 +23,25 @@ export async function POST(req: NextRequest) {
 
     // ── Discord embed ─────────────────────────────────────────────
     await sendDiscordWebhook(webhookUrl, {
+        username: 'Dev Sahad · Community Feed',
+        avatar_url: 'https://sahad.is-a.dev/assets/PP.png',
         content: renderWebhookMessage(customMessage, { name, comment }, `New portfolio comment from ${name}`),
         allowed_mentions: { parse: [] },
         embeds: [{
-          title: '💬 New Comment on Your Portfolio',
-          color: 0x7c3aed,
+          title: '💬 New Portfolio Comment',
+          url: 'https://sahad.is-a.dev/#contact',
+          description: `> ${comment.replace(/\n/g, '\n> ').slice(0, 3800)}`,
+          color: 0xa855f7,
+          author: {
+            name: name.slice(0, 256),
+            url: 'https://sahad.is-a.dev/#contact',
+          },
           fields: [
             { name: '👤 From',    value: `**${name}**`, inline: true },
-            { name: '💬 Message', value: comment.slice(0, 1024), inline: false },
+            { name: '🌐 Source', value: '[Portfolio comments](https://sahad.is-a.dev/#contact)', inline: true },
             ...(imageUrl ? [{ name: '🖼️ Image', value: imageUrl.slice(0, 1024), inline: false }] : []),
           ],
-          footer: { text: 'portfolio-v1 · Comments' },
+          footer: { text: 'sahad.is-a.dev · Community notification' },
           timestamp: new Date().toISOString(),
         }],
       })

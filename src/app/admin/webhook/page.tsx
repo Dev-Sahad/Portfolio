@@ -10,6 +10,10 @@ import {
   Radio, Globe, Loader2, RefreshCcw, Clock, Chrome,
 } from 'lucide-react'
 import Swal from 'sweetalert2'
+import {
+  DEFAULT_COMMENTS_WEBHOOK_MESSAGE,
+  DEFAULT_CONTACT_WEBHOOK_MESSAGE,
+} from '@/lib/webhookDefaults'
 
 interface Settings {
   webhook_url: string
@@ -59,8 +63,8 @@ const DEFAULTS: Settings = {
   custom_title: '👨🏻‍💻  New Visitor',
   contact_webhook_url: '',
   comments_webhook_url: '',
-  contact_custom_message: 'New portfolio message from {{name}}',
-  comments_custom_message: 'New portfolio comment from {{name}}',
+  contact_custom_message: DEFAULT_CONTACT_WEBHOOK_MESSAGE,
+  comments_custom_message: DEFAULT_COMMENTS_WEBHOOK_MESSAGE,
 }
 
 // Live sessions from the admin-protected /api/visitors endpoint
@@ -430,7 +434,7 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                   value={s.contact_custom_message}
                   onChange={e => set('contact_custom_message', e.target.value)}
                   rows={2}
-                  placeholder="New portfolio message from {{name}}"
+                  placeholder={DEFAULT_CONTACT_WEBHOOK_MESSAGE}
                   className="w-full resize-none px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition"
                 />
                 <p className="mt-2 text-[11px] text-white/25">{'Available variables: {{name}}, {{email}}, {{message}}.'}</p>
@@ -463,7 +467,7 @@ CREATE POLICY "admin_rw" ON public.webhook_settings
                   value={s.comments_custom_message}
                   onChange={e => set('comments_custom_message', e.target.value)}
                   rows={2}
-                  placeholder="New portfolio comment from {{name}}"
+                  placeholder={DEFAULT_COMMENTS_WEBHOOK_MESSAGE}
                   className="w-full resize-none px-4 py-3 bg-[#0f0f0f] border border-white/10 rounded-2xl text-sm outline-none focus:border-white/25 transition"
                 />
                 <p className="mt-2 text-[11px] text-white/25">{'Available variables: {{name}}, {{comment}}.'}</p>
