@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { getToken, UserAuthorizationRequiredError } from '@vercel/connect'
 
 export const revalidate = 0
 
-// Real-Time Instagram Feed Reader API with Vercel Connect Support
+// Official Vercel Connect Instagram Feed Reader API
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const targetUsername = searchParams.get('username') || 'sahad_____sha'
   let token = searchParams.get('token') || ''
+  let vercelConnectStatus = 'NOT_CONFIGURED'
 
   try {
     let posts: Array<{
@@ -18,26 +20,27 @@ export async function GET(request: Request) {
       post_url: string
     }> = []
 
-    // 1. Try Vercel Connect SDK getToken if token parameter is not explicitly passed
+    // 1. Fetch Real Access Token via Official @vercel/connect SDK
     if (!token) {
       try {
-        // @ts-ignore
-        const vercelConnect = await import('@vercel/connect').catch(() => null)
-        if (vercelConnect?.getToken) {
-          const vercelToken = await vercelConnect.getToken('instagram.com/instagram', {
-            subject: { type: 'user', id: targetUsername },
-            scopes: ['user_profile', 'user_media'],
-          })
-          if (typeof vercelToken === 'string' && vercelToken.trim()) {
-            token = vercelToken.trim()
-          }
+        const vercelToken = await getToken('instagram.com/instagram', {
+          subject: { type: 'user', id: targetUsername },
+          scopes: ['user_profile', 'user_media'],
+        })
+        if (vercelToken) {
+          token = vercelToken
+          vercelConnectStatus = 'VERCEL_CONNECT_ACTIVE'
         }
-      } catch {
-        // Vercel connect optional SDK fallback
+      } catch (err: any) {
+        if (err instanceof UserAuthorizationRequiredError) {
+          vercelConnectStatus = 'AUTHORIZATION_REQUIRED'
+        } else {
+          vercelConnectStatus = err?.message || 'SDK_ERROR'
+        }
       }
     }
 
-    // 2. Try Reading Stored Token from Supabase portfolio_settings
+    // 2. Fallback to stored token in Supabase portfolio_settings
     if (!token) {
       try {
         const { data } = await supabase
@@ -51,7 +54,7 @@ export async function GET(request: Request) {
       } catch {}
     }
 
-    // 3. Fetch Media via Instagram Graph API using Token
+    // 3. Make Real API Call to Instagram Graph API using Token
     if (token.trim()) {
       try {
         const graphRes = await fetch(
@@ -69,11 +72,11 @@ export async function GET(request: Request) {
           }))
         }
       } catch (e) {
-        console.error('Graph API Fetch Error:', e)
+        console.error('Graph API Fetch Exception:', e)
       }
     }
 
-    // 4. High-Precision Public Scraper Fallback
+    // 4. Scraper Fallback if no token present
     if (posts.length === 0) {
       try {
         const profileUrl = `https://www.instagram.com/${targetUsername}/?__a=1&__d=dis`
@@ -99,11 +102,11 @@ export async function GET(request: Request) {
           }))
         }
       } catch (e) {
-        console.error('Public Profile Scraper Error:', e)
+        console.error('Profile Scraper Exception:', e)
       }
     }
 
-    // 5. High Quality Presets Fallback
+    // 5. High-Quality Presets Fallback
     if (posts.length === 0) {
       posts = [
         {
@@ -137,7 +140,7 @@ export async function GET(request: Request) {
       ]
     }
 
-    // Automatically Upsert Posts into Supabase Database Table
+    // Upsert Posts into Supabase Database Table
     if (posts.length > 0) {
       await supabase.from('instagram_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000')
       const { data } = await supabase.from('instagram_posts').insert(posts).select()
@@ -147,11 +150,12 @@ export async function GET(request: Request) {
         count: posts.length,
         username: targetUsername,
         posts: data || posts,
-        source: token ? 'Instagram Graph API / Vercel Connect' : 'Live Profile Reader',
+        vercelConnectStatus,
+        source: token ? 'Instagram Graph API (@vercel/connect)' : 'Live Reader',
       })
     }
 
-    return NextResponse.json({ success: false, message: 'Could not extract Instagram posts' }, { status: 400 })
+    return NextResponse.json({ success: false, message: 'Could not fetch Instagram posts' }, { status: 400 })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
