@@ -36,6 +36,8 @@ interface PageClientProps {
   settings?: Partial<SiteSettings> | null
   testimonials?: Testimonial[]
   posts?: BlogPost[]
+  instagramAccount?: any | null
+  instagramMedia?: any[]
   isAdminPreview?: boolean
 }
 
@@ -45,6 +47,8 @@ export default function PageClient({
   settings: settingsInput,
   testimonials = [],
   posts = [],
+  instagramAccount = null,
+  instagramMedia = [],
   isAdminPreview = false,
 }: PageClientProps) {
   const settings = mergeSiteSettings(settingsInput)
@@ -145,7 +149,7 @@ export default function PageClient({
         >
           <PortfolioShowcase projects={projects} technologies={technologies} />
           <PerspectiveImage3DWall />
-          <InstagramPostGallery />
+          <InstagramPostGallery initialAccount={instagramAccount} initialMedia={instagramMedia} />
         </motion.div>
 
         {settings.show_testimonials ? (
