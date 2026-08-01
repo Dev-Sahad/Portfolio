@@ -4,12 +4,12 @@ import { getToken, UserAuthorizationRequiredError } from '@vercel/connect'
 
 export const revalidate = 0
 
-// Official Vercel Connect Instagram Feed Reader API
+// Official Instagram API with Facebook Login & Graph API Reader
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const targetUsername = searchParams.get('username') || 'sahad_____sha'
   let token = searchParams.get('token') || ''
-  let vercelConnectStatus = 'NOT_CONFIGURED'
+  let apiSource = 'UNKNOWN'
 
   try {
     let posts: Array<{
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
       post_url: string
     }> = []
 
-    // 1. Fetch Real Access Token via Official @vercel/connect SDK
+    // 1. Fetch Token via Official @vercel/connect SDK
     if (!token) {
       try {
         const vercelToken = await getToken('instagram.com/instagram', {
@@ -29,13 +29,11 @@ export async function GET(request: Request) {
         })
         if (vercelToken) {
           token = vercelToken
-          vercelConnectStatus = 'VERCEL_CONNECT_ACTIVE'
+          apiSource = 'VERCEL_CONNECT_SDK'
         }
       } catch (err: any) {
         if (err instanceof UserAuthorizationRequiredError) {
-          vercelConnectStatus = 'AUTHORIZATION_REQUIRED'
-        } else {
-          vercelConnectStatus = err?.message || 'SDK_ERROR'
+          apiSource = 'VERCEL_CONNECT_AUTH_REQUIRED'
         }
       }
     }
@@ -50,33 +48,52 @@ export async function GET(request: Request) {
           .maybeSingle()
         if (data?.value) {
           token = data.value
+          apiSource = 'SUPABASE_STORED_TOKEN'
         }
       } catch {}
     }
 
-    // 3. Make Real API Call to Instagram Graph API using Token
+    // 3. Try Facebook Graph API for Instagram Professional Accounts (/v19.0/me/accounts & /v19.0/{ig-user-id}/media)
     if (token.trim()) {
       try {
-        const graphRes = await fetch(
-          `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
+        // Step A: Check if Token is a Facebook Professional User Token
+        const fbRes = await fetch(
+          `https://graph.facebook.com/v19.0/me/accounts?fields=instagram_business_account{id,username,media_count},name&access_token=${token.trim()}`
         )
+        const fbData = await fbRes.json()
+
+        let igUserId = ''
+        if (fbData.data && fbData.data.length > 0) {
+          const igAcc = fbData.data.find((acc: any) => acc.instagram_business_account?.id)
+          if (igAcc) {
+            igUserId = igAcc.instagram_business_account.id
+          }
+        }
+
+        // Step B: Query Instagram Business Account Media
+        const mediaEndpoint = igUserId
+          ? `https://graph.facebook.com/v19.0/${igUserId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
+          : `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&access_token=${token.trim()}`
+
+        const graphRes = await fetch(mediaEndpoint)
         const graphData = await graphRes.json()
 
         if (graphData.data && Array.isArray(graphData.data)) {
           posts = graphData.data.map((item: any) => ({
             image_url: item.media_url || item.thumbnail_url || '/hero-cyber-portrait.jpg',
-            caption: item.caption || `Instagram Post @${targetUsername}`,
+            caption: item.caption || `Official Instagram Post @${targetUsername}`,
             likes_count: item.like_count || Math.floor(Math.random() * 300 + 200),
             comments_count: item.comments_count || Math.floor(Math.random() * 30 + 10),
             post_url: item.permalink || `https://www.instagram.com/${targetUsername}/`,
           }))
+          apiSource = igUserId ? 'FACEBOOK_LOGIN_GRAPH_API_V19' : 'INSTAGRAM_BASIC_DISPLAY_API'
         }
       } catch (e) {
-        console.error('Graph API Fetch Exception:', e)
+        console.error('Facebook / Instagram API Exception:', e)
       }
     }
 
-    // 4. Scraper Fallback if no token present
+    // 4. High-Precision Public Profile Scraper Fallback
     if (posts.length === 0) {
       try {
         const profileUrl = `https://www.instagram.com/${targetUsername}/?__a=1&__d=dis`
@@ -100,13 +117,14 @@ export async function GET(request: Request) {
             comments_count: 36 - idx,
             post_url: `https://www.instagram.com/${targetUsername}/`,
           }))
+          apiSource = 'PUBLIC_PROFILE_SCRAPER'
         }
       } catch (e) {
         console.error('Profile Scraper Exception:', e)
       }
     }
 
-    // 5. High-Quality Presets Fallback
+    // 5. Presets Fallback
     if (posts.length === 0) {
       posts = [
         {
@@ -138,6 +156,7 @@ export async function GET(request: Request) {
           post_url: 'https://www.instagram.com/sahad_____sha/p/CqU2ob2rqRO/?hl=en',
         },
       ]
+      apiSource = 'PRESET_POSTS'
     }
 
     // Upsert Posts into Supabase Database Table
@@ -150,8 +169,7 @@ export async function GET(request: Request) {
         count: posts.length,
         username: targetUsername,
         posts: data || posts,
-        vercelConnectStatus,
-        source: token ? 'Instagram Graph API (@vercel/connect)' : 'Live Reader',
+        source: apiSource,
       })
     }
 
