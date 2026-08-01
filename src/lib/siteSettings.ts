@@ -1,3 +1,5 @@
+import { DEFAULT_SPOTIFY_URL, normalizeSpotifyEmbedUrl } from '@/lib/spotify'
+
 export type SiteSettings = {
   owner_name: string
   hero_title_primary: string
@@ -54,7 +56,7 @@ export const defaultSiteSettings: SiteSettings = {
   show_testimonials: true,
   assistant_enabled: true,
   performance_mode: 'auto',
-  spotify_playlist_url: 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
+  spotify_playlist_url: DEFAULT_SPOTIFY_URL,
   intro_music_url: 'https://youtu.be/JCzJu2ZXSRw?si=82scZffeqbuwFZeO',
 }
 
@@ -73,5 +75,7 @@ export function mergeSiteSettings(settings?: Partial<SiteSettings> | null): Site
     ...mergedSettings,
     cv_url: mergedSettings.cv_url?.trim() || defaultSiteSettings.cv_url,
     github_url: mergedSettings.github_url?.trim() || defaultSiteSettings.github_url,
+    spotify_playlist_url:
+      normalizeSpotifyEmbedUrl(mergedSettings.spotify_playlist_url) || DEFAULT_SPOTIFY_URL,
   }
 }

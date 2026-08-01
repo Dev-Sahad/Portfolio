@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Music, X, Volume2, ExternalLink, Sparkles, Disc, Radio, Check, Sliders } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
 import DevSoundscapeMixer from '@/components/ui/DevSoundscapeMixer'
+import { DEFAULT_SPOTIFY_URL, normalizeSpotifyEmbedUrl } from '@/lib/spotify'
 
 interface SpotifyPlayerModalProps {
   isOpen: boolean
@@ -13,59 +14,35 @@ interface SpotifyPlayerModalProps {
 }
 
 const PRESETS = [
-  { name: "Sahad's Mix", url: 'https://open.spotify.com/playlist/37i9dQZF1F5p3rmiWPIYgZ?si=ea0b77c84a834f66' },
-  { name: 'Lofi Coding', url: 'https://open.spotify.com/playlist/0vvRV2Fw8k78yF31oN4L4g' },
+  { name: "Today's Top Hits", url: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M' },
+  { name: 'Lofi Coding', url: 'https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn' },
   { name: 'Deep Focus', url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ' },
-  { name: 'Synthwave', url: 'https://open.spotify.com/playlist/37i9dQZF1DXdWjL1Vq0p7a' },
+  { name: 'Peaceful Piano', url: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO' },
 ]
-
-function formatSpotifyEmbedUrl(url: string): string {
-  const defaultEmbed = 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g?utm_source=generator&theme=0'
-  if (!url || typeof url !== 'string') return defaultEmbed
-
-  try {
-    const cleanUrl = url.trim()
-
-    if (cleanUrl.startsWith('spotify:')) {
-      const parts = cleanUrl.split(':')
-      if (parts.length >= 3) {
-        return `https://open.spotify.com/embed/${parts[1]}/${parts[2]}?utm_source=generator&theme=0`
-      }
-    }
-
-    const match = cleanUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(playlist|track|album|artist|show|episode)\/([a-zA-Z0-9]+)/i)
-    if (match) {
-      const [, type, id] = match
-      return `https://open.spotify.com/embed/${type.toLowerCase()}/${id}?utm_source=generator&theme=0`
-    }
-
-    if (cleanUrl.includes('open.spotify.com/embed/')) {
-      return cleanUrl.includes('utm_source=') ? cleanUrl : `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}utm_source=generator&theme=0`
-    }
-
-    return defaultEmbed
-  } catch {
-    return defaultEmbed
-  }
-}
 
 export default function SpotifyPlayerModal({
   isOpen,
   onClose,
-  playlistUrl = 'https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g',
+  playlistUrl = DEFAULT_SPOTIFY_URL,
 }: SpotifyPlayerModalProps) {
   const [currentUrl, setCurrentUrl] = useState(playlistUrl)
   const [customInput, setCustomInput] = useState('')
   const [mode, setMode] = useState<'spotify' | 'ambient'>('spotify')
   const [loadedMsg, setLoadedMsg] = useState(false)
+  const [inputError, setInputError] = useState('')
+  const [hasOpened, setHasOpened] = useState(false)
 
   const { isAmbientPlaying, toggleAmbient, playClick, playHover } = useAudio()
 
   useEffect(() => {
     if (playlistUrl) {
-      setCurrentUrl(playlistUrl)
+      setCurrentUrl(normalizeSpotifyEmbedUrl(playlistUrl) || DEFAULT_SPOTIFY_URL)
     }
   }, [playlistUrl])
+
+  useEffect(() => {
+    if (isOpen) setHasOpened(true)
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
@@ -79,43 +56,47 @@ export default function SpotifyPlayerModal({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose, playClick])
 
-  const embedUrl = formatSpotifyEmbedUrl(currentUrl)
+  const embedUrl = normalizeSpotifyEmbedUrl(currentUrl) || DEFAULT_SPOTIFY_URL
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!customInput.trim()) return
     playClick()
-    const nextUrl = customInput.trim()
+    const nextUrl = normalizeSpotifyEmbedUrl(customInput)
+    if (!nextUrl) {
+      setInputError('Paste a valid open.spotify.com track, album, episode, or playlist link.')
+      return
+    }
+    setInputError('')
     setCurrentUrl(nextUrl)
     setCustomInput('')
     setLoadedMsg(true)
-    window.dispatchEvent(new CustomEvent('change-spotify-url', { detail: formatSpotifyEmbedUrl(nextUrl) }))
     setTimeout(() => setLoadedMsg(false), 2500)
   }
 
   const handleSelectPreset = (url: string) => {
     playClick()
-    setCurrentUrl(url)
+    setCurrentUrl(normalizeSpotifyEmbedUrl(url) || DEFAULT_SPOTIFY_URL)
+    setInputError('')
     setLoadedMsg(true)
-    window.dispatchEvent(new CustomEvent('change-spotify-url', { detail: formatSpotifyEmbedUrl(url) }))
     setTimeout(() => setLoadedMsg(false), 2500)
   }
 
   return (
     <>
-      {/* Persistent Spotify Audio iFrame */}
-      <div className={isOpen ? "relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 min-h-[152px]" : "fixed bottom-0 right-0 h-1 w-1 opacity-0 pointer-events-none overflow-hidden z-[-1]"}>
+      {/* A single persistent player: it stays docked after the settings modal closes. */}
+      {hasOpened && <div className="fixed bottom-4 right-4 z-[99998] w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl">
         <iframe
           src={embedUrl}
           width="100%"
-          height={isOpen ? "352" : "1"}
+          height="152"
           frameBorder="0"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
           title="Spotify Web Player"
           className="w-full rounded-2xl border-0"
         />
-      </div>
+      </div>}
 
       <AnimatePresence>
         {isOpen && (
@@ -238,6 +219,7 @@ export default function SpotifyPlayerModal({
                     Load
                   </button>
                 </form>
+                {inputError && <p className="text-xs text-red-300">{inputError}</p>}
               </div>
             ) : (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center space-y-4">
@@ -289,7 +271,7 @@ export default function SpotifyPlayerModal({
             <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-[11px] text-white/40">
               <span>Connected via Spotify Web Player</span>
               <a
-                href={currentUrl}
+                href={embedUrl.replace('open.spotify.com/embed/', 'open.spotify.com/')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-emerald-400 hover:underline"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, LogOut, Code2, Zap, Volume2, VolumeX, ArrowRight, LayoutDashboard, Github } from 'lucide-react'
+import { Sparkles, Globe, LogOut, Code2, Zap, Volume2, VolumeX, ArrowRight, Github } from 'lucide-react'
 import { usePointerParallax } from '@/hooks/usePointerParallax'
 
 const MARQUEE_WORDS_UP = [
@@ -329,13 +329,6 @@ export default function IntroScreen({
                 <ArrowRight size={16} />
               </button>
 
-              <a
-                href="/admin"
-                className="w-full flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 py-3 px-6 font-mono text-xs font-semibold text-white hover:bg-white/20 hover:scale-[1.02] transition cursor-pointer"
-              >
-                <LayoutDashboard size={15} className="text-cyan-400" />
-                <span>OPEN ADMIN DASHBOARD</span>
-              </a>
             </div>
           )}
 

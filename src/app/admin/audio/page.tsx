@@ -4,28 +4,21 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Music, Volume2, Save, RefreshCw, Radio, PlayCircle, Sparkles, Youtube, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { DEFAULT_SPOTIFY_URL, normalizeSpotifyEmbedUrl } from '@/lib/spotify'
 
 export default function AdminAudioPage() {
   const [introMusicUrl, setIntroMusicUrl] = useState('https://youtu.be/JCzJu2ZXSRw?si=82scZffeqbuwFZeO')
-  const [spotifyUrl, setSpotifyUrl] = useState('https://open.spotify.com/embed/playlist/0vvRV2Fw8k78yF31oN4L4g')
+  const [spotifyUrl, setSpotifyUrl] = useState(DEFAULT_SPOTIFY_URL)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
   const fetchSettings = async () => {
     try {
-      // Query portfolio_settings first
-      const { data: pData } = await supabase.from('portfolio_settings').select('*').eq('id', 1).maybeSingle()
-      if (pData) {
-        if (pData.intro_music_url) setIntroMusicUrl(pData.intro_music_url)
-        if (pData.spotify_playlist_url) setSpotifyUrl(pData.spotify_playlist_url)
-        return
-      }
-
-      // Fallback query site_settings
-      const { data: sData } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle()
+      const { data: sData, error } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle()
+      if (error) throw error
       if (sData) {
         if (sData.intro_music_url) setIntroMusicUrl(sData.intro_music_url)
-        if (sData.spotify_playlist_url) setSpotifyUrl(sData.spotify_playlist_url)
+        setSpotifyUrl(normalizeSpotifyEmbedUrl(sData.spotify_playlist_url) || DEFAULT_SPOTIFY_URL)
       }
     } catch (e) {
       console.error(e)
@@ -42,32 +35,27 @@ export default function AdminAudioPage() {
     setMessage('')
 
     const cleanIntro = introMusicUrl.trim()
-    const cleanSpotify = spotifyUrl.trim()
+    const cleanSpotify = normalizeSpotifyEmbedUrl(spotifyUrl)
+
+    if (!cleanSpotify) {
+      setSaving(false)
+      setMessage('Error: enter a valid open.spotify.com track, album, episode, or playlist URL.')
+      return
+    }
 
     try {
-      // 1. Update portfolio_settings table
-      await supabase.from('portfolio_settings').upsert({
-        id: 1,
-        intro_music_url: cleanIntro,
-        spotify_playlist_url: cleanSpotify,
-        updated_at: new Date().toISOString(),
+      const response = await fetch('/api/admin/growth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_site_settings',
+          settings: { intro_music_url: cleanIntro, spotify_playlist_url: cleanSpotify },
+        }),
       })
-
-      // 2. Update site_settings table
-      await supabase.from('site_settings').upsert({
-        id: 1,
-        intro_music_url: cleanIntro,
-        spotify_playlist_url: cleanSpotify,
-        updated_at: new Date().toISOString(),
-      })
-
-      // 3. Store locally in localStorage for instantaneous client response
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('portfolio_intro_music_url', cleanIntro)
-        localStorage.setItem('portfolio_spotify_url', cleanSpotify)
-      }
-
-      setMessage('✅ Audio settings updated successfully across all database tables & live sessions!')
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result.error || 'Unable to save audio settings.')
+      setSpotifyUrl(cleanSpotify)
+      setMessage('✅ Audio settings saved. The public portfolio will use this Spotify source.')
     } catch (e: any) {
       setMessage(`Error: ${e.message}`)
     } finally {

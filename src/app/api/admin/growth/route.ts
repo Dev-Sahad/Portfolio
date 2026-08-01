@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdminDatabase, recordRevision } from '@/lib/supabaseAdmin'
+import { normalizeSpotifyEmbedUrl } from '@/lib/spotify'
 
 const allowedSettings = new Set([
   'owner_name',
@@ -26,6 +27,8 @@ const allowedSettings = new Set([
   'show_testimonials',
   'assistant_enabled',
   'performance_mode',
+  'spotify_playlist_url',
+  'intro_music_url',
 ])
 
 const clean = (value: unknown, limit = 5000) =>
@@ -202,6 +205,13 @@ export async function POST(request: NextRequest) {
     const payload: Record<string, unknown> = { id: 1, updated_at: new Date().toISOString() }
     for (const [key, value] of Object.entries(incoming)) {
       if (allowedSettings.has(key)) payload[key] = value
+    }
+    if (typeof incoming.spotify_playlist_url === 'string') {
+      const spotifyUrl = normalizeSpotifyEmbedUrl(incoming.spotify_playlist_url)
+      if (!spotifyUrl) {
+        return NextResponse.json({ error: 'Enter a valid open.spotify.com URL.' }, { status: 400 })
+      }
+      payload.spotify_playlist_url = spotifyUrl
     }
     const { data: before } = await database.from('site_settings').select('*').eq('id', 1).maybeSingle()
     if (before) await recordRevision(database, 'site_settings', '1', 'update', before)

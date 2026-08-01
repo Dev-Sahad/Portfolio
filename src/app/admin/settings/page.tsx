@@ -12,7 +12,8 @@ import { defaultSiteSettings, SiteSettings, mergeSiteSettings } from '@/lib/site
 const fields: Array<{
   key: keyof SiteSettings
   label: string
-  type?: 'input' | 'textarea'
+  type?: 'input' | 'textarea' | 'boolean' | 'select'
+  options?: Array<{ label: string; value: string }>
 }> = [
   { key: 'owner_name', label: 'Owner Name' },
   { key: 'availability_text', label: 'Availability Text' },
@@ -29,10 +30,26 @@ const fields: Array<{
   { key: 'linkedin_url', label: 'LinkedIn URL' },
   { key: 'instagram_url', label: 'Instagram URL' },
   { key: 'youtube_url', label: 'YouTube URL' },
+  { key: 'tiktok_url', label: 'TikTok URL' },
   { key: 'spotify_playlist_url', label: 'Spotify Playlist Embed URL' },
   { key: 'intro_music_url', label: 'Intro Screen Background Music URL' },
   { key: 'contact_heading', label: 'Contact Heading' },
   { key: 'contact_subheading', label: 'Contact Subheading', type: 'textarea' },
+  { key: 'booking_url', label: 'Booking URL' },
+  { key: 'maintenance_mode', label: 'Maintenance Mode', type: 'boolean' },
+  { key: 'maintenance_message', label: 'Maintenance Message', type: 'textarea' },
+  { key: 'show_testimonials', label: 'Show Testimonials', type: 'boolean' },
+  { key: 'assistant_enabled', label: 'Enable Portfolio Assistant', type: 'boolean' },
+  {
+    key: 'performance_mode',
+    label: 'Animation Performance Mode',
+    type: 'select',
+    options: [
+      { label: 'Automatic', value: 'auto' },
+      { label: 'Full effects', value: 'full' },
+      { label: 'Reduced effects', value: 'reduced' },
+    ],
+  },
 ]
 
 export default function SettingsPage() {
@@ -66,7 +83,7 @@ export default function SettingsPage() {
     load()
   }, [router])
 
-  const handleChange = (key: keyof SiteSettings, value: string) => {
+  const handleChange = (key: keyof SiteSettings, value: string | boolean) => {
     setSettings((current) => ({
       ...current,
       [key]: value,
@@ -97,7 +114,7 @@ export default function SettingsPage() {
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Portfolio Settings</h1>
-              <p className="mt-1 text-sm text-white/40">Edit the public portfolio text, links, and contact details.</p>
+              <p className="mt-1 text-sm text-white/40">Control public content, social links, audio, maintenance, assistant, and animation behavior.</p>
             </div>
 
             <button
@@ -127,7 +144,28 @@ export default function SettingsPage() {
                   className={field.type === 'textarea' ? 'md:col-span-2' : ''}
                 >
                   <span className="mb-2 block text-sm text-white/45">{field.label}</span>
-                  {field.type === 'textarea' ? (
+                  {field.type === 'boolean' ? (
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={Boolean(settings[field.key])}
+                      onClick={() => handleChange(field.key, !Boolean(settings[field.key]))}
+                      className={`flex h-12 w-full items-center justify-between rounded-2xl border px-4 text-sm transition ${Boolean(settings[field.key]) ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.04] text-white/50'}`}
+                    >
+                      <span>{Boolean(settings[field.key]) ? 'Enabled' : 'Disabled'}</span>
+                      <span className={`h-6 w-11 rounded-full p-1 transition ${Boolean(settings[field.key]) ? 'bg-emerald-400' : 'bg-white/15'}`}>
+                        <span className={`block h-4 w-4 rounded-full bg-white transition-transform ${Boolean(settings[field.key]) ? 'translate-x-5' : ''}`} />
+                      </span>
+                    </button>
+                  ) : field.type === 'select' ? (
+                    <select
+                      value={String(settings[field.key] ?? '')}
+                      onChange={(event) => handleChange(field.key, event.target.value)}
+                      className="h-12 w-full rounded-2xl border border-white/10 bg-[#111] px-4 text-sm outline-none transition focus:border-white/30"
+                    >
+                      {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                    </select>
+                  ) : field.type === 'textarea' ? (
                     <textarea
                       value={String(settings[field.key] ?? '')}
                       onChange={(event) => handleChange(field.key, event.target.value)}
