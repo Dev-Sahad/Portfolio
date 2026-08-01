@@ -31,6 +31,35 @@ interface LiveInstagramAccount {
   media_count: number
 }
 
+interface LiveInstagramMedia {
+  id: string
+  media_type: string
+  media_product_type: string
+  media_url: string | null
+  thumbnail_url: string | null
+  permalink: string
+  caption: string | null
+  like_count: number
+  comments_count: number
+  posted_at?: string | null
+}
+
+interface InstagramPostGalleryProps {
+  initialAccount?: LiveInstagramAccount | null
+  initialMedia?: LiveInstagramMedia[]
+}
+
+const mapLiveMedia = (items: LiveInstagramMedia[]): GridPost[] => items.map((item) => ({
+  id: item.id,
+  image: item.thumbnail_url || item.media_url || '/hero-cyber-portrait.jpg',
+  postUrl: item.permalink,
+  isReel: item.media_product_type === 'REELS',
+  isCarousel: item.media_type === 'CAROUSEL_ALBUM',
+  likes: String(item.like_count || 0),
+  comments: String(item.comments_count || 0),
+  caption: item.caption || 'Instagram media',
+}))
+
 const PROFILE_PIC = "https://scontent.cdninstagram.com/v/t51.82787-19/683766249_18314607391302713_2744361709957459017_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=102&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=Sz5jW7y0jYwQ7kNvwEbTgId&_nc_oc=Adpf7AFfRTY1ZduD488bEFs_RaUxtREJuuZxQiTcQb5KgQdULpoUNqAZBDNNjOLu8Ig&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=BVxtCcXPgZ5lz3sdw1fR4w&_nc_ss=7b6a8&oh=00_AQEc9LGAmKVEjRI9A7x_u2cjSuYkS-Zj7j4YXS9xCVZ-QA&oe=6A72EAD9"
 
 const INSTAGRAM_GRID: GridPost[] = [
@@ -160,10 +189,10 @@ const HIGHLIGHTS = [
   { name: 'Cyber', label: '🔥', color: 'bg-cyan-950 text-cyan-400 border-cyan-500/40' },
 ]
 
-export default function InstagramPostGallery() {
+export default function InstagramPostGallery({ initialAccount = null, initialMedia = [] }: InstagramPostGalleryProps) {
   const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'saved'>('posts')
-  const [livePosts, setLivePosts] = useState<GridPost[]>([])
-  const [liveAccount, setLiveAccount] = useState<LiveInstagramAccount | null>(null)
+  const [livePosts, setLivePosts] = useState<GridPost[]>(() => mapLiveMedia(initialMedia))
+  const [liveAccount, setLiveAccount] = useState<LiveInstagramAccount | null>(initialAccount)
   const { playClick, playHover } = useAudio()
   const profileUrl = `https://www.instagram.com/${liveAccount?.username || 'sahad_____sha'}/`
 
@@ -176,24 +205,13 @@ export default function InstagramPostGallery() {
       ])
       if (!active) return
       if (account) setLiveAccount(account as LiveInstagramAccount)
-      if (media?.length) {
-        setLivePosts(media.map((item: any) => ({
-          id: item.id,
-          image: item.thumbnail_url || item.media_url || '/hero-cyber-portrait.jpg',
-          postUrl: item.permalink,
-          isReel: item.media_product_type === 'REELS',
-          isCarousel: item.media_type === 'CAROUSEL_ALBUM',
-          likes: String(item.like_count || 0),
-          comments: String(item.comments_count || 0),
-          caption: item.caption || 'Instagram media',
-        })))
-      }
+      if (media) setLivePosts(mapLiveMedia(media as LiveInstagramMedia[]))
     }
     void loadPermissionedFeed()
     return () => { active = false }
   }, [])
 
-  const feed = livePosts.length ? livePosts : INSTAGRAM_GRID
+  const feed = livePosts
   const visibleFeed = activeTab === 'posts'
     ? feed.filter((post) => !post.isReel)
     : activeTab === 'reels'
