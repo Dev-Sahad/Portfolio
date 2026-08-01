@@ -2,8 +2,10 @@ import "./globals.css";
 import RefreshRedirect from '@/components/RefreshRedirect'
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next'
+import { createClient } from '@/utils/supabase/server'
+import AccessibilityLocaleDock from '@/components/AccessibilityLocaleDock'
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   metadataBase: new URL('https://sahad.is-a.dev'),
   title: {
     default: 'Muhammad Sahad — Frontend Developer',
@@ -25,6 +27,23 @@ export const metadata: Metadata = {
   },
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const database = await createClient()
+    const { data } = await database.from('seo_settings').select('*').eq('id', 1).maybeSingle()
+    if (!data) return defaultMetadata
+    return {
+      ...defaultMetadata,
+      title: { default: data.site_title, template: '%s | Muhammad Sahad' },
+      description: data.description,
+      keywords: data.keywords,
+      robots: data.allow_indexing ? { index: true, follow: true } : { index: false, follow: false },
+      openGraph: { ...defaultMetadata.openGraph, title: data.social_title || data.site_title, description: data.social_description || data.description, images: data.og_image_url ? [data.og_image_url] : undefined },
+      twitter: { ...defaultMetadata.twitter, title: data.social_title || data.site_title, description: data.social_description || data.description, images: data.og_image_url ? [data.og_image_url] : undefined },
+    }
+  } catch { return defaultMetadata }
+}
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -45,6 +64,7 @@ export default function RootLayout({
         </a>
         <RefreshRedirect />
         {children}
+        <AccessibilityLocaleDock />
         <SpeedInsights />
         <script
           type="application/ld+json"

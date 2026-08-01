@@ -1,0 +1,6 @@
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
+import ProjectDemoRoom from '@/components/ProjectDemoRoom'
+export default async function DemoPage({params}:{params:Promise<{id:string}>}){const {id}=await params;const db=await createClient();const {data:p}=await db.from('projects').select('id,title,description,live_url').eq('id',id).maybeSingle();if(!p||!p.live_url)notFound();let safe:string;try{const u=new URL(p.live_url);if(u.protocol!=='https:')notFound();safe=u.toString()}catch{notFound()}return <main className="min-h-screen bg-[#070707] px-4 py-7 text-white sm:px-8"><div className="mx-auto max-w-[1450px]"><Link href={`/portfolio/${p.id}`} className="flex items-center gap-2 text-sm text-white/45"><ArrowLeft size={15}/>Case study</Link><div className="my-8"><p className="font-mono text-xs uppercase tracking-[.22em] text-cyan-300">Interactive demo room</p><h1 className="mt-2 text-4xl font-semibold">{p.title}</h1><p className="mt-3 max-w-3xl text-white/45">Switch device frames and inspect the live product without leaving the portfolio.</p></div><ProjectDemoRoom url={safe} title={p.title}/></div></main>}

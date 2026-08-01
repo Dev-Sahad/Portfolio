@@ -23,6 +23,7 @@ import {
   Settings,
   Sparkles,
   TrendingUp,
+  Rocket,
   Users,
   X,
 } from "lucide-react";
@@ -51,6 +52,7 @@ const menus = [
   { name: "Settings", icon: Settings, path: "/admin/settings" },
   { name: "Webhook", icon: Bell, path: "/admin/webhook" },
   { name: "Growth & Content", icon: TrendingUp, path: "/admin/growth" },
+  { name: "Platform Studio", icon: Rocket, path: "/admin/platform" },
 ];
 
 function isActive(menuPath: string, currentPath: string): boolean {

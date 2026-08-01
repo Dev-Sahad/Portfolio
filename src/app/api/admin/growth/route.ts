@@ -170,7 +170,13 @@ export async function POST(request: NextRequest) {
       project_role: clean(input.project_role, 2500) || null,
       solution: clean(input.solution, 5000) || null,
       challenges: clean(input.challenges, 5000) || null,
+      architecture: clean(input.architecture, 8000) || null,
+      decisions: clean(input.decisions, 8000) || null,
       results: clean(input.results, 5000) || null,
+      demo_video_url: clean(input.demo_video_url, 1000) || null,
+      featured_for: Array.isArray(input.featured_for)
+        ? input.featured_for.map((value: unknown) => clean(value, 40)).filter(Boolean).slice(0, 12)
+        : [],
       metrics,
       featured_order: Math.max(0, Number(input.featured_order) || 100),
       is_featured: input.is_featured === true,

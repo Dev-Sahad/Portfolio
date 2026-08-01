@@ -19,7 +19,7 @@ export default function ProjectDetailsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: '', description: '', live_url: '', github_url: '', technologies: '', key_features: '',
-    problem: '', project_role: '', solution: '', challenges: '', results: '', metrics: '',
+    problem: '', project_role: '', solution: '', challenges: '', architecture: '', decisions: '', results: '', metrics: '', demo_video_url: '', featured_for: '',
     featured_order: 100, is_featured: false,
   });
 
@@ -56,7 +56,11 @@ export default function ProjectDetailsPage() {
           project_role: data.project_role || '',
           solution: data.solution || '',
           challenges: data.challenges || '',
+          architecture: data.architecture || '',
+          decisions: data.decisions || '',
           results: data.results || '',
+          demo_video_url: data.demo_video_url || '',
+          featured_for: Array.isArray(data.featured_for) ? data.featured_for.join(', ') : '',
           metrics: Array.isArray(data.metrics)
             ? data.metrics.map((metric: any) => `${metric.label}: ${metric.value}`).join('\n')
             : '',
@@ -104,7 +108,11 @@ export default function ProjectDetailsPage() {
         project_role: form.project_role || null,
         solution: form.solution || null,
         challenges: form.challenges || null,
+        architecture: form.architecture || null,
+        decisions: form.decisions || null,
         results: form.results || null,
+        demo_video_url: form.demo_video_url || null,
+        featured_for: form.featured_for.split(',').map((value) => value.trim()).filter(Boolean),
         metrics: form.metrics.split('\n').map((line) => {
           const [label, ...value] = line.split(':')
           return { label: label?.trim(), value: value.join(':').trim() }
@@ -273,8 +281,12 @@ export default function ProjectDetailsPage() {
                     ['project_role', 'Your role and responsibilities'],
                     ['solution', 'Solution and approach'],
                     ['challenges', 'Challenges and decisions'],
+                    ['architecture', 'Architecture and system design'],
+                    ['decisions', 'Important engineering decisions and trade-offs'],
                     ['results', 'Results and measurable impact'],
                     ['metrics', 'Metrics — one per line as Label: Value'],
+                    ['demo_video_url', 'Demo video URL'],
+                    ['featured_for', 'Feature for roles — recruiter, frontend, founder'],
                   ].map(([key, label]) => (
                     <label key={key}>
                       <span className='mb-1.5 block text-xs text-white/40'>{label}</span>

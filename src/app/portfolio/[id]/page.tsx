@@ -18,6 +18,7 @@ import {
   Code2,
   Layers,
   ExternalLink,
+  MonitorPlay,
   GitBranch,
   ChevronLeft,
   ChevronRight,
@@ -38,7 +39,10 @@ interface Project {
   project_role?: string;
   solution?: string;
   challenges?: string;
+  architecture?: string;
+  decisions?: string;
   results?: string;
+  demo_video_url?: string;
   metrics?: Array<{ label: string; value: string }>;
 }
 
@@ -158,13 +162,15 @@ export default function PortfolioDetailPage() {
             <FormattedRichText content={project.description || ''} />
           </div>
 
-          {(project.problem || project.project_role || project.solution || project.challenges || project.results) && (
+          {(project.problem || project.project_role || project.solution || project.challenges || project.architecture || project.decisions || project.results) && (
             <div className="mb-8 grid gap-4">
               {[
                 ['The problem', project.problem],
                 ['My role', project.project_role],
                 ['The solution', project.solution],
                 ['Challenges', project.challenges],
+                ['Architecture', project.architecture],
+                ['Engineering decisions', project.decisions],
                 ['Results', project.results],
               ].filter(([, value]) => value).map(([label, value]) => (
                 <section key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -225,6 +231,12 @@ export default function PortfolioDetailPage() {
             </motion.div>
           </motion.div>
 
+          {project.demo_video_url && (
+            <div className="mb-8 overflow-hidden rounded-2xl border border-white/10 bg-black">
+              <video src={project.demo_video_url} controls preload="metadata" className="aspect-video w-full" />
+            </div>
+          )}
+
           {/* BUTTONS */}
           <motion.div className="flex flex-wrap gap-3 mb-8">
             {project.live_url ? (
@@ -243,6 +255,17 @@ export default function PortfolioDetailPage() {
                 <ExternalLink size={15} />
                 <span className="text-sm">No Link</span>
               </div>
+            )}
+
+            {project.live_url && (
+              <button
+                type="button"
+                onClick={() => router.push(`/demo/${project.id}`)}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-cyan-300/10 border border-cyan-300/20 text-cyan-100 hover:bg-cyan-300/15 transition"
+              >
+                <MonitorPlay size={15} />
+                <span className="text-sm">Demo Room</span>
+              </button>
             )}
 
             {project.github_url ? (

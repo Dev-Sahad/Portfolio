@@ -45,6 +45,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   const [quizOpen, setQuizOpen] = useState(false)
   const [snippetOpen, setSnippetOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [translations, setTranslations] = useState<Record<string, string>>({})
 
 
 
@@ -89,6 +90,21 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('scroll', handleScroll)
     }
+  }, [])
+
+  useEffect(() => {
+    const loadLocale = async (locale: string) => {
+      if (!locale || locale.toLowerCase().startsWith('en')) { setTranslations({}); return }
+      const response = await fetch(`/api/translations?locale=${encodeURIComponent(locale)}`)
+      const payload = await response.json().catch(() => ({}))
+      const merged = Object.assign({}, ...(payload.bundles || []).map((bundle: any) => bundle.translations || {}))
+      setTranslations(merged)
+    }
+    const initial = localStorage.getItem('portfolio-locale') || navigator.language || 'en'
+    loadLocale(initial)
+    const onLocale = (event: Event) => loadLocale((event as CustomEvent<string>).detail)
+    window.addEventListener('portfolio:locale', onLocale)
+    return () => window.removeEventListener('portfolio:locale', onLocale)
   }, [])
 
   // 🔥 Animated navbar only on refresh
@@ -160,11 +176,11 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
   }
 
   const navItems = [
-    { label: 'Home', id: 'home', href: '#home' },
-    { label: 'About', id: 'about', href: '#about' },
-    { label: 'Portfolio', id: 'portfolio', href: '#portfolio' },
-    { label: 'Notes', id: 'notes', href: '/blog' },
-    { label: 'Contact', id: 'contact', href: '#contact' },
+    { label: translations['nav.home'] || 'Home', id: 'home', href: '#home' },
+    { label: translations['nav.about'] || 'About', id: 'about', href: '#about' },
+    { label: translations['nav.portfolio'] || 'Portfolio', id: 'portfolio', href: '#portfolio' },
+    { label: translations['nav.notes'] || 'Notes', id: 'notes', href: '/blog' },
+    { label: translations['nav.contact'] || 'Contact', id: 'contact', href: '#contact' },
   ]
 
   return (

@@ -12,11 +12,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/now`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/hire/recruiter`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${base}/hire/frontend`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.85 },
+    { url: `${base}/hire/founder`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.85 },
     ...(projectsResult.data || []).map((project: any) => ({
       url: `${base}/portfolio/${project.id}`,
       lastModified: new Date(project.updated_at || project.created_at || Date.now()),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
+    })),
+    ...(projectsResult.data || []).map((project: any) => ({
+      url: `${base}/demo/${project.id}`,
+      lastModified: new Date(project.updated_at || project.created_at || Date.now()),
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
     })),
     ...(postsResult.data || []).map((post: any) => ({
       url: `${base}/blog/${post.slug}`,

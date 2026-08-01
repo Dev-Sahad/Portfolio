@@ -837,3 +837,21 @@ html[data-motion='reduced'] .intro-3d-copy {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin: 2rem 0;
 }
+html[data-high-contrast="true"] body {
+  filter: contrast(1.22);
+}
+
+html[data-high-contrast="true"] :is(p, span, li) {
+  color: rgb(255 255 255 / 0.9) !important;
+}
+
+html[data-readable-font="true"] body,
+html[data-readable-font="true"] * {
+  font-family: Arial, Helvetica, sans-serif !important;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+}
+
+html[dir="rtl"] body {
+  direction: rtl;
+}
