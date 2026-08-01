@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Database, Play, RefreshCw, CheckCircle2, ShieldCheck, Terminal, Layers, Table, HardDrive, Zap, Code, AlertTriangle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -19,6 +19,20 @@ WHERE table_schema = 'public';
 
 -- 1-Click Master Schema Migration available via /api/setup-db`
 
+const MANAGED_TABLES: TableInfo[] = [
+  { name: 'projects', rowCount: 0, status: 'ACTIVE', description: 'Portfolio showcase items, tech stacks, GitHub links' },
+  { name: 'certificates', rowCount: 0, status: 'ACTIVE', description: 'Verified credentials, issuers, credential IDs' },
+  { name: 'comments', rowCount: 0, status: 'ACTIVE', description: 'Public visitor testimonials & comment feed' },
+  { name: 'technologies', rowCount: 0, status: 'ACTIVE', description: 'Tech stack badges, proficiency levels, icons' },
+  { name: 'scene3d_words', rowCount: 0, status: 'ACTIVE', description: '3D WebGL particle cloud words' },
+  { name: 'portfolio_settings', rowCount: 0, status: 'ACTIVE', description: 'Global site config, intro music, Spotify URLs' },
+  { name: 'instagram_accounts', rowCount: 0, status: 'ACTIVE', description: 'Permissioned Instagram account profile and sync metadata' },
+  { name: 'instagram_media', rowCount: 0, status: 'ACTIVE', description: 'Connected account posts, carousels, and Reels' },
+  { name: 'instagram_connections', rowCount: 0, status: 'ACTIVE', description: 'Admin-only OAuth token, scopes, and expiry metadata' },
+  { name: 'visitors', rowCount: 0, status: 'ACTIVE', description: 'Real-time visitor IP geolocations & browser user agents' },
+  { name: 'analytics', rowCount: 0, status: 'ACTIVE', description: 'Performance telemetry & Web Vitals benchmarks' },
+]
+
 export default function AdminDatabasePage() {
   const [sqlQuery, setSqlQuery] = useState(DEFAULT_SQL_QUERY)
   const [executing, setExecuting] = useState(false)
@@ -26,23 +40,13 @@ export default function AdminDatabasePage() {
   const [message, setMessage] = useState('')
   const [queryResult, setQueryResult] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'tables' | 'editor' | 'master_sql'>('tables')
-  const [tables, setTables] = useState<TableInfo[]>([
-    { name: 'projects', rowCount: 0, status: 'ACTIVE', description: 'Portfolio showcase items, tech stacks, GitHub links' },
-    { name: 'certificates', rowCount: 0, status: 'ACTIVE', description: 'Verified credentials, issuers, credential IDs' },
-    { name: 'comments', rowCount: 0, status: 'ACTIVE', description: 'Public visitor testimonials & comment feed' },
-    { name: 'technologies', rowCount: 0, status: 'ACTIVE', description: 'Tech stack badges, proficiency levels, icons' },
-    { name: 'scene3d_words', rowCount: 0, status: 'ACTIVE', description: '3D WebGL particle cloud words' },
-    { name: 'portfolio_settings', rowCount: 0, status: 'ACTIVE', description: 'Global site config, intro music, Spotify URLs' },
-    { name: 'instagram_posts', rowCount: 0, status: 'ACTIVE', description: 'Instagram @sahad_____sha feed items, likes, permalinks' },
-    { name: 'visitors', rowCount: 0, status: 'ACTIVE', description: 'Real-time visitor IP geolocations & browser user agents' },
-    { name: 'analytics', rowCount: 0, status: 'ACTIVE', description: 'Performance telemetry & Web Vitals benchmarks' },
-  ])
+  const [tables, setTables] = useState<TableInfo[]>(MANAGED_TABLES)
 
-  const fetchTableMetrics = async () => {
+  const fetchTableMetrics = useCallback(async () => {
     setMessage('')
     try {
       const updated = await Promise.all(
-        tables.map(async (t) => {
+        MANAGED_TABLES.map(async (t) => {
           try {
             const { count, error } = await supabase.from(t.name).select('*', { count: 'exact', head: true })
             if (error) {
@@ -58,7 +62,7 @@ export default function AdminDatabasePage() {
     } catch (e: any) {
       setMessage(`Error fetching database metrics: ${e.message}`)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchTableMetrics()
@@ -75,7 +79,7 @@ export default function AdminDatabasePage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [fetchTableMetrics])
 
   // Execute SQL Console
   const handleExecuteSQL = async () => {

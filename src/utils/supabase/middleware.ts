@@ -16,6 +16,9 @@ export async function updateSession(request: NextRequest) {
   const protectedAdminApiRoutes = new Set([
     '/api/add-sample-certificates',
     '/api/import-github-projects',
+    '/api/instagram-auth',
+    '/api/instagram-callback',
+    '/api/instagram-feed',
     '/api/seed-certificates',
     '/api/setup-db',
   ])

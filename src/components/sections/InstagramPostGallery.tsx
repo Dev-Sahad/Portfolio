@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Instagram, CheckCircle2, ExternalLink, Pin, Play, Copy, Heart, MessageCircle, Grid, Bookmark, Link as LinkIcon, MapPin, Eye } from 'lucide-react'
 import { useAudio } from '@/context/AudioContext'
+import { supabase } from '@/lib/supabase'
 
 interface GridPost {
   id: string
@@ -17,6 +18,17 @@ interface GridPost {
   views?: string
   caption: string
   location?: string
+}
+
+interface LiveInstagramAccount {
+  username: string
+  name: string | null
+  biography: string | null
+  website: string | null
+  profile_picture_url: string | null
+  followers_count: number
+  follows_count: number
+  media_count: number
 }
 
 const PROFILE_PIC = "https://scontent.cdninstagram.com/v/t51.82787-19/683766249_18314607391302713_2744361709957459017_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=102&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=Sz5jW7y0jYwQ7kNvwEbTgId&_nc_oc=Adpf7AFfRTY1ZduD488bEFs_RaUxtREJuuZxQiTcQb5KgQdULpoUNqAZBDNNjOLu8Ig&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=BVxtCcXPgZ5lz3sdw1fR4w&_nc_ss=7b6a8&oh=00_AQEc9LGAmKVEjRI9A7x_u2cjSuYkS-Zj7j4YXS9xCVZ-QA&oe=6A72EAD9"
@@ -150,8 +162,45 @@ const HIGHLIGHTS = [
 
 export default function InstagramPostGallery() {
   const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'saved'>('posts')
+  const [livePosts, setLivePosts] = useState<GridPost[]>([])
+  const [liveAccount, setLiveAccount] = useState<LiveInstagramAccount | null>(null)
   const { playClick, playHover } = useAudio()
-  const profileUrl = 'https://www.instagram.com/sahad_____sha/'
+  const profileUrl = `https://www.instagram.com/${liveAccount?.username || 'sahad_____sha'}/`
+
+  useEffect(() => {
+    let active = true
+    const loadPermissionedFeed = async () => {
+      const [{ data: account }, { data: media }] = await Promise.all([
+        supabase.from('instagram_accounts').select('username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count').eq('is_active', true).order('updated_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('instagram_media').select('id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,like_count,comments_count').eq('is_visible', true).order('posted_at', { ascending: false }),
+      ])
+      if (!active) return
+      if (account) setLiveAccount(account as LiveInstagramAccount)
+      if (media?.length) {
+        setLivePosts(media.map((item: any) => ({
+          id: item.id,
+          image: item.thumbnail_url || item.media_url || '/hero-cyber-portrait.jpg',
+          postUrl: item.permalink,
+          isReel: item.media_product_type === 'REELS',
+          isCarousel: item.media_type === 'CAROUSEL_ALBUM',
+          likes: String(item.like_count || 0),
+          comments: String(item.comments_count || 0),
+          caption: item.caption || 'Instagram media',
+        })))
+      }
+    }
+    void loadPermissionedFeed()
+    return () => { active = false }
+  }, [])
+
+  const feed = livePosts.length ? livePosts : INSTAGRAM_GRID
+  const visibleFeed = activeTab === 'posts'
+    ? feed.filter((post) => !post.isReel)
+    : activeTab === 'reels'
+      ? feed.filter((post) => post.isReel)
+      : []
+  const postCount = feed.filter((post) => !post.isReel).length
+  const reelCount = feed.filter((post) => post.isReel).length
 
   return (
     <section className="my-16 max-w-5xl mx-auto px-4 font-sans">
@@ -168,7 +217,7 @@ export default function InstagramPostGallery() {
           <div className="relative shrink-0">
             <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-1 shadow-2xl">
               <img
-                src={PROFILE_PIC}
+                src={liveAccount?.profile_picture_url || PROFILE_PIC}
                 onError={(e: any) => { e.currentTarget.src = '/hero-cyber-portrait.jpg' }}
                 alt="Sahad Sha profile picture"
                 className="h-full w-full rounded-full object-cover border-4 border-[#0a0a0c]"
@@ -180,7 +229,7 @@ export default function InstagramPostGallery() {
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-3">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">sahad_____sha</h2>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{liveAccount?.username || 'sahad_____sha'}</h2>
               </div>
 
               <div className="flex items-center gap-2">
@@ -206,19 +255,19 @@ export default function InstagramPostGallery() {
             </div>
 
             {/* Full Name & Role */}
-            <p className="text-sm font-bold text-white mb-1">Sahad Sha</p>
+            <p className="text-sm font-bold text-white mb-1">{liveAccount?.name || 'Sahad Sha'}</p>
             <p className="text-xs text-white/60 font-mono mb-3">Web Designer</p>
 
             {/* Stats Row */}
             <div className="flex justify-center md:justify-start gap-6 text-sm font-sans mb-4 border-y border-white/10 py-2.5">
-              <div><strong className="text-white font-bold">11</strong> <span className="text-white/60">posts</span></div>
-              <div><strong className="text-white font-bold">11,355</strong> <span className="text-white/60">followers</span></div>
-              <div><strong className="text-white font-bold">459</strong> <span className="text-white/60">following</span></div>
+              <div><strong className="text-white font-bold">{liveAccount?.media_count ?? feed.length}</strong> <span className="text-white/60">media</span></div>
+              <div><strong className="text-white font-bold">{liveAccount?.followers_count ?? '—'}</strong> <span className="text-white/60">followers</span></div>
+              <div><strong className="text-white font-bold">{liveAccount?.follows_count ?? '—'}</strong> <span className="text-white/60">following</span></div>
             </div>
 
             {/* Exact Bio Lines from Crawled JSON */}
             <div className="text-xs sm:text-sm text-white/90 space-y-1.5 leading-relaxed font-mono">
-              <p className="text-cyan-300 font-bold">𝚠𝚑𝚒𝚕𝚎(𝚝𝚛𝚞𝚎)&#123; 𝚋𝚞𝚒𝚕𝚍(); 𝚜𝚌𝚊𝚕𝚎(); &#125;</p>
+              <p className="text-cyan-300 font-bold">{liveAccount?.biography || <>𝚠𝚑𝚒𝚕𝚎(𝚝𝚛𝚞𝚎)&#123; 𝚋𝚞𝚒𝚕𝚍(); 𝚜𝚌𝚊𝚕𝚎(); &#125;</>}</p>
               <p>Developer 💻</p>
               <p>Fix Broken Code👨🏻💻, Not Heart’❤️🩹</p>
               <p className="text-pink-300">PvtStuff: @sxhd_sha 🫴🏻</p>
@@ -267,7 +316,7 @@ export default function InstagramPostGallery() {
             className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'posts' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
               }`}
           >
-            <Grid size={14} /> POSTS (11)
+            <Grid size={14} /> POSTS ({postCount})
           </button>
           <button
             type="button"
@@ -275,7 +324,7 @@ export default function InstagramPostGallery() {
             className={`py-4 flex items-center gap-2 border-t-2 transition ${activeTab === 'reels' ? 'border-white text-white font-bold' : 'border-transparent text-white/40 hover:text-white'
               }`}
           >
-            <Play size={14} /> REELS
+            <Play size={14} /> REELS ({reelCount})
           </button>
           <button
             type="button"
@@ -289,7 +338,7 @@ export default function InstagramPostGallery() {
 
         {/* Real Post Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {INSTAGRAM_GRID.map((post) => (
+          {visibleFeed.map((post) => (
             <a
               key={post.id}
               href={post.postUrl}
@@ -343,6 +392,11 @@ export default function InstagramPostGallery() {
               </div>
             </a>
           ))}
+          {visibleFeed.length === 0 && (
+            <div className="col-span-full rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">
+              No {activeTab} are available from the connected account yet.
+            </div>
+          )}
         </div>
       </motion.div>
     </section>
