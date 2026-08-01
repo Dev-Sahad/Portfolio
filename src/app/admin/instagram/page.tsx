@@ -53,6 +53,19 @@ export default function AdminInstagramPage() {
 
   useEffect(() => {
     fetchPosts()
+
+    // Handle OAuth Callback Params
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('status') === 'connected') {
+        setIsConnected(true)
+        setMessage('✅ Real-Time Instagram OAuth Connected! Live posts synced to database.')
+      } else if (params.get('code')) {
+        setMessage('⚡ Received Instagram Authorization Code! Auto-exchanging access token...')
+      } else if (params.get('error')) {
+        setMessage(`⚠️ OAuth Error: ${params.get('error')}`)
+      }
+    }
   }, [])
 
   // Auto Sync Instagram Profile & Feed via Live Reader API
@@ -78,8 +91,24 @@ export default function AdminInstagramPage() {
     }
   }
 
-  // Handle OAuth Connect Account with Dual Endpoint Fallback
-  const handleConnectAccount = () => {
+  // Handle OAuth Connect Account with Vercel Connect & Real Callback
+  const handleConnectAccount = async () => {
+    try {
+      // @ts-ignore
+      const vercelConnect = await import('@vercel/connect').catch(() => null)
+      if (vercelConnect?.startAuthorization) {
+        await vercelConnect.startAuthorization('instagram.com/instagram', {
+          subject: { type: "user", id: instagramAccount },
+          scopes: ["user_profile", "user_media"],
+        })
+        setIsConnected(true)
+        setMessage('🔗 Initiated Instagram Vercel Connect Authorization!')
+        return
+      }
+    } catch {
+      // Vercel Connect fallback to direct Instagram OAuth
+    }
+
     const cleanAppId = appId.trim()
 
     if (!cleanAppId) {
@@ -88,14 +117,12 @@ export default function AdminInstagramPage() {
       return
     }
 
-    const redirectUri = window.location.origin + '/admin/instagram'
+    const redirectUri = window.location.origin + '/api/instagram-callback'
     let authUrl = ''
 
     if (authType === 'meta_business') {
-      // Facebook Graph API OAuth (For Business / Creator Apps)
       authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=instagram_basic,pages_show_list&response_type=code`
     } else {
-      // Instagram Basic Display API OAuth (For Basic Display Apps)
       authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
     }
 
@@ -106,7 +133,7 @@ export default function AdminInstagramPage() {
 
     window.open(authUrl, 'Instagram Login', `width=${width},height=${height},top=${top},left=${left}`)
     setIsConnected(true)
-    setMessage(`🔗 Initiated ${authType === 'meta_business' ? 'Meta Business' : 'Instagram Basic'} OAuth for App ID: ${cleanAppId}`)
+    setMessage(`🔗 Initiated Real Instagram OAuth for App ID ${cleanAppId} via callback /api/instagram-callback`)
   }
 
   const handleAddPost = async (e: React.FormEvent) => {

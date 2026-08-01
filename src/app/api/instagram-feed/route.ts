@@ -3,11 +3,11 @@ import { supabase } from '@/lib/supabase'
 
 export const revalidate = 0
 
-// Real-Time Working Instagram Feed Reader API
+// Real-Time Instagram Feed Reader API with Vercel Connect Support
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const targetUsername = searchParams.get('username') || 'sahad_____sha'
-  const token = searchParams.get('token') || ''
+  let token = searchParams.get('token') || ''
 
   try {
     let posts: Array<{
@@ -18,7 +18,40 @@ export async function GET(request: Request) {
       post_url: string
     }> = []
 
-    // 1. If Graph API Token is provided, fetch via Meta Graph API
+    // 1. Try Vercel Connect SDK getToken if token parameter is not explicitly passed
+    if (!token) {
+      try {
+        // @ts-ignore
+        const vercelConnect = await import('@vercel/connect').catch(() => null)
+        if (vercelConnect?.getToken) {
+          const vercelToken = await vercelConnect.getToken('instagram.com/instagram', {
+            subject: { type: 'user', id: targetUsername },
+            scopes: ['user_profile', 'user_media'],
+          })
+          if (typeof vercelToken === 'string' && vercelToken.trim()) {
+            token = vercelToken.trim()
+          }
+        }
+      } catch {
+        // Vercel connect optional SDK fallback
+      }
+    }
+
+    // 2. Try Reading Stored Token from Supabase portfolio_settings
+    if (!token) {
+      try {
+        const { data } = await supabase
+          .from('portfolio_settings')
+          .select('value')
+          .eq('key', 'instagram_access_token')
+          .maybeSingle()
+        if (data?.value) {
+          token = data.value
+        }
+      } catch {}
+    }
+
+    // 3. Fetch Media via Instagram Graph API using Token
     if (token.trim()) {
       try {
         const graphRes = await fetch(
@@ -40,7 +73,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // 2. High-Precision Public Profile Scraper Fallback for @sahad_____sha
+    // 4. High-Precision Public Scraper Fallback
     if (posts.length === 0) {
       try {
         const profileUrl = `https://www.instagram.com/${targetUsername}/?__a=1&__d=dis`
@@ -70,7 +103,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. Fallback High-Quality Presets if Instagram blocking anonymous scrapers
+    // 5. High Quality Presets Fallback
     if (posts.length === 0) {
       posts = [
         {
@@ -106,16 +139,15 @@ export async function GET(request: Request) {
 
     // Automatically Upsert Posts into Supabase Database Table
     if (posts.length > 0) {
-      // Clear old entries and insert fresh reader posts
       await supabase.from('instagram_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-      const { data, error } = await supabase.from('instagram_posts').insert(posts).select()
+      const { data } = await supabase.from('instagram_posts').insert(posts).select()
 
       return NextResponse.json({
         success: true,
         count: posts.length,
         username: targetUsername,
         posts: data || posts,
-        source: token ? 'Graph API' : 'Live Profile Reader',
+        source: token ? 'Instagram Graph API / Vercel Connect' : 'Live Profile Reader',
       })
     }
 
