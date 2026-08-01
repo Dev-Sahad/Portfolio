@@ -95,6 +95,63 @@ export default function AdminInstagramPage() {
     }
   }
 
+  // Load Official Facebook SDK for JavaScript
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // @ts-ignore
+    window.fbAsyncInit = function () {
+      // @ts-ignore
+      if (window.FB) {
+        // @ts-ignore
+        window.FB.init({
+          appId: appId || '1679398459977278',
+          cookie: true,
+          xfbml: true,
+          version: 'v19.0',
+        })
+      }
+    }
+
+    if (!document.getElementById('facebook-jssdk')) {
+      const js = document.createElement('script')
+      js.id = 'facebook-jssdk'
+      js.src = 'https://connect.facebook.net/en_US/sdk.js'
+      document.body.appendChild(js)
+    }
+  }, [appId])
+
+  // Official Facebook SDK Login Popup & Token Receiver
+  const handleFacebookSDKLogin = () => {
+    // @ts-ignore
+    if (typeof window !== 'undefined' && window.FB) {
+      // @ts-ignore
+      window.FB.login(
+        (response: any) => {
+          if (response.authResponse?.accessToken) {
+            const token = response.authResponse.accessToken
+            setAccessToken(token)
+            setIsConnected(true)
+            setMessage('✅ Official Facebook SDK Login Successful! Auto-syncing Instagram Posts...')
+            fetch(`/api/instagram-feed?token=${encodeURIComponent(token)}`)
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.success) {
+                  setMessage(`⚡ Facebook SDK Auto-Synced ${data.count} Instagram posts from @${data.username}!`)
+                  fetchPosts()
+                }
+              })
+          } else {
+            setMessage('⚠️ Facebook SDK Login cancelled or not authorized.')
+          }
+        },
+        { scope: 'public_profile,email,user_profile,user_media' }
+      )
+    } else {
+      handleConnectAccount()
+    }
+  }
+
   // Handle OAuth Connect Account with Vercel Connect & Real Callback
   const handleConnectAccount = async () => {
     try {
@@ -125,19 +182,13 @@ export default function AdminInstagramPage() {
     let authUrl = ''
 
     if (authType === 'meta_business') {
-      authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=instagram_basic,pages_show_list&response_type=code`
+      authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=public_profile,email,user_profile,user_media&response_type=code`
     } else {
       authUrl = `https://api.instagram.com/oauth/authorize?client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user_profile,user_media&response_type=code`
     }
 
-    const width = 600
-    const height = 700
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
-
-    window.open(authUrl, 'Instagram Login', `width=${width},height=${height},top=${top},left=${left}`)
-    setIsConnected(true)
-    setMessage(`🔗 Initiated Real Instagram OAuth for App ID ${cleanAppId} via callback /api/instagram-callback`)
+    // Direct Full Page Redirect to avoid browser popup blockers
+    window.location.href = authUrl
   }
 
   const handleAddPost = async (e: React.FormEvent) => {
@@ -247,6 +298,14 @@ export default function AdminInstagramPage() {
             >
               <Zap size={15} className={syncing ? 'animate-bounce' : ''} />
               {syncing ? 'Auto Syncing Posts...' : 'Auto Sync Profile & Posts'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleFacebookSDKLogin}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 border border-blue-400/40 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-blue-500 transition"
+            >
+              <Facebook size={15} /> Login via Facebook SDK
             </button>
 
             <button
