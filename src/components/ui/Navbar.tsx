@@ -187,7 +187,7 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
       }}
     >
       <div
-        className="glass-tab-container"
+        className="glass-tab-container portfolio-navbar-shell"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -204,19 +204,25 @@ export default function Navbar({ playlistUrl }: NavbarProps) {
           boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span
-            style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 13,
-              color: 'var(--text-primary)',
-              letterSpacing: '0.1em',
-              fontWeight: 600,
-            }}
-          >
-            Dev-Sahad
+        <a
+          href="#home"
+          onClick={(event) => smoothScrollTo(event, '#home')}
+          onMouseEnter={playHover}
+          className="portfolio-brand-lockup"
+          aria-label="Dev Sahad — return to home"
+        >
+          <span className="portfolio-brand-mark" aria-hidden="true">
+            <span className="portfolio-brand-initials">DS</span>
+            <span className="portfolio-brand-signal" />
           </span>
-        </div>
+          <span className="portfolio-brand-copy">
+            <span className="portfolio-brand-name">
+              <span>DEV</span>
+              <span>SAHAD</span>
+            </span>
+            <span className="portfolio-brand-role">CREATIVE FRONTEND ENGINEER</span>
+          </span>
+        </a>
 
         <div className="flex items-center gap-2">
           {!isMobile && (
